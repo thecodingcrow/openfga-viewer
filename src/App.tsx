@@ -1,13 +1,20 @@
-import { useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
+import { Breadcrumb } from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
+
+const DISMISS_KEY = "openfga-viewer-alpha-dismissed";
 
 const App = () => {
   const parse = useViewerStore((s) => s.parse);
   const toggleEditor = useViewerStore((s) => s.toggleEditor);
   const setSource = useViewerStore((s) => s.setSource);
+
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => localStorage.getItem(DISMISS_KEY) === "true",
+  );
 
   useEffect(() => {
     parse();
@@ -57,15 +64,52 @@ const App = () => {
     };
   }, [handleDrop, handleDragOver]);
 
+  const dismissBanner = useCallback(() => {
+    localStorage.setItem(DISMISS_KEY, "true");
+    setBannerDismissed(true);
+  }, []);
+
   return (
-    <div className="w-screen h-screen flex flex-col">
-      <Toolbar />
-      <div className="flex-1 flex flex-row pt-12 min-h-0 overflow-hidden">
-        <div className="flex-1 min-w-0 h-full overflow-hidden flex flex-col">
-          <Canvas />
+    <div className="relative w-screen h-screen overflow-hidden">
+      {!bannerDismissed && (
+        <div
+          style={{
+            background: "#1a1a2e",
+            color: "#f59e0b",
+            fontSize: "0.8rem",
+            padding: "4px 12px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            position: "relative",
+            zIndex: 50,
+          }}
+        >
+          <span>
+            Alpha — This is an early preview. Expect rough edges.
+          </span>
+          <button
+            onClick={dismissBanner}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#f59e0b",
+              cursor: "pointer",
+              marginLeft: "12px",
+              fontSize: "1rem",
+              lineHeight: 1,
+              padding: "0 4px",
+            }}
+            aria-label="Dismiss banner"
+          >
+            ×
+          </button>
         </div>
-        <EditorPanel />
-      </div>
+      )}
+      <Canvas />
+      <Breadcrumb />
+      <Toolbar />
+      <EditorPanel />
     </div>
   );
 };
