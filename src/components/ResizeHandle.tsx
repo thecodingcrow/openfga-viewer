@@ -43,13 +43,13 @@ const ResizeHandle = () => {
     if (editorOpen) setEditorWidth(DEFAULT_EDITOR_WIDTH);
   }, [editorOpen, setEditorWidth]);
 
-  // Collapsed state — thin strip with expand chevron
+  // Collapsed state — thin strip with expand chevron + shortcut hint
   if (!editorOpen) {
     return (
       <div className="shrink-0 flex items-center" style={{ width: 16 }}>
         <button
           onClick={toggleEditor}
-          className="w-full h-full flex items-center justify-center cursor-pointer transition-colors duration-150 hover:bg-white/5"
+          className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-150 hover:bg-white/5"
           style={{ color: blueprint.muted }}
           title="Show editor (⌘E)"
         >
@@ -62,6 +62,9 @@ const ResizeHandle = () => {
               strokeLinejoin="round"
             />
           </svg>
+          <span className="text-[8px] select-none" style={{ color: blueprint.muted }}>
+            ⌘+E
+          </span>
         </button>
       </div>
     );

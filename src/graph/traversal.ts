@@ -145,8 +145,9 @@ export function applyFilters(
 ): { nodes: AuthorizationNode[]; edges: AuthorizationEdge[] } {
   const noTypeFilter = filters.types.length === 0;
   const noPermissionFilter = !filters.permissionsOnly;
+  const showTtu = filters.showTtuEdges !== false;
 
-  if (noTypeFilter && noPermissionFilter) {
+  if (noTypeFilter && noPermissionFilter && showTtu) {
     return { nodes, edges };
   }
 
@@ -162,11 +163,17 @@ export function applyFilters(
   }
 
   const nodeIds = new Set(filtered.map((n) => n.id));
+  let filteredEdges = edges.filter(
+    (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
+  );
+
+  if (!showTtu) {
+    filteredEdges = filteredEdges.filter((e) => e.rewriteRule !== "ttu");
+  }
+
   return {
     nodes: filtered,
-    edges: edges.filter(
-      (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
-    ),
+    edges: filteredEdges,
   };
 }
 

@@ -84,10 +84,14 @@ const Toolbar = () => {
     setFilter({ permissionsOnly: !filters.permissionsOnly });
   }, [filters.permissionsOnly, setFilter]);
 
+  const handleTtuToggle = useCallback(() => {
+    setFilter({ showTtuEdges: !filters.showTtuEdges });
+  }, [filters.showTtuEdges, setFilter]);
+
   return (
     <>
       <div
-        className="absolute top-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
         style={{ borderRadius: 8 }}
       >
         {/* Search */}
@@ -101,6 +105,12 @@ const Toolbar = () => {
             <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
         </ToolbarButton>
+        <span
+          className="text-[9px] px-1 py-0.5 rounded border select-none"
+          style={{ color: blueprint.muted, borderColor: blueprint.nodeBorder }}
+        >
+          ⌘K
+        </span>
 
         <Separator />
 
@@ -118,6 +128,19 @@ const Toolbar = () => {
               strokeLinejoin="round"
             />
             <path d="M5 7L6.5 8.5L9 5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </ToolbarButton>
+
+        {/* TTU edges toggle */}
+        <ToolbarButton
+          onClick={handleTtuToggle}
+          title={filters.showTtuEdges ? "Hide TTU edges" : "Show TTU edges"}
+          active={filters.showTtuEdges}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="2" width="4" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.2" />
+            <rect x="9" y="8" width="4" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M5 4H8C9.1 4 10 4.9 10 6V8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
         </ToolbarButton>
 

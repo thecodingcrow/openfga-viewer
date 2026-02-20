@@ -5,6 +5,7 @@ import FgaEditor from "./FgaEditor";
 const EditorPanel = () => {
   const editorOpen = useViewerStore((s) => s.editorOpen);
   const editorWidth = useViewerStore((s) => s.editorWidth);
+  const toggleEditor = useViewerStore((s) => s.toggleEditor);
   const parseError = useViewerStore((s) => s.parseError);
 
   return (
@@ -14,24 +15,50 @@ const EditorPanel = () => {
         width: editorOpen ? editorWidth : 0,
         minWidth: 0,
         transition: "width 250ms ease-out",
-        background: "rgba(15, 23, 41, 0.9)",
-        backdropFilter: "blur(12px)",
-        borderRight: "1px solid #2a3a5c",
-        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+        background: blueprint.surface,
+        boxShadow: "0.25rem 0 1.5rem rgba(0, 0, 0, 0.3)",
       }}
     >
       <div
-        className="flex items-center px-3 py-2 shrink-0"
+        className="flex items-center justify-between px-3 shrink-0"
         style={{
-          borderBottom: `1px solid ${blueprint.nodeBorder}`,
+          height: "2.25rem",
+          borderBottom: `0.0625rem solid ${blueprint.surfaceBorder}`,
         }}
       >
         <span
-          className="text-xs font-semibold tracking-wider uppercase"
+          className="text-[10px] font-semibold tracking-[0.12em] uppercase"
           style={{ color: blueprint.muted }}
         >
           FGA Model
         </span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="text-[9px] px-1 py-0.5 rounded select-none"
+            style={{
+              color: `${blueprint.muted}aa`,
+              background: `${blueprint.nodeBorder}30`,
+            }}
+          >
+            ⌘+E
+          </span>
+          <button
+            onClick={toggleEditor}
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/5 transition-colors cursor-pointer"
+            style={{ color: blueprint.muted }}
+            title="Collapse editor"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path
+                d="M6.5 1.5L3 5L6.5 8.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 min-h-0">
@@ -40,11 +67,11 @@ const EditorPanel = () => {
 
       {parseError && (
         <div
-          className="px-3 py-2 text-xs shrink-0 border-t"
+          className="px-3 py-1.5 text-xs shrink-0"
           style={{
             color: blueprint.danger,
-            background: `${blueprint.danger}10`,
-            borderColor: `${blueprint.danger}30`,
+            background: `${blueprint.danger}08`,
+            borderTop: `0.0625rem solid ${blueprint.danger}20`,
           }}
         >
           {parseError}

@@ -39,6 +39,7 @@ const loadPersistedEditorWidth = (): number => {
 const DEFAULT_FILTERS: GraphFilters = {
   types: [],
   permissionsOnly: false,
+  showTtuEdges: false,
 };
 
 // Memoized visible graph cache — recomputes only when inputs change

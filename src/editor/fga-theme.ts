@@ -8,13 +8,13 @@ const blueprintEditorTheme = EditorView.theme(
     "&": {
       backgroundColor: blueprint.surface,
       color: blueprint.nodeBody,
-      fontSize: "13px",
+      fontSize: "0.8125rem",
       fontFamily:
         'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
     },
     ".cm-content": {
       caretColor: blueprint.accent,
-      padding: "8px 0",
+      padding: "0.25rem 0",
     },
     ".cm-cursor, .cm-dropCursor": {
       borderLeftColor: blueprint.accent,
@@ -23,20 +23,26 @@ const blueprintEditorTheme = EditorView.theme(
       backgroundColor: `${blueprint.accent}22`,
     },
     ".cm-gutters": {
-      backgroundColor: blueprint.bg,
-      color: blueprint.muted,
+      backgroundColor: "transparent",
+      color: `${blueprint.muted}99`,
       border: "none",
-      borderRight: `1px solid ${blueprint.nodeBorder}`,
+      paddingRight: "0.25rem",
+    },
+    ".cm-lineNumbers .cm-gutterElement": {
+      paddingLeft: "0.75rem",
+      minWidth: "2rem",
+      fontSize: "0.75rem",
     },
     ".cm-activeLineGutter": {
-      backgroundColor: `${blueprint.accent}10`,
+      backgroundColor: "transparent",
+      color: blueprint.muted,
     },
     ".cm-activeLine": {
-      backgroundColor: `${blueprint.accent}08`,
+      backgroundColor: `${blueprint.accent}06`,
     },
     ".cm-matchingBracket": {
       backgroundColor: `${blueprint.accent}30`,
-      outline: `1px solid ${blueprint.accent}50`,
+      outline: `0.0625rem solid ${blueprint.accent}50`,
     },
     ".cm-foldPlaceholder": {
       backgroundColor: blueprint.nodeBorder,
@@ -45,8 +51,26 @@ const blueprintEditorTheme = EditorView.theme(
     },
     ".cm-tooltip": {
       backgroundColor: blueprint.nodeBg,
-      border: `1px solid ${blueprint.nodeBorder}`,
+      border: `0.0625rem solid ${blueprint.nodeBorder}`,
       color: blueprint.nodeBody,
+    },
+    ".cm-scroller": {
+      scrollbarWidth: "thin",
+      scrollbarColor: `${blueprint.surfaceBorder} transparent`,
+    },
+    ".cm-scroller::-webkit-scrollbar": {
+      width: "0.3125rem",
+      height: "0.3125rem",
+    },
+    ".cm-scroller::-webkit-scrollbar-track": {
+      background: "transparent",
+    },
+    ".cm-scroller::-webkit-scrollbar-thumb": {
+      background: blueprint.surfaceBorder,
+      borderRadius: "0.1875rem",
+    },
+    ".cm-scroller::-webkit-scrollbar-thumb:hover": {
+      background: blueprint.muted,
     },
   },
   { dark: true },

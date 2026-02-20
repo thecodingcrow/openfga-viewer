@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { BaseEdge, EdgeLabelRenderer, type EdgeProps, getSmoothStepPath } from '@xyflow/react';
 import { elkPointsToPath, getPathMidpointWithOffset } from '../../layout/elk-path';
 import type { ElkRoute } from '../../layout/elk-layout';
+import { useEdgeInteraction } from './useEdgeInteraction';
 
 const LABEL_OFFSET_PX = 14;
 const LOOP_PADDING = 50;
@@ -32,6 +33,10 @@ function TtuEdgeComponent(props: EdgeProps) {
   const elkRoute = data?.elkRoute;
   const tuplesetLabel = data?.tuplesetLabel;
   const isSelfLoop = props.source === props.target;
+
+  const { stroke, strokeWidth, opacity, filter } = useEdgeInteraction(
+    props.id, props.source, props.target, 'ttu',
+  );
 
   let path: string;
   let labelX: number;
@@ -68,7 +73,9 @@ function TtuEdgeComponent(props: EdgeProps) {
     <>
       <BaseEdge
         path={path}
-        style={{ stroke: '#38bdf8', strokeWidth: 1.5 }}
+        markerEnd={props.markerEnd}
+        interactionWidth={20}
+        style={{ stroke, strokeWidth, opacity, filter }}
       />
       {tuplesetLabel && (
         <EdgeLabelRenderer>
@@ -77,10 +84,23 @@ function TtuEdgeComponent(props: EdgeProps) {
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: 'none',
+              opacity,
+              transition: 'opacity 180ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
             className="nodrag nopan"
           >
-            <div className="text-[10px] text-sky-300 bg-slate-900/90 rounded px-1.5 py-0.5 whitespace-nowrap">
+            <div
+              style={{
+                fontSize: 9,
+                color: '#7dd3fc',
+                background: 'rgba(15, 23, 42, 0.85)',
+                border: '1px solid rgba(56, 189, 248, 0.125)',
+                borderRadius: 4,
+                padding: '2px 6px',
+                backdropFilter: 'blur(4px)',
+                whiteSpace: 'nowrap',
+              }}
+            >
               {tuplesetLabel}
             </div>
           </div>

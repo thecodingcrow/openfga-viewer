@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { BaseEdge, type EdgeProps, getSmoothStepPath } from '@xyflow/react';
 import { elkPointsToPath } from '../../layout/elk-path';
 import type { ElkRoute } from '../../layout/elk-layout';
+import { useEdgeInteraction } from './useEdgeInteraction';
 
 function DirectEdgeComponent(props: EdgeProps) {
   const elkRoute = (props.data as { elkRoute?: ElkRoute } | undefined)?.elkRoute;
@@ -10,10 +11,16 @@ function DirectEdgeComponent(props: EdgeProps) {
       ? elkPointsToPath(elkRoute.points)
       : getSmoothStepPath(props)[0];
 
+  const { stroke, strokeWidth, opacity, filter } = useEdgeInteraction(
+    props.id, props.source, props.target, 'direct',
+  );
+
   return (
     <BaseEdge
       path={path}
-      style={{ stroke: '#94a3b8', strokeWidth: 1.5 }}
+      markerEnd={props.markerEnd}
+      interactionWidth={20}
+      style={{ stroke, strokeWidth, opacity, filter }}
     />
   );
 }

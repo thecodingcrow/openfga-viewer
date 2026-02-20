@@ -71,6 +71,8 @@ export interface GraphFilters {
   types: string[];
   /** When true, only show permission relations (can_*) and type nodes */
   permissionsOnly: boolean;
+  /** When true, show TTU (tupleToUserset) edges — hidden by default */
+  showTtuEdges: boolean;
 }
 
 /** Dagre layout direction (top-to-bottom or left-to-right) */

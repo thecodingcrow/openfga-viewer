@@ -70,11 +70,65 @@ export async function getLayoutedElements(
     (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
   );
 
-  const outDegree = new Map<string, number>();
-  for (const e of validEdges) {
-    outDegree.set(e.source, (outDegree.get(e.source) ?? 0) + 1);
+  // ── Group relation/permission nodes by parent type ──────────────────────
+  const typeNodeIds = new Set<string>();
+  for (const node of nodes) {
+    if (node.type === 'type') typeNodeIds.add(node.id);
   }
-  const maxFanOut = Math.max(0, ...outDegree.values());
+
+  const typeChildrenMap = new Map<string, Node[]>();
+  const orphanNodes: Node[] = [];
+
+  for (const node of nodes) {
+    if (node.type === 'type') continue;
+    const parentTypeName = (node.data as { typeName: string }).typeName;
+    if (typeNodeIds.has(parentTypeName)) {
+      const children = typeChildrenMap.get(parentTypeName) ?? [];
+      children.push(node);
+      typeChildrenMap.set(parentTypeName, children);
+    } else {
+      orphanNodes.push(node);
+    }
+  }
+
+  // ── Build hierarchical ELK graph ───────────────────────────────────────
+  const elkChildren: ElkNode[] = [];
+
+  for (const node of nodes) {
+    if (node.type !== 'type') continue;
+
+    const children = typeChildrenMap.get(node.id);
+    if (children && children.length > 0) {
+      // Compound type node — ELK computes size from children + padding
+      elkChildren.push({
+        id: node.id,
+        layoutOptions: {
+          'elk.padding': 'top=40,left=12,bottom=12,right=12',
+        },
+        children: children.map((c) => ({
+          id: c.id,
+          width: c.measured?.width ?? 120,
+          height: c.measured?.height ?? 40,
+        })),
+      });
+    } else {
+      // Leaf type node — simple node with measured size
+      elkChildren.push({
+        id: node.id,
+        width: node.measured?.width ?? 120,
+        height: node.measured?.height ?? 40,
+      });
+    }
+  }
+
+  // Orphan relation/permission nodes (parent type not in visible graph)
+  for (const node of orphanNodes) {
+    elkChildren.push({
+      id: node.id,
+      width: node.measured?.width ?? 120,
+      height: node.measured?.height ?? 40,
+    });
+  }
 
   const elkGraph: ElkNode = {
     id: 'root',
@@ -87,21 +141,10 @@ export async function getLayoutedElements(
       'elk.layered.spacing.edgeEdgeBetweenLayers': '16',
       'elk.layered.spacing.edgeNodeBetweenLayers': '24',
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
-      ...(maxFanOut >= 8 ? {
-        'elk.layered.highDegreeNodes.treatment': 'true',
-        'elk.layered.highDegreeNodes.threshold': String(Math.max(8, Math.floor(maxFanOut * 0.4))),
-        'elk.layered.highDegreeNodes.treeHeight': '3',
-      } : {}),
+      'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+      'json.edgeCoords': 'ROOT',
     },
-    children: nodes.map((node) => {
-      const w = node.measured?.width ?? 120;
-      const h = node.measured?.height ?? 40;
-      return {
-        id: node.id,
-        width: w,
-        height: h,
-      };
-    }),
+    children: elkChildren,
     edges: validEdges.map((edge) => ({
       id: edge.id,
       sources: [edge.source],
@@ -111,21 +154,55 @@ export async function getLayoutedElements(
 
   const laidOut = await elk.layout(elkGraph);
 
+  // ── Extract positions from hierarchical result ─────────────────────────
   const nodePositions = new Map<string, { x: number; y: number }>();
   const nodeBounds = new Map<string, NodeBounds>();
+  const compoundSizes = new Map<string, { width: number; height: number }>();
+  const childParentMap = new Map<string, string>();
+
   for (const child of laidOut.children ?? []) {
     const x = child.x ?? 0;
     const y = child.y ?? 0;
     const w = child.width ?? 120;
     const h = child.height ?? 40;
+
     nodePositions.set(child.id, { x, y });
     nodeBounds.set(child.id, { x, y, width: w, height: h });
+
+    // Process compound node children
+    if (child.children && child.children.length > 0) {
+      compoundSizes.set(child.id, { width: w, height: h });
+
+      for (const grandchild of child.children) {
+        const cx = grandchild.x ?? 0;
+        const cy = grandchild.y ?? 0;
+        const cw = grandchild.width ?? 120;
+        const ch = grandchild.height ?? 40;
+
+        // React Flow position: relative to parent
+        nodePositions.set(grandchild.id, { x: cx, y: cy });
+        // nodeBounds: absolute position for edge trimming
+        nodeBounds.set(grandchild.id, {
+          x: x + cx, y: y + cy, width: cw, height: ch,
+        });
+        childParentMap.set(grandchild.id, child.id);
+      }
+    }
+  }
+
+  // ── Build edge routes ──────────────────────────────────────────────────
+  // ELK relocates edges to their LCA — intra-compound edges end up inside
+  // compound.edges, not root.edges. Collect from all hierarchy levels.
+  const allElkEdges: ElkExtendedEdge[] = [];
+  for (const e of laidOut.edges ?? []) allElkEdges.push(e as ElkExtendedEdge);
+  for (const child of laidOut.children ?? []) {
+    for (const e of child.edges ?? []) allElkEdges.push(e as ElkExtendedEdge);
   }
 
   const edgeRoutes = new Map<string, ElkRoute>();
-  for (const elkEdge of laidOut.edges ?? []) {
-    const extEdge = elkEdge as ElkExtendedEdge;
-    const points = extractPointsFromSections(extEdge.sections ?? []);
+  for (const extEdge of allElkEdges) {
+    const sections = extEdge.sections ?? [];
+    const points = extractPointsFromSections(sections);
     if (points.length >= 2) {
       const edge = edges.find((e) => e.id === extEdge.id);
       if (edge && edge.source !== edge.target) {
@@ -142,9 +219,22 @@ export async function getLayoutedElements(
     }
   }
 
+  // ── Assemble output nodes ──────────────────────────────────────────────
   const positionedNodes = nodes.map((node) => {
     const pos = nodePositions.get(node.id) ?? { x: 0, y: 0 };
-    return { ...node, position: pos };
+    const compound = compoundSizes.get(node.id);
+    const parentTypeId = childParentMap.get(node.id);
+
+    return {
+      ...node,
+      position: pos,
+      ...(compound
+        ? { style: { ...node.style, width: compound.width, height: compound.height } }
+        : {}),
+      ...(parentTypeId
+        ? { parentId: parentTypeId, extent: 'parent' as const }
+        : {}),
+    };
   });
 
   const enrichedEdges = edges.map((edge) => {

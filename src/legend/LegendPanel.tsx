@@ -28,31 +28,44 @@ const NodeSwatch = ({
 
 const EdgeSwatch = ({
   color,
+  strokeWidth = 1.5,
   dashed,
+  opacity = 1,
+  filled,
   label,
 }: {
   color: string;
+  strokeWidth?: number;
   dashed?: boolean;
+  opacity?: number;
+  filled?: boolean;
   label?: string;
 }) => (
   <div className="flex items-center gap-1.5 shrink-0">
-    <svg width="32" height="12" viewBox="0 0 32 12" fill="none">
+    <svg width="36" height="12" viewBox="0 0 36 12" fill="none" style={{ opacity }}>
       <line
         x1="0"
         y1="6"
-        x2="32"
+        x2="28"
         y2="6"
         stroke={color}
-        strokeWidth="1.5"
-        strokeDasharray={dashed ? "6 4" : undefined}
+        strokeWidth={strokeWidth}
+        strokeDasharray={dashed ? "4 3" : undefined}
       />
+      {/* Arrowhead */}
+      {filled ? (
+        <polygon points="28,2 36,6 28,10" fill={color} />
+      ) : (
+        <polyline points="29,2 35,6 29,10" stroke={color} strokeWidth="1.2" fill="none" />
+      )}
     </svg>
     {label && (
       <span
         className="text-[9px] rounded px-1 py-px"
         style={{
           color: "#7dd3fc",
-          background: "rgba(15, 23, 41, 0.9)",
+          background: "rgba(15, 23, 41, 0.85)",
+          border: "1px solid rgba(56, 189, 248, 0.125)",
         }}
       >
         {label}
@@ -183,17 +196,17 @@ const LegendPanel = () => {
 
         <SectionLabel>Edges</SectionLabel>
         <LegendItem
-          swatch={<EdgeSwatch color="#94a3b8" />}
+          swatch={<EdgeSwatch color={blueprint.edgeDirect} strokeWidth={1} opacity={0.6} />}
           title="Direct"
           desc="— type restriction"
         />
         <LegendItem
-          swatch={<EdgeSwatch color="#64748b" dashed />}
+          swatch={<EdgeSwatch color={blueprint.edgeComputed} strokeWidth={1.5} dashed />}
           title="Computed"
           desc="— userset reference"
         />
         <LegendItem
-          swatch={<EdgeSwatch color="#38bdf8" label="from X" />}
+          swatch={<EdgeSwatch color={blueprint.edgeTtu} strokeWidth={1.5} filled label="from X" />}
           title="TTU"
           desc="— tuple-to-userset"
         />

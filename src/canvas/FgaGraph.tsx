@@ -43,6 +43,7 @@ const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
   const parseVersion = useViewerStore((s) => s.parseVersion);
   const selectNode = useViewerStore((s) => s.selectNode);
+  const selectEdge = useViewerStore((s) => s.selectEdge);
   const setHoveredNode = useHoverStore((s) => s.setHoveredNode);
   const focusMode = useViewerStore((s) => s.focusMode);
   const setFocusMode = useViewerStore((s) => s.setFocusMode);
@@ -133,6 +134,13 @@ const FgaGraphInner = () => {
     [selectNode],
   );
 
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      selectEdge(edge.id);
+    },
+    [selectEdge],
+  );
+
   const onNodeMouseEnter = useCallback(
     (_: React.MouseEvent, node: Node) => setHoveredNode(node.id),
     [setHoveredNode],
@@ -144,8 +152,9 @@ const FgaGraphInner = () => {
   );
 
   const onPaneClick = useCallback(() => {
+    selectEdge(null);
     if (focusMode === 'neighborhood') setFocusMode('overview');
-  }, [focusMode, setFocusMode]);
+  }, [selectEdge, focusMode, setFocusMode]);
 
   const onNodeDragStart = useCallback(
     (_event: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
@@ -181,6 +190,7 @@ const FgaGraphInner = () => {
       edgeTypes={edgeTypes}
       onInit={onInit}
       onNodeClick={onNodeClick}
+      onEdgeClick={onEdgeClick}
       onNodeMouseEnter={onNodeMouseEnter}
       onNodeMouseLeave={onNodeMouseLeave}
       onPaneClick={onPaneClick}
