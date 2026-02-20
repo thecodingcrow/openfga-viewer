@@ -33,17 +33,22 @@ const DEFAULT_FILTERS: GraphFilters = {
 let _cachedVisibleNodes: AuthorizationNode[] = [];
 let _cachedVisibleEdges: AuthorizationEdge[] = [];
 let _cacheKey = "";
+let _cachedFiltersStr = JSON.stringify(DEFAULT_FILTERS);
 
 function visibleGraphCacheKey(
   parseVersion: number,
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
-  filters: GraphFilters,
+  filtersStr: string,
   focusMode: FocusMode,
   selectedNodeId: string | null,
   neighborhoodHops: number,
 ): string {
-  return `${parseVersion}|${nodes.length}|${edges.length}|${JSON.stringify(filters)}|${focusMode}|${selectedNodeId}|${neighborhoodHops}`;
+  // Only include selectedNodeId/neighborhoodHops when they matter
+  if (focusMode === "overview") {
+    return `${parseVersion}|${nodes.length}|${edges.length}|${filtersStr}|overview`;
+  }
+  return `${parseVersion}|${nodes.length}|${edges.length}|${filtersStr}|${focusMode}|${selectedNodeId}|${neighborhoodHops}`;
 }
 
 // ─── Store shape ────────────────────────────────────────────────────────────
@@ -65,7 +70,6 @@ interface ViewerStore {
   // Exploration
   focusMode: FocusMode;
   selectedNodeId: string | null;
-  hoveredNodeId: string | null;
   selectedEdgeId: string | null;
   neighborhoodHops: number;
 
@@ -89,7 +93,6 @@ interface ViewerStore {
   setLayoutDirection: (dir: LayoutDirection) => void;
 
   selectNode: (id: string | null) => void;
-  setHoveredNode: (id: string | null) => void;
   selectEdge: (id: string | null) => void;
 
   setFocusMode: (mode: FocusMode) => void;
@@ -123,7 +126,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   layoutDirection: "TB" as LayoutDirection,
   focusMode: "overview",
   selectedNodeId: null,
-  hoveredNodeId: null,
   selectedEdgeId: null,
   neighborhoodHops: 1,
   pathStart: null,
@@ -166,6 +168,15 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         nodes: [],
         edges: [],
         availableTypes: [],
+        parseVersion: get().parseVersion + 1,
+        selectedNodeId: null,
+        selectedEdgeId: null,
+        focusMode: "overview",
+        pathStart: null,
+        pathEnd: null,
+        tracedPaths: null,
+        tracedNodeIds: null,
+        tracedEdgeIds: null,
       });
     }
   },
@@ -185,7 +196,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     });
   },
 
-  setHoveredNode: (hoveredNodeId) => set({ hoveredNodeId }),
   selectEdge: (selectedEdgeId) => set({ selectedEdgeId }),
 
   setFocusMode: (focusMode) => {
@@ -248,11 +258,18 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
 
   setFilter: (partial) => {
     startTransition(() => {
-      set((s) => ({ filters: { ...s.filters, ...partial } }));
+      set((s) => {
+        const filters = { ...s.filters, ...partial };
+        _cachedFiltersStr = JSON.stringify(filters);
+        return { filters };
+      });
     });
   },
 
-  resetFilters: () => set({ filters: { ...DEFAULT_FILTERS } }),
+  resetFilters: () => {
+    _cachedFiltersStr = JSON.stringify(DEFAULT_FILTERS);
+    set({ filters: { ...DEFAULT_FILTERS } });
+  },
 
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
   toggleEditor: () => set((s) => ({ editorOpen: !s.editorOpen })),
@@ -273,7 +290,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
       parseVersion,
       nodes,
       edges,
-      filters,
+      _cachedFiltersStr,
       focusMode,
       selectedNodeId,
       neighborhoodHops,

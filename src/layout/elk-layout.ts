@@ -10,13 +10,65 @@ export interface ElkRoute {
   points: Point[];
 }
 
+// ─── Layout cache (LRU, max 5) ─────────────────────────────────────────────
+
+interface CacheEntry {
+  key: string;
+  nodes: Node[];
+  edges: Edge[];
+}
+
+const layoutCache: CacheEntry[] = [];
+const CACHE_MAX = 5;
+
+function buildCacheKey(
+  nodes: Node[],
+  edges: Edge[],
+  direction: string,
+): string {
+  const nodeKeys = nodes
+    .map((n) => `${n.id}:${n.measured?.width ?? 120}x${n.measured?.height ?? 40}`)
+    .sort()
+    .join(',');
+  const edgeKeys = edges
+    .map((e) => e.id)
+    .sort()
+    .join(',');
+  return `${direction}|${nodeKeys}|${edgeKeys}`;
+}
+
+function getCached(key: string): CacheEntry | undefined {
+  const idx = layoutCache.findIndex((e) => e.key === key);
+  if (idx === -1) return undefined;
+  // Move to front (most recently used)
+  const [entry] = layoutCache.splice(idx, 1);
+  layoutCache.unshift(entry);
+  return entry;
+}
+
+function putCache(entry: CacheEntry): void {
+  layoutCache.unshift(entry);
+  if (layoutCache.length > CACHE_MAX) layoutCache.pop();
+}
+
+// ─── Public API ─────────────────────────────────────────────────────────────
+
 export async function getLayoutedElements(
   nodes: Node[],
   edges: Edge[],
   direction: 'TB' | 'LR' = 'TB',
 ): Promise<{ nodes: Node[]; edges: Edge[] }> {
+  const cacheKey = buildCacheKey(nodes, edges, direction);
+  const cached = getCached(cacheKey);
+  if (cached) return { nodes: cached.nodes, edges: cached.edges };
+
   const count = nodes.length;
-  const scale = count > 80 ? 1.8 : count > 40 ? 1.4 : 1;
+  const scale = count > 80 ? 1.5 : count > 40 ? 1.2 : 0.95;
+
+  const nodeIds = new Set(nodes.map((n) => n.id));
+  const validEdges = edges.filter(
+    (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
+  );
 
   const elkGraph: ElkNode = {
     id: 'root',
@@ -24,10 +76,10 @@ export async function getLayoutedElements(
       'elk.algorithm': 'layered',
       'elk.direction': direction === 'TB' ? 'DOWN' : 'RIGHT',
       'elk.edgeRouting': 'ORTHOGONAL',
-      'elk.layered.spacing.nodeNodeBetweenLayers': String(Math.round(80 * scale)),
-      'elk.spacing.nodeNode': String(Math.round(60 * scale)),
-      'elk.layered.spacing.edgeEdgeBetweenLayers': '20',
-      'elk.layered.spacing.edgeNodeBetweenLayers': '30',
+      'elk.layered.spacing.nodeNodeBetweenLayers': String(Math.round(72 * scale)),
+      'elk.spacing.nodeNode': String(Math.round(54 * scale)),
+      'elk.layered.spacing.edgeEdgeBetweenLayers': '16',
+      'elk.layered.spacing.edgeNodeBetweenLayers': '24',
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
     },
     children: nodes.map((node) => {
@@ -39,7 +91,7 @@ export async function getLayoutedElements(
         height: h,
       };
     }),
-    edges: edges.map((edge) => ({
+    edges: validEdges.map((edge) => ({
       id: edge.id,
       sources: [edge.source],
       targets: [edge.target],
@@ -99,6 +151,7 @@ export async function getLayoutedElements(
     };
   });
 
+  putCache({ key: cacheKey, nodes: positionedNodes, edges: enrichedEdges });
   return { nodes: positionedNodes, edges: enrichedEdges };
 }
 

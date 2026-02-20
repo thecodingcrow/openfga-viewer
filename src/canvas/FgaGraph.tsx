@@ -15,7 +15,9 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
+import { useShallow } from 'zustand/react/shallow';
 import { useViewerStore } from '../store/viewer-store';
+import { useHoverStore } from '../store/hover-store';
 import { getTypeColor } from '../theme/colors';
 import { getLayoutedElements } from '../layout/elk-layout';
 import { toFlowElements } from './fgaToFlow';
@@ -52,26 +54,29 @@ const FgaGraphInner = () => {
   const tracedEdgeIds = useViewerStore((s) => s.tracedEdgeIds);
   const selectNode = useViewerStore((s) => s.selectNode);
   const selectEdge = useViewerStore((s) => s.selectEdge);
-  const setHoveredNode = useViewerStore((s) => s.setHoveredNode);
+  const setHoveredNode = useHoverStore((s) => s.setHoveredNode);
   const setFocusMode = useViewerStore((s) => s.setFocusMode);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
 
-  const visibleNodes = useViewerStore((s) => s.getVisibleGraph().nodes);
-  const visibleEdges = useViewerStore((s) => s.getVisibleGraph().edges);
+  const { nodes: visibleNodes, edges: visibleEdges } = useViewerStore(
+    useShallow((s) => s.getVisibleGraph()),
+  );
 
   const isPathMode = focusMode === 'path' && tracedNodeIds !== null;
 
+  const { nodes: flowNodes, edges: flowEdges } = useMemo(
+    () => toFlowElements(visibleNodes, visibleEdges),
+    [visibleNodes, visibleEdges],
+  );
+
   const initialNodes = useMemo((): Node[] => {
-    const { nodes: flowNodes, edges: flowEdges } = toFlowElements(visibleNodes, visibleEdges);
-    void flowEdges;
     return flowNodes.map((n) => ({
       ...n,
       style: isPathMode && !tracedNodeIds!.has(n.id) ? { opacity: 0.25 } : undefined,
     }));
-  }, [visibleNodes, visibleEdges, isPathMode, tracedNodeIds]);
+  }, [flowNodes, isPathMode, tracedNodeIds]);
 
   const initialEdges = useMemo((): Edge[] => {
-    const { edges: flowEdges } = toFlowElements(visibleNodes, visibleEdges);
     return flowEdges.map((e) => ({
       ...e,
       style: {
@@ -79,7 +84,7 @@ const FgaGraphInner = () => {
         ...(isPathMode && !tracedEdgeIds!.has(e.id) ? { opacity: 0.1 } : {}),
       },
     }));
-  }, [visibleNodes, visibleEdges, isPathMode, tracedEdgeIds]);
+  }, [flowEdges, isPathMode, tracedEdgeIds]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
@@ -103,6 +108,7 @@ const FgaGraphInner = () => {
     setNodes(initialNodes);
     setEdges(initialEdges);
     layoutDone.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: reset layout-ready flag when data changes
     setLayoutReady(false);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
@@ -120,7 +126,9 @@ const FgaGraphInner = () => {
       layoutDone.current = true;
       setLayoutReady(true);
       window.requestAnimationFrame(() => {
-        reactFlow.fitView({ duration: 200, minZoom: 0.35, padding: 0.1 });
+        window.requestAnimationFrame(() => {
+          reactFlow.fitView({ duration: 200, minZoom: 0.35, padding: 0.1 });
+        });
       });
     });
     return () => {
@@ -176,7 +184,8 @@ const FgaGraphInner = () => {
         eds.map((e) => {
           if (!e.data?.elkRoute) return e;
           if (!draggedIds.has(e.source) && !draggedIds.has(e.target)) return e;
-          const { elkRoute, ...rest } = e.data;
+          const { elkRoute: _, ...rest } = e.data;
+          void _;
           return { ...e, data: rest };
         }),
       );
@@ -226,8 +235,8 @@ const FgaGraphInner = () => {
 };
 
 const FgaGraph = () => {
-  const nodes = useViewerStore((s) => s.getVisibleGraph().nodes);
-  if (nodes.length === 0) return null;
+  const hasNodes = useViewerStore((s) => s.nodes.length > 0);
+  if (!hasNodes) return null;
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>

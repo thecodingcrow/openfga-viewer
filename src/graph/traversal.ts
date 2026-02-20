@@ -70,22 +70,26 @@ export function findPaths(
   }
 
   const paths: string[][] = [];
-  const queue: string[][] = [[startId]];
+  const queue: { path: string[]; visited: Set<string> }[] = [
+    { path: [startId], visited: new Set([startId]) },
+  ];
 
   while (queue.length > 0) {
-    const path = queue.shift()!;
+    const { path, visited } = queue.shift()!;
     const current = path[path.length - 1];
 
     if (path.length > maxDepth + 1) continue;
 
     const neighbors = adjacency.get(current) ?? [];
     for (const neighbor of neighbors) {
-      if (path.includes(neighbor)) continue;
+      if (visited.has(neighbor)) continue;
       const extended = [...path, neighbor];
       if (neighbor === endId) {
         paths.push(extended);
       } else {
-        queue.push(extended);
+        const nextVisited = new Set(visited);
+        nextVisited.add(neighbor);
+        queue.push({ path: extended, visited: nextVisited });
       }
     }
   }
@@ -103,18 +107,24 @@ export function collectPathElements(
   const nodeIds = new Set<string>();
   const edgeIds = new Set<string>();
 
+  // Pre-build edge lookup: "source|target" → edge IDs (both directions)
+  const edgeLookup = new Map<string, string[]>();
+  for (const edge of edges) {
+    const fwd = `${edge.source}|${edge.target}`;
+    const rev = `${edge.target}|${edge.source}`;
+    if (!edgeLookup.has(fwd)) edgeLookup.set(fwd, []);
+    if (!edgeLookup.has(rev)) edgeLookup.set(rev, []);
+    edgeLookup.get(fwd)!.push(edge.id);
+    edgeLookup.get(rev)!.push(edge.id);
+  }
+
   for (const path of paths) {
     for (const nodeId of path) nodeIds.add(nodeId);
     for (let i = 0; i < path.length - 1; i++) {
-      const a = path[i];
-      const b = path[i + 1];
-      for (const edge of edges) {
-        if (
-          (edge.source === a && edge.target === b) ||
-          (edge.source === b && edge.target === a)
-        ) {
-          edgeIds.add(edge.id);
-        }
+      const key = `${path[i]}|${path[i + 1]}`;
+      const matched = edgeLookup.get(key);
+      if (matched) {
+        for (const id of matched) edgeIds.add(id);
       }
     }
   }

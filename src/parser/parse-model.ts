@@ -127,7 +127,8 @@ export function buildAuthorizationGraph(dsl: string): AuthorizationGraph {
   const model = transformer.transformDSLToJSONObject(
     dsl,
   ) as ParsedAuthorizationModel;
-  const allTypeNames = new Set(model.type_definitions.map((t) => t.type));
+  const typeDefs = model.type_definitions ?? [];
+  const allTypeNames = new Set(typeDefs.map((t) => t.type));
 
   const nodeMap = new Map<string, AuthorizationNode>();
   const edgeList: AuthorizationEdge[] = [];
@@ -185,7 +186,7 @@ export function buildAuthorizationGraph(dsl: string): AuthorizationGraph {
     }
   };
 
-  for (const typeDef of model.type_definitions) {
+  for (const typeDef of typeDefs) {
     const typeName = typeDef.type;
     const metadata: Record<string, RelationMetadata> =
       typeDef.metadata?.relations ?? {};

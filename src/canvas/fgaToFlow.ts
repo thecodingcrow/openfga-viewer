@@ -33,7 +33,7 @@ export function toFlowEdge(edge: AuthorizationEdge): Edge {
     source: edge.source,
     target: edge.target,
     type: edge.rewriteRule,
-    animated: edge.rewriteRule === 'computed',
+    animated: false,
     data: {
       tuplesetLabel: edge.rewriteRule === 'ttu'
         ? `from ${edge.tuplesetRelation}` : undefined,
