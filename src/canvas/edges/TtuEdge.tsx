@@ -4,8 +4,8 @@ import { elkPointsToPath, getPathMidpointWithOffset } from '../../layout/elk-pat
 import type { ElkRoute } from '../../layout/elk-layout';
 
 const LABEL_OFFSET_PX = 14;
-const LOOP_PADDING = 20;
-const LOOP_DY = 30;
+const LOOP_PADDING = 50;
+const LOOP_DY = 40;
 
 function buildSelfLoopPath(
   sourceX: number,
