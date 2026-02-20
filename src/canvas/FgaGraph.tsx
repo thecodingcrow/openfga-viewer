@@ -25,7 +25,6 @@ import { RelationNode } from './nodes/RelationNode';
 import { PermissionNode } from './nodes/PermissionNode';
 import { DirectEdge } from './edges/DirectEdge';
 import { ComputedEdge } from './edges/ComputedEdge';
-import { TtuEdge } from './edges/TtuEdge';
 
 const nodeTypes = {
   type: TypeNode,
@@ -36,7 +35,6 @@ const nodeTypes = {
 const edgeTypes = {
   direct: DirectEdge,
   computed: ComputedEdge,
-  ttu: TtuEdge,
 };
 
 const FgaGraphInner = () => {
@@ -45,6 +43,7 @@ const FgaGraphInner = () => {
   const selectNode = useViewerStore((s) => s.selectNode);
   const selectEdge = useViewerStore((s) => s.selectEdge);
   const setHoveredNode = useHoverStore((s) => s.setHoveredNode);
+  const fullEdges = useViewerStore((s) => s.edges);
   const focusMode = useViewerStore((s) => s.focusMode);
   const setFocusMode = useViewerStore((s) => s.setFocusMode);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
@@ -142,8 +141,8 @@ const FgaGraphInner = () => {
   );
 
   const onNodeMouseEnter = useCallback(
-    (_: React.MouseEvent, node: Node) => setHoveredNode(node.id),
-    [setHoveredNode],
+    (_: React.MouseEvent, node: Node) => setHoveredNode(node.id, fullEdges),
+    [setHoveredNode, fullEdges],
   );
 
   const onNodeMouseLeave = useCallback(

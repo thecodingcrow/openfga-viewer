@@ -1,5 +1,5 @@
 import { MarkerType, type Node, type Edge } from '@xyflow/react';
-import type { AuthorizationNode, AuthorizationEdge, RewriteRule } from '../types';
+import type { AuthorizationNode, AuthorizationEdge } from '../types';
 import { blueprint } from '../theme/colors';
 
 export interface FgaNodeData {
@@ -29,8 +29,8 @@ export function toFlowNode(node: AuthorizationNode): Node<FgaNodeData> {
   };
 }
 
-// Marker definitions per edge type
-const MARKERS: Record<RewriteRule, Edge['markerEnd']> = {
+// Marker definitions per visual edge type
+const MARKERS: Record<'direct' | 'computed', Edge['markerEnd']> = {
   computed: {
     type: MarkerType.Arrow,
     width: 12,
@@ -43,33 +43,17 @@ const MARKERS: Record<RewriteRule, Edge['markerEnd']> = {
     height: 10,
     color: blueprint.edgeDirect,
   },
-  ttu: {
-    type: MarkerType.ArrowClosed,
-    width: 12,
-    height: 12,
-    color: blueprint.edgeTtu,
-  },
-};
-
-// Sort priority: direct at bottom of SVG z-order, TTU on top
-const EDGE_Z_ORDER: Record<RewriteRule, number> = {
-  direct: 0,
-  computed: 1,
-  ttu: 2,
 };
 
 export function toFlowEdge(edge: AuthorizationEdge): Edge {
+  const rule = edge.rewriteRule as 'direct' | 'computed';
   return {
     id: edge.id,
     source: edge.source,
     target: edge.target,
-    type: edge.rewriteRule,
+    type: rule,
     animated: false,
-    markerEnd: MARKERS[edge.rewriteRule],
-    data: {
-      tuplesetLabel: edge.rewriteRule === 'ttu'
-        ? `from ${edge.tuplesetRelation}` : undefined,
-    },
+    markerEnd: MARKERS[rule],
   };
 }
 
@@ -100,12 +84,9 @@ export function toFlowElements(
     return aIsType - bIsType;
   });
 
-  // Sort edges by type priority so direct renders at bottom of SVG z-order
-  const flowEdges = edges.map(toFlowEdge);
-  flowEdges.sort((a, b) =>
-    EDGE_Z_ORDER[(a.type as RewriteRule) ?? 'direct'] -
-    EDGE_Z_ORDER[(b.type as RewriteRule) ?? 'direct'],
-  );
+  // Filter out TTU edges — they only exist as hover metadata, never render
+  const visualEdges = edges.filter((e) => e.rewriteRule !== 'ttu');
+  const flowEdges = visualEdges.map(toFlowEdge);
 
   return {
     nodes: flowNodes,

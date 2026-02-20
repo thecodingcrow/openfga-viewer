@@ -205,11 +205,6 @@ const LegendPanel = () => {
           title="Computed"
           desc="— userset reference"
         />
-        <LegendItem
-          swatch={<EdgeSwatch color={blueprint.edgeTtu} strokeWidth={1.5} filled label="from X" />}
-          title="TTU"
-          desc="— tuple-to-userset"
-        />
 
         <SectionLabel>Colors</SectionLabel>
         <p className="text-[11px] py-0.5" style={{ color: blueprint.muted }}>

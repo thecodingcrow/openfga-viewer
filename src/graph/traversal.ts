@@ -132,6 +132,42 @@ export function collectPathElements(
   return { nodeIds, edgeIds };
 }
 
+// ─── TTU hover expansion ────────────────────────────────────────────────────
+
+/**
+ * Expand a hovered node via TTU (tupleToUserset) edges.
+ * Returns the set of all node IDs reachable from `centerId` by
+ * following TTU edges bidirectionally (BFS).
+ */
+export function expandViaTtu(
+  centerId: string,
+  allEdges: AuthorizationEdge[],
+): Set<string> {
+  const adjacency = new Map<string, string[]>();
+  for (const edge of allEdges) {
+    if (edge.rewriteRule !== "ttu") continue;
+    if (!adjacency.has(edge.source)) adjacency.set(edge.source, []);
+    if (!adjacency.has(edge.target)) adjacency.set(edge.target, []);
+    adjacency.get(edge.source)!.push(edge.target);
+    adjacency.get(edge.target)!.push(edge.source);
+  }
+
+  const visited = new Set<string>([centerId]);
+  const queue = [centerId];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const neighbor of adjacency.get(current) ?? []) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  return visited;
+}
+
 // ─── Filtering ──────────────────────────────────────────────────────────────
 
 /**
@@ -145,9 +181,8 @@ export function applyFilters(
 ): { nodes: AuthorizationNode[]; edges: AuthorizationEdge[] } {
   const noTypeFilter = filters.types.length === 0;
   const noPermissionFilter = !filters.permissionsOnly;
-  const showTtu = filters.showTtuEdges !== false;
 
-  if (noTypeFilter && noPermissionFilter && showTtu) {
+  if (noTypeFilter && noPermissionFilter) {
     return { nodes, edges };
   }
 
@@ -163,13 +198,9 @@ export function applyFilters(
   }
 
   const nodeIds = new Set(filtered.map((n) => n.id));
-  let filteredEdges = edges.filter(
+  const filteredEdges = edges.filter(
     (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
   );
-
-  if (!showTtu) {
-    filteredEdges = filteredEdges.filter((e) => e.rewriteRule !== "ttu");
-  }
 
   return {
     nodes: filtered,

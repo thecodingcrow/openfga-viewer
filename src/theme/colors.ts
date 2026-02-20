@@ -12,8 +12,6 @@ export const blueprint = {
   edgeDirectActive: "#4a6fa5",
   edgeComputed: "#4a6fa5",
   edgeComputedActive: "#6b8fc4",
-  edgeTtu: "#38bdf8",
-  edgeTtuActive: "#7dd3fc",
   surface: "#162033",
   surfaceBorder: "#253553",
   muted: "#64748b",
