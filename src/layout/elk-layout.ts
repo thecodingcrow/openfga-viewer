@@ -70,6 +70,12 @@ export async function getLayoutedElements(
     (e) => nodeIds.has(e.source) && nodeIds.has(e.target),
   );
 
+  const outDegree = new Map<string, number>();
+  for (const e of validEdges) {
+    outDegree.set(e.source, (outDegree.get(e.source) ?? 0) + 1);
+  }
+  const maxFanOut = Math.max(0, ...outDegree.values());
+
   const elkGraph: ElkNode = {
     id: 'root',
     layoutOptions: {
@@ -81,6 +87,11 @@ export async function getLayoutedElements(
       'elk.layered.spacing.edgeEdgeBetweenLayers': '16',
       'elk.layered.spacing.edgeNodeBetweenLayers': '24',
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
+      ...(maxFanOut >= 8 ? {
+        'elk.layered.highDegreeNodes.treatment': 'true',
+        'elk.layered.highDegreeNodes.threshold': String(Math.max(8, Math.floor(maxFanOut * 0.4))),
+        'elk.layered.highDegreeNodes.treeHeight': '3',
+      } : {}),
     },
     children: nodes.map((node) => {
       const w = node.measured?.width ?? 120;
@@ -122,7 +133,7 @@ export async function getLayoutedElements(
         const targetBounds = nodeBounds.get(edge.target);
         const trimmed =
           sourceBounds && targetBounds
-            ? trimPathToHandles(points, sourceBounds, targetBounds)
+            ? trimPathToHandles(points, sourceBounds, targetBounds, direction)
             : points;
         edgeRoutes.set(extEdge.id ?? '', { points: trimmed });
       } else {

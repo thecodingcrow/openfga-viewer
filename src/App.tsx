@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
-import { Breadcrumb } from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
+import ResizeHandle from "./components/ResizeHandle";
 import LegendPanel from "./legend/LegendPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
@@ -14,8 +14,6 @@ const App = () => {
   const toggleSearch = useViewerStore((s) => s.toggleSearch);
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
-  const focusMode = useViewerStore((s) => s.focusMode);
-  const clearPath = useViewerStore((s) => s.clearPath);
   const setSource = useViewerStore((s) => s.setSource);
 
   useEffect(() => {
@@ -35,12 +33,10 @@ const App = () => {
       if (e.key === "Escape") {
         if (searchOpen) {
           setSearchOpen(false);
-        } else if (focusMode === "path") {
-          clearPath();
         }
       }
     },
-    [toggleEditor, toggleSearch, searchOpen, setSearchOpen, focusMode, clearPath],
+    [toggleEditor, toggleSearch, searchOpen, setSearchOpen],
   );
 
   useEffect(() => {
@@ -93,12 +89,14 @@ const App = () => {
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <div className="relative flex-1 overflow-hidden">
-        <Canvas />
-        <Breadcrumb />
-        <Toolbar />
+      <div className="flex-1 overflow-hidden flex flex-row">
         <EditorPanel />
-        <LegendPanel />
+        <ResizeHandle />
+        <div className="relative flex-1 min-w-0 overflow-hidden">
+          <Canvas />
+          <Toolbar />
+          <LegendPanel />
+        </div>
       </div>
     </div>
   );

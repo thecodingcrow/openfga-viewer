@@ -4,21 +4,24 @@ import FgaEditor from "./FgaEditor";
 
 const EditorPanel = () => {
   const editorOpen = useViewerStore((s) => s.editorOpen);
+  const editorWidth = useViewerStore((s) => s.editorWidth);
   const parseError = useViewerStore((s) => s.parseError);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
 
   return (
     <div
-      className="fixed top-3 right-3 bottom-3 z-40 w-[400px] hud-panel flex flex-col overflow-hidden"
+      className="shrink-0 flex flex-col overflow-hidden"
       style={{
-        borderRadius: 12,
-        transform: editorOpen ? "translateX(0)" : "translateX(calc(100% + 12px))",
-        transition: "transform 250ms ease-out",
-        pointerEvents: editorOpen ? "auto" : "none",
+        width: editorOpen ? editorWidth : 0,
+        minWidth: 0,
+        transition: "width 250ms ease-out",
+        background: "rgba(15, 23, 41, 0.9)",
+        backdropFilter: "blur(12px)",
+        borderRight: "1px solid #2a3a5c",
+        boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
       }}
     >
       <div
-        className="flex items-center justify-between px-3 py-2 shrink-0"
+        className="flex items-center px-3 py-2 shrink-0"
         style={{
           borderBottom: `1px solid ${blueprint.nodeBorder}`,
         }}
@@ -29,21 +32,6 @@ const EditorPanel = () => {
         >
           FGA Model
         </span>
-        <button
-          onClick={toggleEditor}
-          className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/5 transition-colors cursor-pointer"
-          style={{ color: blueprint.muted }}
-          title="Close editor"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
       </div>
 
       <div className="flex-1 min-h-0">

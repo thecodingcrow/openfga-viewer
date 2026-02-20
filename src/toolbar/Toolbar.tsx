@@ -48,15 +48,10 @@ const Separator = () => (
 // ─── Toolbar ────────────────────────────────────────────────────────────────
 
 const Toolbar = () => {
-  const editorOpen = useViewerStore((s) => s.editorOpen);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
   const legendOpen = useViewerStore((s) => s.legendOpen);
   const toggleLegend = useViewerStore((s) => s.toggleLegend);
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
-  const focusMode = useViewerStore((s) => s.focusMode);
-  const setFocusMode = useViewerStore((s) => s.setFocusMode);
-  const clearPath = useViewerStore((s) => s.clearPath);
   const filters = useViewerStore((s) => s.filters);
   const setFilter = useViewerStore((s) => s.setFilter);
   const setSource = useViewerStore((s) => s.setSource);
@@ -85,14 +80,6 @@ const Toolbar = () => {
     reactFlowInstance?.fitView({ duration: 200 });
   }, [reactFlowInstance]);
 
-  const handleTrace = useCallback(() => {
-    if (focusMode !== "path") {
-      setFocusMode("path");
-    } else {
-      clearPath();
-    }
-  }, [focusMode, setFocusMode, clearPath]);
-
   const handlePermissionsToggle = useCallback(() => {
     setFilter({ permissionsOnly: !filters.permissionsOnly });
   }, [filters.permissionsOnly, setFilter]);
@@ -100,7 +87,7 @@ const Toolbar = () => {
   return (
     <>
       <div
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
+        className="absolute top-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
         style={{ borderRadius: 8 }}
       >
         {/* Search */}
@@ -116,19 +103,6 @@ const Toolbar = () => {
         </ToolbarButton>
 
         <Separator />
-
-        {/* Trace */}
-        <ToolbarButton
-          onClick={handleTrace}
-          title={focusMode === "path" ? "Exit trace mode" : "Trace path"}
-          active={focusMode === "path"}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 12C2 12 4 8 7 7C10 6 12 2 12 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-            <circle cx="2" cy="12" r="1.5" fill="currentColor" />
-            <circle cx="12" cy="2" r="1.5" fill="currentColor" />
-          </svg>
-        </ToolbarButton>
 
         {/* Permissions only */}
         <ToolbarButton
@@ -148,21 +122,6 @@ const Toolbar = () => {
         </ToolbarButton>
 
         <Separator />
-
-        {/* Editor toggle */}
-        <ToolbarButton
-          onClick={toggleEditor}
-          title={editorOpen ? "Hide editor (⌘E)" : "Show editor (⌘E)"}
-          active={editorOpen}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect
-              x="1" y="1" width="12" height="12" rx="2"
-              stroke="currentColor" strokeWidth="1.2"
-            />
-            <path d="M5 1V13" stroke="currentColor" strokeWidth="1.2" />
-          </svg>
-        </ToolbarButton>
 
         {/* Legend toggle */}
         <ToolbarButton

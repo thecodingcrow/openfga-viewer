@@ -102,7 +102,7 @@ const LegendPanel = () => {
 
   return (
     <div
-      className="fixed bottom-14 left-3 z-40 w-[280px] hud-panel flex flex-col overflow-hidden"
+      className="absolute bottom-4 left-3 z-40 w-[280px] hud-panel flex flex-col overflow-hidden"
       style={{
         borderRadius: 12,
         transform: legendOpen

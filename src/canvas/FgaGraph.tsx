@@ -42,49 +42,23 @@ const edgeTypes = {
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
   const parseVersion = useViewerStore((s) => s.parseVersion);
-  const focusMode = useViewerStore((s) => s.focusMode);
-  const tracedNodeIds = useViewerStore((s) => s.tracedNodeIds);
-  const tracedEdgeIds = useViewerStore((s) => s.tracedEdgeIds);
   const selectNode = useViewerStore((s) => s.selectNode);
-  const selectEdge = useViewerStore((s) => s.selectEdge);
   const setHoveredNode = useHoverStore((s) => s.setHoveredNode);
+  const focusMode = useViewerStore((s) => s.focusMode);
   const setFocusMode = useViewerStore((s) => s.setFocusMode);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
-  const pathStart = useViewerStore((s) => s.pathStart);
-  const pathEnd = useViewerStore((s) => s.pathEnd);
-  const setPathStart = useViewerStore((s) => s.setPathStart);
-  const setPathEnd = useViewerStore((s) => s.setPathEnd);
-  const clearPath = useViewerStore((s) => s.clearPath);
-  const tracedPaths = useViewerStore((s) => s.tracedPaths);
-  const tracePath = useViewerStore((s) => s.tracePath);
 
   const { nodes: visibleNodes, edges: visibleEdges } = useViewerStore(
     useShallow((s) => s.getVisibleGraph()),
   );
-
-  const isPathMode = focusMode === 'path' && tracedNodeIds !== null;
 
   const { nodes: flowNodes, edges: flowEdges } = useMemo(
     () => toFlowElements(visibleNodes, visibleEdges),
     [visibleNodes, visibleEdges],
   );
 
-  const initialNodes = useMemo((): Node[] => {
-    return flowNodes.map((n) => ({
-      ...n,
-      style: isPathMode && !tracedNodeIds!.has(n.id) ? { opacity: 0.25 } : undefined,
-    }));
-  }, [flowNodes, isPathMode, tracedNodeIds]);
-
-  const initialEdges = useMemo((): Edge[] => {
-    return flowEdges.map((e) => ({
-      ...e,
-      style: {
-        ...(e.style ?? {}),
-        ...(isPathMode && !tracedEdgeIds!.has(e.id) ? { opacity: 0.1 } : {}),
-      },
-    }));
-  }, [flowEdges, isPathMode, tracedEdgeIds]);
+  const initialNodes = useMemo((): Node[] => flowNodes, [flowNodes]);
+  const initialEdges = useMemo((): Edge[] => flowEdges, [flowEdges]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
@@ -154,21 +128,9 @@ const FgaGraphInner = () => {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      if (focusMode === 'path') {
-        if (!pathStart) {
-          setPathStart(node.id);
-        } else if (!pathEnd) {
-          if (node.id === pathStart) return;
-          setPathEnd(node.id);
-        } else {
-          clearPath();
-          setPathStart(node.id);
-        }
-        return;
-      }
       selectNode(node.id);
     },
-    [focusMode, pathStart, pathEnd, selectNode, setPathStart, setPathEnd, clearPath],
+    [selectNode],
   );
 
   const onNodeMouseEnter = useCallback(
@@ -181,16 +143,9 @@ const FgaGraphInner = () => {
     [setHoveredNode],
   );
 
-  const onEdgeClick = useCallback(
-    (_: React.MouseEvent, edge: Edge) => selectEdge(edge.id),
-    [selectEdge],
-  );
-
   const onPaneClick = useCallback(() => {
-    selectEdge(null);
     if (focusMode === 'neighborhood') setFocusMode('overview');
-    if (focusMode === 'path') clearPath();
-  }, [selectEdge, focusMode, setFocusMode, clearPath]);
+  }, [focusMode, setFocusMode]);
 
   const onNodeDragStart = useCallback(
     (_event: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
@@ -207,13 +162,6 @@ const FgaGraphInner = () => {
     },
     [setEdges],
   );
-
-  // Auto-trace when both endpoints are set
-  useEffect(() => {
-    if (focusMode === 'path' && pathStart && pathEnd && tracedPaths === null) {
-      tracePath();
-    }
-  }, [focusMode, pathStart, pathEnd, tracedPaths, tracePath]);
 
   return (
     <div
@@ -235,7 +183,6 @@ const FgaGraphInner = () => {
       onNodeClick={onNodeClick}
       onNodeMouseEnter={onNodeMouseEnter}
       onNodeMouseLeave={onNodeMouseLeave}
-      onEdgeClick={onEdgeClick}
       onPaneClick={onPaneClick}
       onNodeDragStart={onNodeDragStart}
       fitView

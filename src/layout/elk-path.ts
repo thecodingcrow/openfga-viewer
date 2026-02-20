@@ -171,17 +171,16 @@ export function trimPathToHandles(
   points: Point[],
   sourceBounds: NodeBounds,
   targetBounds: NodeBounds,
+  direction: 'TB' | 'LR' = 'TB',
 ): Point[] {
   if (points.length < 2) return points;
 
-  const sourceHandle = {
-    x: sourceBounds.x + sourceBounds.width / 2,
-    y: sourceBounds.y + sourceBounds.height,
-  };
-  const targetHandle = {
-    x: targetBounds.x + targetBounds.width / 2,
-    y: targetBounds.y,
-  };
+  const sourceHandle = direction === 'TB'
+    ? { x: sourceBounds.x + sourceBounds.width / 2, y: sourceBounds.y + sourceBounds.height }
+    : { x: sourceBounds.x + sourceBounds.width, y: sourceBounds.y + sourceBounds.height / 2 };
+  const targetHandle = direction === 'TB'
+    ? { x: targetBounds.x + targetBounds.width / 2, y: targetBounds.y }
+    : { x: targetBounds.x, y: targetBounds.y + targetBounds.height / 2 };
 
   const result = [...points];
   result[0] = { ...sourceHandle };

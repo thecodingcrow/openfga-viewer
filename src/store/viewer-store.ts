@@ -20,9 +20,21 @@ import {
 import type { ReactFlowInstance } from "@xyflow/react";
 
 const STORAGE_KEY = "openfga-viewer-source";
+const EDITOR_WIDTH_KEY = "openfga-viewer-editor-width";
+
+export const DEFAULT_EDITOR_WIDTH = 520;
+export const MIN_EDITOR_WIDTH = 250;
+export const MAX_EDITOR_WIDTH_RATIO = 0.5;
 
 const loadPersistedSource = (): string =>
   localStorage.getItem(STORAGE_KEY) ?? SAMPLE_FGA_MODEL;
+
+const loadPersistedEditorWidth = (): number => {
+  const raw = localStorage.getItem(EDITOR_WIDTH_KEY);
+  if (!raw) return DEFAULT_EDITOR_WIDTH;
+  const n = Number(raw);
+  return Number.isFinite(n) ? Math.max(MIN_EDITOR_WIDTH, n) : DEFAULT_EDITOR_WIDTH;
+};
 
 const DEFAULT_FILTERS: GraphFilters = {
   types: [],
@@ -85,6 +97,7 @@ interface ViewerStore {
 
   // UI
   editorOpen: boolean;
+  editorWidth: number;
   legendOpen: boolean;
   searchOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
@@ -111,6 +124,7 @@ interface ViewerStore {
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
   toggleEditor: () => void;
   setEditorOpen: (open: boolean) => void;
+  setEditorWidth: (w: number) => void;
   toggleLegend: () => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
@@ -140,6 +154,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   tracedEdgeIds: null,
   filters: { ...DEFAULT_FILTERS },
   editorOpen: true,
+  editorWidth: loadPersistedEditorWidth(),
   legendOpen: false,
   searchOpen: false,
   reactFlowInstance: null,
@@ -281,6 +296,11 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
   toggleEditor: () => set((s) => ({ editorOpen: !s.editorOpen })),
   setEditorOpen: (open) => set({ editorOpen: open }),
+  setEditorWidth: (w) => {
+    const clamped = Math.max(MIN_EDITOR_WIDTH, Math.min(w, window.innerWidth * MAX_EDITOR_WIDTH_RATIO));
+    localStorage.setItem(EDITOR_WIDTH_KEY, String(clamped));
+    set({ editorWidth: clamped });
+  },
   toggleLegend: () => set((s) => ({ legendOpen: !s.legendOpen })),
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
