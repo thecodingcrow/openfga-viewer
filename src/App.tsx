@@ -1,20 +1,22 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
 import { Breadcrumb } from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
+import LegendPanel from "./legend/LegendPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
 
-const DISMISS_KEY = "openfga-viewer-alpha-dismissed";
+const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
 
 const App = () => {
   const parse = useViewerStore((s) => s.parse);
   const toggleEditor = useViewerStore((s) => s.toggleEditor);
+  const toggleSearch = useViewerStore((s) => s.toggleSearch);
+  const searchOpen = useViewerStore((s) => s.searchOpen);
+  const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
+  const focusMode = useViewerStore((s) => s.focusMode);
+  const clearPath = useViewerStore((s) => s.clearPath);
   const setSource = useViewerStore((s) => s.setSource);
-
-  const [bannerDismissed, setBannerDismissed] = useState(
-    () => localStorage.getItem(DISMISS_KEY) === "true",
-  );
 
   useEffect(() => {
     parse();
@@ -26,8 +28,19 @@ const App = () => {
         e.preventDefault();
         toggleEditor();
       }
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        toggleSearch();
+      }
+      if (e.key === "Escape") {
+        if (searchOpen) {
+          setSearchOpen(false);
+        } else if (focusMode === "path") {
+          clearPath();
+        }
+      }
     },
-    [toggleEditor],
+    [toggleEditor, toggleSearch, searchOpen, setSearchOpen, focusMode, clearPath],
   );
 
   useEffect(() => {
@@ -64,52 +77,29 @@ const App = () => {
     };
   }, [handleDrop, handleDragOver]);
 
-  const dismissBanner = useCallback(() => {
-    localStorage.setItem(DISMISS_KEY, "true");
-    setBannerDismissed(true);
-  }, []);
-
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      {!bannerDismissed && (
+    <div className="flex flex-col w-screen h-screen overflow-hidden">
+      {SHOW_ALPHA_BANNER && (
         <div
           style={{
             background: "#1a1a2e",
             color: "#f59e0b",
             fontSize: "0.8rem",
             padding: "4px 12px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            zIndex: 50,
+            textAlign: "center",
+            flexShrink: 0,
           }}
         >
-          <span>
-            Alpha — This is an early preview. Expect rough edges.
-          </span>
-          <button
-            onClick={dismissBanner}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#f59e0b",
-              cursor: "pointer",
-              marginLeft: "12px",
-              fontSize: "1rem",
-              lineHeight: 1,
-              padding: "0 4px",
-            }}
-            aria-label="Dismiss banner"
-          >
-            ×
-          </button>
+          Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <Canvas />
-      <Breadcrumb />
-      <Toolbar />
-      <EditorPanel />
+      <div className="relative flex-1 overflow-hidden">
+        <Canvas />
+        <Breadcrumb />
+        <Toolbar />
+        <EditorPanel />
+        <LegendPanel />
+      </div>
     </div>
   );
 };

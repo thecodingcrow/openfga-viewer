@@ -1,5 +1,6 @@
 {
   "name": "openfga-viewer",
+  "author": "Elias Martinek <martinek.dev@gmail.com>",
   "private": true,
   "version": "0.1.0-alpha",
   "type": "module",

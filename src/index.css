@@ -43,14 +43,10 @@ body,
   transition: opacity 150ms ease;
 }
 
-/* Dark mode overrides for React Flow controls */
-.react-flow__controls button {
-  background-color: rgba(30, 41, 59, 0.9) !important;
-  border-color: #475569 !important;
-  fill: #94a3b8 !important;
+/* Shared floating HUD panel */
+.hud-panel {
+  background: rgba(15, 23, 41, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid #2a3a5c;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
-
-.react-flow__controls button:hover {
-  background-color: rgba(51, 65, 85, 0.9) !important;
-}
-

@@ -2,13 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
-  Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   useNodesInitialized,
   useReactFlow,
   BackgroundVariant,
+  PanOnScrollMode,
   type Node,
   type Edge,
   type ReactFlowInstance,
@@ -18,7 +17,6 @@ import '@xyflow/react/dist/style.css';
 import { useShallow } from 'zustand/react/shallow';
 import { useViewerStore } from '../store/viewer-store';
 import { useHoverStore } from '../store/hover-store';
-import { getTypeColor } from '../theme/colors';
 import { getLayoutedElements } from '../layout/elk-layout';
 import { toFlowElements } from './fgaToFlow';
 
@@ -41,11 +39,6 @@ const edgeTypes = {
   ttu: TtuEdge,
 };
 
-function miniMapNodeColor(node: { data?: Record<string, unknown> }): string {
-  const typeName = (node.data?.typeName as string) ?? '';
-  return getTypeColor(typeName);
-}
-
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
   const parseVersion = useViewerStore((s) => s.parseVersion);
@@ -57,6 +50,13 @@ const FgaGraphInner = () => {
   const setHoveredNode = useHoverStore((s) => s.setHoveredNode);
   const setFocusMode = useViewerStore((s) => s.setFocusMode);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
+  const pathStart = useViewerStore((s) => s.pathStart);
+  const pathEnd = useViewerStore((s) => s.pathEnd);
+  const setPathStart = useViewerStore((s) => s.setPathStart);
+  const setPathEnd = useViewerStore((s) => s.setPathEnd);
+  const clearPath = useViewerStore((s) => s.clearPath);
+  const tracedPaths = useViewerStore((s) => s.tracedPaths);
+  const tracePath = useViewerStore((s) => s.tracePath);
 
   const { nodes: visibleNodes, edges: visibleEdges } = useViewerStore(
     useShallow((s) => s.getVisibleGraph()),
@@ -153,8 +153,22 @@ const FgaGraphInner = () => {
   );
 
   const onNodeClick = useCallback(
-    (_: React.MouseEvent, node: Node) => selectNode(node.id),
-    [selectNode],
+    (_: React.MouseEvent, node: Node) => {
+      if (focusMode === 'path') {
+        if (!pathStart) {
+          setPathStart(node.id);
+        } else if (!pathEnd) {
+          if (node.id === pathStart) return;
+          setPathEnd(node.id);
+        } else {
+          clearPath();
+          setPathStart(node.id);
+        }
+        return;
+      }
+      selectNode(node.id);
+    },
+    [focusMode, pathStart, pathEnd, selectNode, setPathStart, setPathEnd, clearPath],
   );
 
   const onNodeMouseEnter = useCallback(
@@ -175,7 +189,8 @@ const FgaGraphInner = () => {
   const onPaneClick = useCallback(() => {
     selectEdge(null);
     if (focusMode === 'neighborhood') setFocusMode('overview');
-  }, [selectEdge, focusMode, setFocusMode]);
+    if (focusMode === 'path') clearPath();
+  }, [selectEdge, focusMode, setFocusMode, clearPath]);
 
   const onNodeDragStart = useCallback(
     (_event: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
@@ -192,6 +207,13 @@ const FgaGraphInner = () => {
     },
     [setEdges],
   );
+
+  // Auto-trace when both endpoints are set
+  useEffect(() => {
+    if (focusMode === 'path' && pathStart && pathEnd && tracedPaths === null) {
+      tracePath();
+    }
+  }, [focusMode, pathStart, pathEnd, tracedPaths, tracePath]);
 
   return (
     <div
@@ -219,16 +241,14 @@ const FgaGraphInner = () => {
       fitView
       minZoom={0.2}
       maxZoom={2}
+      panOnScroll
+      panOnScrollMode={PanOnScrollMode.Free}
+      zoomOnPinch
+      zoomOnScroll={false}
       colorMode="dark"
       proOptions={{ hideAttribution: true }}
     >
       <Background variant={BackgroundVariant.Dots} color="#334155" gap={20} size={1.5} />
-      <Controls className="bg-slate-800/80! border-slate-600! rounded-lg!" />
-      <MiniMap
-        nodeColor={miniMapNodeColor}
-        maskColor="rgba(15, 23, 42, 0.8)"
-        className="bg-slate-900/90! rounded-lg! border-slate-600!"
-      />
     </ReactFlow>
     </div>
   );

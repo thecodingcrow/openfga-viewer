@@ -9,20 +9,17 @@ const EditorPanel = () => {
 
   return (
     <div
-      className="flex flex-col shrink-0 overflow-hidden transition-all duration-300 ease-in-out"
+      className="fixed top-3 right-3 bottom-3 z-40 w-[400px] hud-panel flex flex-col overflow-hidden"
       style={{
-        width: editorOpen ? 420 : 0,
-        minWidth: editorOpen ? 420 : 0,
-        opacity: editorOpen ? 1 : 0,
+        borderRadius: 12,
+        transform: editorOpen ? "translateX(0)" : "translateX(calc(100% + 12px))",
+        transition: "transform 250ms ease-out",
         pointerEvents: editorOpen ? "auto" : "none",
-        background: blueprint.surface,
-        borderLeft: editorOpen ? `1px solid ${blueprint.nodeBorder}` : "none",
       }}
     >
       <div
         className="flex items-center justify-between px-3 py-2 shrink-0"
         style={{
-          background: blueprint.bg,
           borderBottom: `1px solid ${blueprint.nodeBorder}`,
         }}
       >

@@ -38,6 +38,10 @@ npm run preview   # Preview production build
 
 React 19, TypeScript 5.9, Vite 7, React Flow v12, elkjs, Zustand 5, CodeMirror 6, Tailwind CSS v4
 
+## Author
+
+Elias Martinek — [martinek.dev@gmail.com](mailto:martinek.dev@gmail.com)
+
 ## License
 
 [AGPL-3.0](./LICENSE)

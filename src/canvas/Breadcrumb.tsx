@@ -24,7 +24,7 @@ export function Breadcrumb() {
     : null;
 
   // ── Breadcrumb segments ──
-  const segments: { id: string | null; label: string; action: () => void }[] = [
+  const segments: { id: string | null; label: string; title?: string; action: () => void }[] = [
     { id: null, label: "All types", action: () => setFocusMode("overview") },
   ];
 
@@ -43,6 +43,7 @@ export function Breadcrumb() {
       segments.push({
         id: selectedNode.id,
         label: selectedNode.relation,
+        title: selectedNode.definition ?? undefined,
         action: () => selectNode(selectedNode.id),
       });
     }
@@ -60,24 +61,23 @@ export function Breadcrumb() {
 
   // ── Path info ──
   const pathLabel =
-    focusMode === "path" && pathStart && pathEnd
-      ? `Path: ${pathStart} → ${pathEnd}`
+    focusMode === "path" && pathStart && pathEnd && tracedPaths
+      ? `${pathStart} → ${pathEnd}`
       : null;
 
   const pathCount =
-    tracedPaths !== null ? `${tracedPaths.length} path(s) found` : null;
+    tracedPaths !== null ? `${tracedPaths.length} path${tracedPaths.length !== 1 ? "s" : ""}` : null;
 
   return (
     <div
-      className="flex items-center gap-4 px-3 py-2 shrink-0 text-xs"
+      className="fixed top-3 left-3 z-30 hud-panel flex items-center gap-3 px-3 py-1.5 text-xs max-w-[50vw]"
       style={{
-        background: blueprint.surface,
-        borderBottom: `1px solid ${blueprint.nodeBorder}`,
+        borderRadius: 8,
         color: blueprint.muted,
       }}
     >
       {/* Breadcrumb path */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 truncate">
         {segments.map((seg, i) => (
           <span key={seg.id ?? "root"} className="flex items-center gap-1.5">
             {i > 0 && (
@@ -88,7 +88,8 @@ export function Breadcrumb() {
             <button
               type="button"
               onClick={seg.action}
-              className="hover:underline cursor-pointer transition-colors"
+              title={seg.title}
+              className="hover:underline cursor-pointer transition-colors truncate"
               style={{
                 color:
                   i === segments.length - 1
@@ -102,32 +103,35 @@ export function Breadcrumb() {
         ))}
       </div>
 
-      {/* Focus mode badge */}
-      {focusMode !== "overview" && (
+      {/* Path mode guidance */}
+      {focusMode === "path" && !pathStart && (
         <>
           <span style={{ color: blueprint.nodeBorder }} aria-hidden>
             |
           </span>
           <span
-            className="px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider font-medium"
-            style={{
-              color: blueprint.accent,
-              background: `${blueprint.accent}15`,
-            }}
+            className="text-xs shrink-0"
+            style={{ color: blueprint.accent }}
           >
-            {focusMode}
+            Select start node
           </span>
         </>
       )}
-
-      {/* Definition tooltip */}
-      {selectedNode?.definition && (
+      {focusMode === "path" && pathStart && !pathEnd && (
         <>
           <span style={{ color: blueprint.nodeBorder }} aria-hidden>
             |
           </span>
-          <span style={{ color: blueprint.nodeBody }}>
-            {selectedNode.definition}
+          <span className="flex items-center gap-1 shrink-0">
+            <span
+              className="text-xs font-medium"
+              style={{ color: blueprint.nodeHeader }}
+            >
+              {pathStart}
+            </span>
+            <span style={{ color: blueprint.muted }} className="text-xs">
+              → select end node
+            </span>
           </span>
         </>
       )}
@@ -138,13 +142,12 @@ export function Breadcrumb() {
           <span style={{ color: blueprint.nodeBorder }} aria-hidden>
             |
           </span>
-          <span className="flex items-center gap-1.5">
-            <span style={{ color: blueprint.muted }}>Edge:</span>
+          <span className="flex items-center gap-1.5 shrink-0">
             <span style={{ color: blueprint.nodeBody }}>{edgeLabel}</span>
             <button
               type="button"
               onClick={() => selectEdge(null)}
-              className="ml-1 px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer"
+              className="px-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
               style={{ color: blueprint.muted }}
               title="Clear selection"
             >
@@ -160,7 +163,7 @@ export function Breadcrumb() {
           <span style={{ color: blueprint.nodeBorder }} aria-hidden>
             |
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 shrink-0">
             <span style={{ color: blueprint.nodeBody }}>{pathLabel}</span>
             {pathCount && (
               <span style={{ color: blueprint.muted }}>({pathCount})</span>
@@ -168,7 +171,7 @@ export function Breadcrumb() {
             <button
               type="button"
               onClick={clearPath}
-              className="ml-1 px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer"
+              className="px-1 rounded hover:bg-white/10 transition-colors cursor-pointer"
               style={{ color: blueprint.muted }}
               title="Clear path"
             >

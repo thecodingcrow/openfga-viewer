@@ -85,6 +85,8 @@ interface ViewerStore {
 
   // UI
   editorOpen: boolean;
+  legendOpen: boolean;
+  searchOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
   // ── Actions ──
@@ -109,6 +111,9 @@ interface ViewerStore {
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
   toggleEditor: () => void;
   setEditorOpen: (open: boolean) => void;
+  toggleLegend: () => void;
+  toggleSearch: () => void;
+  setSearchOpen: (open: boolean) => void;
 
   /** Derived: filtered + focus-mode-scoped graph for rendering */
   getVisibleGraph: () => AuthorizationGraph;
@@ -135,6 +140,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   tracedEdgeIds: null,
   filters: { ...DEFAULT_FILTERS },
   editorOpen: true,
+  legendOpen: false,
+  searchOpen: false,
   reactFlowInstance: null,
 
   setSource: (src) => {
@@ -274,6 +281,9 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
   toggleEditor: () => set((s) => ({ editorOpen: !s.editorOpen })),
   setEditorOpen: (open) => set({ editorOpen: open }),
+  toggleLegend: () => set((s) => ({ legendOpen: !s.legendOpen })),
+  toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
+  setSearchOpen: (open) => set({ searchOpen: open }),
 
   getVisibleGraph: () => {
     const {
