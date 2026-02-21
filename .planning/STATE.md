@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** The graph must be immediately readable -- a user looking at it should see how access flows through types, relations, and permissions without untangling spaghetti edges or guessing what connects to what.
-**Current focus:** Phase 1: Types & Dimension Detection
+**Current focus:** Phase 1: Core Pipeline
 
 ## Current Position
 
-Phase: 1 of 10 (Types & Dimension Detection)
+Phase: 1 of 2 (Core Pipeline)
 Plan: 0 of 0 in current phase
 Status: Ready to plan
-Last activity: 2026-02-22 -- Roadmap created from implementation plan
+Last activity: 2026-02-22 -- Roadmap restructured to 2 phases
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -46,6 +46,7 @@ Recent decisions affecting current work:
 - [Roadmap]: Dimensions auto-detected from TTU tupleset patterns, not manually configured
 - [Roadmap]: 1-pass flat ELK replaces 3-pass compound layout -- simpler, no route invalidation
 - [Roadmap]: Same-card edges (computed, tupleset-dep) rendered as expression text, not edges
+- [Roadmap]: No backward compatibility -- delete old pipeline, build new. Greenfield approach.
 
 ### Pending Todos
 
@@ -58,5 +59,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Roadmap created, ready to plan Phase 1
+Stopped at: Roadmap restructured to 2 phases, ready to plan Phase 1
 Resume file: None

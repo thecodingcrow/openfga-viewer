@@ -92,38 +92,38 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-02 | Phase 1 | Pending |
 | DATA-03 | Phase 1 | Pending |
 | DATA-04 | Phase 1 | Pending |
-| VIZ-04 | Phase 2 | Pending |
-| VIZ-05 | Phase 2 | Pending |
-| VIZ-01 | Phase 3 | Pending |
-| VIZ-02 | Phase 3 | Pending |
-| VIZ-03 | Phase 3 | Pending |
-| VIZ-08 | Phase 3 | Pending |
-| INT-01 | Phase 3 | Pending |
-| INT-02 | Phase 3 | Pending |
-| VIZ-06 | Phase 6 | Pending |
-| VIZ-07 | Phase 6 | Pending |
-| INT-03 | Phase 7 | Pending |
-| INT-04 | Phase 7 | Pending |
-| INT-05 | Phase 7 | Pending |
-| CTRL-07 | Phase 8 | Pending |
-| CTRL-08 | Phase 8 | Pending |
-| INT-06 | Phase 9 | Pending |
-| CTRL-01 | Phase 9 | Pending |
-| CTRL-02 | Phase 9 | Pending |
-| CTRL-03 | Phase 9 | Pending |
-| CTRL-04 | Phase 9 | Pending |
-| CTRL-05 | Phase 9 | Pending |
-| CTRL-06 | Phase 9 | Pending |
-| VIZ-09 | Phase 10 | Pending |
-| PATH-01 | Phase 10 | Pending |
-| PATH-02 | Phase 10 | Pending |
-| PATH-03 | Phase 10 | Pending |
+| VIZ-01 | Phase 1 | Pending |
+| VIZ-02 | Phase 1 | Pending |
+| VIZ-03 | Phase 1 | Pending |
+| VIZ-04 | Phase 1 | Pending |
+| VIZ-05 | Phase 1 | Pending |
+| VIZ-06 | Phase 1 | Pending |
+| VIZ-07 | Phase 1 | Pending |
+| VIZ-08 | Phase 1 | Pending |
+| INT-01 | Phase 1 | Pending |
+| INT-02 | Phase 1 | Pending |
+| CTRL-07 | Phase 1 | Pending |
+| CTRL-08 | Phase 1 | Pending |
+| INT-03 | Phase 2 | Pending |
+| INT-04 | Phase 2 | Pending |
+| INT-05 | Phase 2 | Pending |
+| INT-06 | Phase 2 | Pending |
+| VIZ-09 | Phase 2 | Pending |
+| PATH-01 | Phase 2 | Pending |
+| PATH-02 | Phase 2 | Pending |
+| PATH-03 | Phase 2 | Pending |
+| CTRL-01 | Phase 2 | Pending |
+| CTRL-02 | Phase 2 | Pending |
+| CTRL-03 | Phase 2 | Pending |
+| CTRL-04 | Phase 2 | Pending |
+| CTRL-05 | Phase 2 | Pending |
+| CTRL-06 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total
 - Mapped to phases: 30
-- Unmapped: 0
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after roadmap creation*
+*Last updated: 2026-02-22 after roadmap restructure to 2 phases*
