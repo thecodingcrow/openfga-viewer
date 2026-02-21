@@ -1,7 +1,7 @@
-# Requirements: OpenFGA Viewer — Visual Overhaul
+# Requirements: OpenFGA Viewer -- Visual Overhaul
 
 **Defined:** 2026-02-22
-**Core Value:** The graph must be immediately readable — a user looking at it should see how access flows through types, relations, and permissions without untangling spaghetti edges or guessing what connects to what.
+**Core Value:** The graph must be immediately readable -- a user looking at it should see how access flows through types, relations, and permissions without untangling spaghetti edges or guessing what connects to what.
 
 ## v1 Requirements
 
@@ -30,8 +30,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **INT-01**: Hovering a permission row highlights upstream feeding paths without layout change (preview)
 - [ ] **INT-02**: Hovering a card header highlights downstream enabled paths without layout change (preview)
-- [ ] **INT-03**: Clicking a permission row enters upstream subgraph — removes non-relevant cards and re-lays out
-- [ ] **INT-04**: Clicking a card header enters downstream subgraph — removes non-relevant cards and re-lays out
+- [ ] **INT-03**: Clicking a permission row enters upstream subgraph -- removes non-relevant cards and re-lays out
+- [ ] **INT-04**: Clicking a card header enters downstream subgraph -- removes non-relevant cards and re-lays out
 - [ ] **INT-05**: Esc key or back button exits subgraph and returns to full graph
 - [ ] **INT-06**: Cards can be collapsed to header-only via double-click, triggering re-layout
 
@@ -43,7 +43,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Controls
 
-- [ ] **CTRL-01**: Dimension toggle chips in toolbar — one per detected dimension, togglable on/off
+- [ ] **CTRL-01**: Dimension toggle chips in toolbar -- one per detected dimension, togglable on/off
 - [ ] **CTRL-02**: Modifier+click on dimension chip for solo mode (show only that dimension's edges)
 - [ ] **CTRL-03**: Type filtering shows/hides entire cards
 - [ ] **CTRL-04**: Permissions-only toggle collapses relation sections on all cards
@@ -63,7 +63,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Performance
 
-- **PERF-01**: Semantic zoom — level of detail based on zoom level (collapse detail at far zoom)
+- **PERF-01**: Semantic zoom -- level of detail based on zoom level (collapse detail at far zoom)
 
 ## Out of Scope
 
@@ -71,9 +71,9 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Backend/API integration | Client-only tool — paste and explore |
+| Backend/API integration | Client-only tool -- paste and explore |
 | Real-time collaboration | Single-user tool |
-| TTU edge rendering | Intentionally hidden — drives dimension model instead |
+| TTU edge rendering | Intentionally hidden -- drives dimension model instead |
 | Mobile/touch support | Desktop tool with mouse interaction |
 | Test suite | Separate concern from visual overhaul |
 | CI/CD pipeline | Separate concern |
@@ -94,10 +94,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DATA-04 | Phase 1 | Pending |
 | VIZ-04 | Phase 2 | Pending |
 | VIZ-05 | Phase 2 | Pending |
-| VIZ-08 | Phase 3 | Pending |
 | VIZ-01 | Phase 3 | Pending |
 | VIZ-02 | Phase 3 | Pending |
 | VIZ-03 | Phase 3 | Pending |
+| VIZ-08 | Phase 3 | Pending |
 | INT-01 | Phase 3 | Pending |
 | INT-02 | Phase 3 | Pending |
 | VIZ-06 | Phase 6 | Pending |
@@ -105,25 +105,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INT-03 | Phase 7 | Pending |
 | INT-04 | Phase 7 | Pending |
 | INT-05 | Phase 7 | Pending |
-| VIZ-09 | Phase 10 | Pending |
+| CTRL-07 | Phase 8 | Pending |
+| CTRL-08 | Phase 8 | Pending |
 | INT-06 | Phase 9 | Pending |
-| PATH-01 | Phase 10 | Pending |
-| PATH-02 | Phase 10 | Pending |
-| PATH-03 | Phase 10 | Pending |
 | CTRL-01 | Phase 9 | Pending |
 | CTRL-02 | Phase 9 | Pending |
 | CTRL-03 | Phase 9 | Pending |
 | CTRL-04 | Phase 9 | Pending |
 | CTRL-05 | Phase 9 | Pending |
 | CTRL-06 | Phase 9 | Pending |
-| CTRL-07 | Phase 8 | Pending |
-| CTRL-08 | Phase 8 | Pending |
+| VIZ-09 | Phase 10 | Pending |
+| PATH-01 | Phase 10 | Pending |
+| PATH-02 | Phase 10 | Pending |
+| PATH-03 | Phase 10 | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total
 - Mapped to phases: 30
-- Unmapped: 0 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initialization from design doc + implementation plan*
+*Last updated: 2026-02-22 after roadmap creation*
