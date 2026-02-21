@@ -8,17 +8,19 @@ const NodeSwatch = ({
   borderWidth,
   rounded,
   label,
+  dashed,
 }: {
   borderColor: string;
   borderWidth: number;
   rounded: string;
   label: string;
+  dashed?: boolean;
 }) => (
   <div
     className={`px-2 py-0.5 text-[10px] ${rounded} shrink-0`}
     style={{
       background: "rgba(30, 41, 59, 0.9)",
-      border: `${borderWidth}px solid ${borderColor}`,
+      border: `${borderWidth}px ${dashed ? 'dashed' : 'solid'} ${borderColor}`,
       color: borderColor,
     }}
   >
@@ -30,6 +32,7 @@ const EdgeSwatch = ({
   color,
   strokeWidth = 1.5,
   dashed,
+  dashArray,
   opacity = 1,
   filled,
   label,
@@ -37,6 +40,7 @@ const EdgeSwatch = ({
   color: string;
   strokeWidth?: number;
   dashed?: boolean;
+  dashArray?: string;
   opacity?: number;
   filled?: boolean;
   label?: string;
@@ -50,7 +54,7 @@ const EdgeSwatch = ({
         y2="6"
         stroke={color}
         strokeWidth={strokeWidth}
-        strokeDasharray={dashed ? "4 3" : undefined}
+        strokeDasharray={dashArray ?? (dashed ? "4 3" : undefined)}
       />
       {/* Arrowhead */}
       {filled ? (
@@ -184,6 +188,19 @@ const LegendPanel = () => {
         <LegendItem
           swatch={
             <NodeSwatch
+              borderColor="#f59e0b60"
+              borderWidth={1}
+              rounded="rounded-md"
+              label="binding"
+              dashed
+            />
+          }
+          title="Binding"
+          desc="— tupleset relation (tenant link)"
+        />
+        <LegendItem
+          swatch={
+            <NodeSwatch
               borderColor="#34d399"
               borderWidth={1}
               rounded="rounded-full"
@@ -204,6 +221,11 @@ const LegendPanel = () => {
           swatch={<EdgeSwatch color={blueprint.edgeComputed} strokeWidth={1.5} dashed />}
           title="Computed"
           desc="— userset reference"
+        />
+        <LegendItem
+          swatch={<EdgeSwatch color="#6d8a50" strokeWidth={1.5} dashArray="2 4" />}
+          title="Tupleset Dep"
+          desc="— binding \u2192 permission link"
         />
 
         <SectionLabel>Colors</SectionLabel>

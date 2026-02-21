@@ -11,7 +11,7 @@ function ComputedEdgeComponent(props: EdgeProps) {
       ? elkPointsToPath(elkRoute.points)
       : getSmoothStepPath(props)[0];
 
-  const { stroke, strokeWidth, opacity, filter } = useEdgeInteraction(
+  const { stroke, strokeWidth, opacity, filter, zIndex } = useEdgeInteraction(
     props.id, props.source, props.target, 'computed',
   );
 
@@ -20,7 +20,7 @@ function ComputedEdgeComponent(props: EdgeProps) {
       path={path}
       markerEnd={props.markerEnd}
       interactionWidth={20}
-      style={{ strokeDasharray: '4 3', stroke, strokeWidth, opacity, filter }}
+      style={{ strokeDasharray: '4 3', stroke, strokeWidth, opacity, filter, zIndex }}
     />
   );
 }

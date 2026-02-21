@@ -14,7 +14,7 @@ export type NodeKind = "type" | "relation";
  * - computed: reference to another relation on the same type (computedUserset)
  * - ttu:      `relation from tupleset` (tupleToUserset)
  */
-export type RewriteRule = "direct" | "computed" | "ttu";
+export type RewriteRule = "direct" | "computed" | "ttu" | "tupleset-dep";
 
 /**
  * A node in the authorization graph.
@@ -35,6 +35,8 @@ export interface AuthorizationNode {
   definition?: string;
   /** Node IDs this relation's type expression resolves to */
   targets: string[];
+  /** True if this relation is used as a tupleset target (structural binding) */
+  isTuplesetBinding?: boolean;
 }
 
 /**

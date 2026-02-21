@@ -8,6 +8,8 @@ export interface FgaNodeData {
   isPermission: boolean;
   definition?: string;
   isCompound?: boolean;
+  hasParent?: boolean;
+  isTuplesetBinding?: boolean;
   [key: string]: unknown;
 }
 
@@ -25,17 +27,24 @@ export function toFlowNode(node: AuthorizationNode): Node<FgaNodeData> {
       relation: node.relation ?? '',
       isPermission: node.isPermission,
       definition: node.definition,
+      isTuplesetBinding: node.isTuplesetBinding,
     },
   };
 }
 
 // Marker definitions per visual edge type
-const MARKERS: Record<'direct' | 'computed', Edge['markerEnd']> = {
+const MARKERS: Record<'direct' | 'computed' | 'tupleset-dep', Edge['markerEnd']> = {
   computed: {
     type: MarkerType.Arrow,
     width: 12,
     height: 12,
     color: blueprint.edgeComputed,
+  },
+  'tupleset-dep': {
+    type: MarkerType.Arrow,
+    width: 10,
+    height: 10,
+    color: blueprint.edgeTuplesetDep,
   },
   direct: {
     type: MarkerType.Arrow,
@@ -46,7 +55,7 @@ const MARKERS: Record<'direct' | 'computed', Edge['markerEnd']> = {
 };
 
 export function toFlowEdge(edge: AuthorizationEdge): Edge {
-  const rule = edge.rewriteRule as 'direct' | 'computed';
+  const rule = edge.rewriteRule as 'direct' | 'computed' | 'tupleset-dep';
   return {
     id: edge.id,
     source: edge.source,
@@ -73,6 +82,10 @@ export function toFlowElements(
     const n = toFlowNode(node);
     if (node.kind === 'type' && compoundTypes.has(node.type)) {
       n.data.isCompound = true;
+    }
+    // Mark child nodes that will be inside a compound
+    if (node.kind !== 'type' && compoundTypes.has(node.type)) {
+      n.data.hasParent = true;
     }
     return n;
   });

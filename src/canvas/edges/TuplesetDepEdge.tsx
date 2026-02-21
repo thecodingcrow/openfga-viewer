@@ -4,7 +4,7 @@ import { elkPointsToPath } from '../../layout/elk-path';
 import type { ElkRoute } from '../../layout/elk-layout';
 import { useEdgeInteraction } from './useEdgeInteraction';
 
-function DirectEdgeComponent(props: EdgeProps) {
+function TuplesetDepEdgeComponent(props: EdgeProps) {
   const elkRoute = (props.data as { elkRoute?: ElkRoute } | undefined)?.elkRoute;
   const path =
     elkRoute?.points && elkRoute.points.length >= 2
@@ -12,7 +12,7 @@ function DirectEdgeComponent(props: EdgeProps) {
       : getSmoothStepPath(props)[0];
 
   const { stroke, strokeWidth, opacity, filter, zIndex } = useEdgeInteraction(
-    props.id, props.source, props.target, 'direct',
+    props.id, props.source, props.target, 'tupleset-dep',
   );
 
   return (
@@ -20,9 +20,9 @@ function DirectEdgeComponent(props: EdgeProps) {
       path={path}
       markerEnd={props.markerEnd}
       interactionWidth={20}
-      style={{ stroke, strokeWidth, opacity, filter, zIndex }}
+      style={{ strokeDasharray: '2 4', stroke, strokeWidth, opacity, filter, zIndex }}
     />
   );
 }
 
-export const DirectEdge = memo(DirectEdgeComponent);
+export const TuplesetDepEdge = memo(TuplesetDepEdgeComponent);

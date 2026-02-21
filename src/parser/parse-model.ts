@@ -133,6 +133,7 @@ export function buildAuthorizationGraph(dsl: string): AuthorizationGraph {
   const nodeMap = new Map<string, AuthorizationNode>();
   const edgeList: AuthorizationEdge[] = [];
   let edgeSeq = 0;
+  const seenTuplesetDeps = new Set<string>();
 
   const ensureTypeNode = (typeName: string) => {
     if (!nodeMap.has(typeName)) {
@@ -250,6 +251,20 @@ export function buildAuthorizationGraph(dsl: string): AuthorizationGraph {
               `from ${tuplesetRel}`,
               tuplesetRel,
             );
+          }
+
+          // ── Tupleset dependency (intra-compound binding) ──
+          const tuplesetDepSource = relationNodeId(typeName, tuplesetRel);
+          const tuplesetDepKey = `${tuplesetDepSource}|${targetId}`;
+          if (!seenTuplesetDeps.has(tuplesetDepKey)) {
+            seenTuplesetDeps.add(tuplesetDepKey);
+            ensureRelationNode(typeName, tuplesetRel);
+            addEdge(tuplesetDepSource, targetId, "tupleset-dep");
+          }
+
+          const tuplesetNode = nodeMap.get(tuplesetDepSource);
+          if (tuplesetNode) {
+            tuplesetNode.isTuplesetBinding = true;
           }
         }
       }

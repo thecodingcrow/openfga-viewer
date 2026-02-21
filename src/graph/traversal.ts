@@ -194,7 +194,7 @@ export function applyFilters(
   }
 
   if (!noPermissionFilter) {
-    filtered = filtered.filter((n) => n.kind === "type" || n.isPermission);
+    filtered = filtered.filter((n) => n.kind === "type" || n.isPermission || n.isTuplesetBinding);
   }
 
   const nodeIds = new Set(filtered.map((n) => n.id));

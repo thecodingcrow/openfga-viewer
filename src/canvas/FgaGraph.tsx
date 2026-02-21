@@ -25,6 +25,7 @@ import { RelationNode } from './nodes/RelationNode';
 import { PermissionNode } from './nodes/PermissionNode';
 import { DirectEdge } from './edges/DirectEdge';
 import { ComputedEdge } from './edges/ComputedEdge';
+import { TuplesetDepEdge } from './edges/TuplesetDepEdge';
 
 const nodeTypes = {
   type: TypeNode,
@@ -35,6 +36,7 @@ const nodeTypes = {
 const edgeTypes = {
   direct: DirectEdge,
   computed: ComputedEdge,
+  'tupleset-dep': TuplesetDepEdge,
 };
 
 const FgaGraphInner = () => {
@@ -141,7 +143,11 @@ const FgaGraphInner = () => {
   );
 
   const onNodeMouseEnter = useCallback(
-    (_: React.MouseEvent, node: Node) => setHoveredNode(node.id, fullEdges),
+    (_: React.MouseEvent, node: Node) => {
+      // Skip hover on compound type nodes — they're containers, not exploration targets
+      if (node.type === 'type' && (node.data as { isCompound?: boolean }).isCompound) return;
+      setHoveredNode(node.id, fullEdges);
+    },
     [setHoveredNode, fullEdges],
   );
 
