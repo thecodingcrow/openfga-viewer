@@ -69,8 +69,9 @@ function redistributeCompoundChildren(
   laidOut: ElkNode,
   direction: 'TB' | 'LR',
   permissionIds: Set<string>,
-): Set<string> {
+): { nodeIds: Set<string>; compoundIds: Set<string> } {
   const redistributed = new Set<string>();
+  const redistributedCompounds = new Set<string>();
   const isTB = direction === 'TB';
 
   for (const compound of laidOut.children ?? []) {
@@ -79,13 +80,20 @@ function redistributeCompoundChildren(
     const span = isTB ? (compound.width ?? 0) : (compound.height ?? 0);
     if (span <= MAX_COMPOUND_SIZE) continue;
 
-    // Split into relation band (roles) and permission band, preserving
-    // ELK layer order within each band for dependency-direction flow.
-    const sortByLayer = (a: ElkNode, b: ElkNode) => {
+    // Split into relation band (roles) and permission band.
+    // Relations: sort main-axis first (preserves ELK layer order).
+    // Permissions: sort cross-axis first (groups by connectivity/column).
+    const sortByMainFirst = (a: ElkNode, b: ElkNode) => {
       const aMain = isTB ? (a.y ?? 0) : (a.x ?? 0);
       const bMain = isTB ? (b.y ?? 0) : (b.x ?? 0);
       if (aMain !== bMain) return aMain - bMain;
       return isTB ? (a.x ?? 0) - (b.x ?? 0) : (a.y ?? 0) - (b.y ?? 0);
+    };
+    const sortByCrossFirst = (a: ElkNode, b: ElkNode) => {
+      const aCross = isTB ? (a.x ?? 0) : (a.y ?? 0);
+      const bCross = isTB ? (b.x ?? 0) : (b.y ?? 0);
+      if (aCross !== bCross) return aCross - bCross;
+      return isTB ? (a.y ?? 0) - (b.y ?? 0) : (a.x ?? 0) - (b.x ?? 0);
     };
 
     const relationBand: ElkNode[] = [];
@@ -97,8 +105,8 @@ function redistributeCompoundChildren(
         relationBand.push(child);
       }
     }
-    relationBand.sort(sortByLayer);
-    permissionBand.sort(sortByLayer);
+    relationBand.sort(sortByMainFirst);
+    permissionBand.sort(sortByCrossFirst);
 
     const bands = [relationBand, permissionBand].filter((b) => b.length > 0);
 
@@ -112,21 +120,39 @@ function redistributeCompoundChildren(
 
     if (isTB) {
       const avail = MAX_COMPOUND_SIZE - GRID_PADDING.left - GRID_PADDING.right;
-      const cols = Math.max(1, Math.floor((avail + COL_GAP) / (maxW + COL_GAP)));
+      const numCols = Math.max(1, Math.floor((avail + COL_GAP) / (maxW + COL_GAP)));
 
       let row = 0;
       let maxColsUsed = 0;
+      const isPermBand = (band: ElkNode[]) =>
+        band.length > 0 && permissionIds.has(band[0].id);
 
       for (const band of bands) {
-        let col = 0;
-        for (const child of band) {
-          child.x = GRID_PADDING.left + col * (maxW + COL_GAP);
-          child.y = GRID_PADDING.top + row * (maxH + ROW_GAP);
-          col++;
-          if (col >= cols) { col = 0; row++; }
+        if (isPermBand(band)) {
+          // Column-major fill: keeps cross-axis groups in same column
+          const numRows = Math.ceil(band.length / numCols);
+          for (let c = 0; c < numCols; c++) {
+            for (let r = 0; r < numRows; r++) {
+              const idx = c * numRows + r;
+              if (idx >= band.length) continue;
+              band[idx].x = GRID_PADDING.left + c * (maxW + COL_GAP);
+              band[idx].y = GRID_PADDING.top + (row + r) * (maxH + ROW_GAP);
+            }
+          }
+          maxColsUsed = Math.max(maxColsUsed, Math.min(band.length, numCols));
+          row += numRows;
+        } else {
+          // Row-major fill for relation band (unchanged)
+          let col = 0;
+          for (const child of band) {
+            child.x = GRID_PADDING.left + col * (maxW + COL_GAP);
+            child.y = GRID_PADDING.top + row * (maxH + ROW_GAP);
+            col++;
+            if (col >= numCols) { col = 0; row++; }
+          }
+          maxColsUsed = Math.max(maxColsUsed, Math.min(band.length, numCols));
+          if (col > 0) row++; // band break: start new row for next band
         }
-        maxColsUsed = Math.max(maxColsUsed, Math.min(band.length, cols));
-        if (col > 0) row++; // band break: start new row for next band
       }
 
       compound.width =
@@ -134,22 +160,43 @@ function redistributeCompoundChildren(
       compound.height =
         GRID_PADDING.top + row * (maxH + ROW_GAP) - ROW_GAP + GRID_PADDING.bottom;
     } else {
+      // LR mode: main axis is x (columns), cross axis is y (rows)
       const avail = MAX_COMPOUND_SIZE - GRID_PADDING.top - GRID_PADDING.bottom;
-      const rows = Math.max(1, Math.floor((avail + ROW_GAP) / (maxH + ROW_GAP)));
+      const numRows = Math.max(1, Math.floor((avail + ROW_GAP) / (maxH + ROW_GAP)));
+      const isPermBand = (band: ElkNode[]) =>
+        band.length > 0 && permissionIds.has(band[0].id);
 
       let colIdx = 0;
       let maxRowsUsed = 0;
 
       for (const band of bands) {
-        let rowIdx = 0;
-        for (const child of band) {
-          child.x = GRID_PADDING.left + colIdx * (maxW + COL_GAP);
-          child.y = GRID_PADDING.top + rowIdx * (maxH + ROW_GAP);
-          rowIdx++;
-          if (rowIdx >= rows) { rowIdx = 0; colIdx++; }
+        if (isPermBand(band)) {
+          // Column-major fill (in LR, "column" = row-axis, "row" = col-axis)
+          // Sort is cross-axis first (y). Fill: for each row r, for each col c,
+          // place node at index r * numCols + c. numCols = ceil(len / numRows).
+          const numBandCols = Math.ceil(band.length / numRows);
+          for (let r = 0; r < numRows; r++) {
+            for (let c = 0; c < numBandCols; c++) {
+              const idx = r * numBandCols + c;
+              if (idx >= band.length) continue;
+              band[idx].x = GRID_PADDING.left + (colIdx + c) * (maxW + COL_GAP);
+              band[idx].y = GRID_PADDING.top + r * (maxH + ROW_GAP);
+            }
+          }
+          maxRowsUsed = Math.max(maxRowsUsed, Math.min(band.length, numRows));
+          colIdx += numBandCols;
+        } else {
+          // Row-major fill for relation band (unchanged)
+          let rowIdx = 0;
+          for (const child of band) {
+            child.x = GRID_PADDING.left + colIdx * (maxW + COL_GAP);
+            child.y = GRID_PADDING.top + rowIdx * (maxH + ROW_GAP);
+            rowIdx++;
+            if (rowIdx >= numRows) { rowIdx = 0; colIdx++; }
+          }
+          maxRowsUsed = Math.max(maxRowsUsed, Math.min(band.length, numRows));
+          if (rowIdx > 0) colIdx++; // band break: start new column for next band
         }
-        maxRowsUsed = Math.max(maxRowsUsed, Math.min(band.length, rows));
-        if (rowIdx > 0) colIdx++; // band break: start new column for next band
       }
 
       compound.width =
@@ -159,9 +206,10 @@ function redistributeCompoundChildren(
     }
 
     for (const child of compound.children) redistributed.add(child.id);
+    redistributedCompounds.add(compound.id);
   }
 
-  return redistributed;
+  return { nodeIds: redistributed, compoundIds: redistributedCompounds };
 }
 
 /**
@@ -347,13 +395,30 @@ export async function getLayoutedElements(
   for (const node of nodes) {
     if (node.type === 'permission') permissionIds.add(node.id);
   }
-  const redistributedNodeIds = redistributeCompoundChildren(
-    laidOut, direction, permissionIds,
-  );
+  const { nodeIds: redistributedNodeIds, compoundIds: redistributedCompoundIds } =
+    redistributeCompoundChildren(laidOut, direction, permissionIds);
+
+  // Record compound positions before repack so we can compute deltas
+  const preRepackPositions = new Map<string, { x: number; y: number }>();
+  for (const c of laidOut.children ?? []) {
+    preRepackPositions.set(c.id, { x: c.x ?? 0, y: c.y ?? 0 });
+  }
 
   // Repack root-level positions with updated compound sizes
   if (redistributedNodeIds.size > 0) {
     await repackRootLevel(laidOut, validEdges, direction);
+  }
+
+  // Compute how much each compound moved during repack
+  const compoundDeltas = new Map<string, { dx: number; dy: number }>();
+  for (const c of laidOut.children ?? []) {
+    const pre = preRepackPositions.get(c.id);
+    if (pre) {
+      compoundDeltas.set(c.id, {
+        dx: (c.x ?? 0) - pre.x,
+        dy: (c.y ?? 0) - pre.y,
+      });
+    }
   }
 
   // ── Extract positions from hierarchical result ─────────────────────────
@@ -439,18 +504,48 @@ export async function getLayoutedElements(
     };
   });
 
-  // When compounds were repacked, all root positions changed — skip ALL ELK
-  // routes and let React Flow's getSmoothStepPath compute from live positions.
-  const skipAllRoutes = redistributedNodeIds.size > 0;
-
+  // Per-edge route decision: preserve ELK routes for edges within compounds
+  // that were NOT redistributed, translating by the repack delta. Discard
+  // routes for edges touching redistributed compounds or crossing compounds.
   const enrichedEdges = edges.map((edge) => {
     const route = edgeRoutes.get(edge.id);
     const srcBounds = nodeBounds.get(edge.source);
+    let elkRoute: ElkRoute | undefined;
+
+    if (route) {
+      if (!redistributedCompoundIds.size) {
+        // No redistribution at all — all routes valid as-is
+        elkRoute = route;
+      } else {
+        const srcParent = childParentMap.get(edge.source);
+        const tgtParent = childParentMap.get(edge.target);
+        const sameCompound = srcParent != null && srcParent === tgtParent;
+        const notRedistributed = sameCompound && !redistributedCompoundIds.has(srcParent);
+
+        if (notRedistributed) {
+          // Translate route by the compound's repack delta
+          const delta = compoundDeltas.get(srcParent);
+          if (delta && (delta.dx !== 0 || delta.dy !== 0)) {
+            elkRoute = {
+              ...route,
+              points: route.points.map((p) => ({
+                x: p.x + delta.dx,
+                y: p.y + delta.dy,
+              })),
+            };
+          } else {
+            elkRoute = route;
+          }
+        }
+        // else: route invalid (redistributed compound or inter-compound edge)
+      }
+    }
+
     return {
       ...edge,
       data: {
         ...edge.data,
-        ...(route && !skipAllRoutes ? { elkRoute: route } : {}),
+        ...(elkRoute ? { elkRoute } : {}),
         ...(edge.source === edge.target && srcBounds
           ? { sourceNodeWidth: srcBounds.width }
           : {}),

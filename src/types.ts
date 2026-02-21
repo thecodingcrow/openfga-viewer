@@ -37,6 +37,8 @@ export interface AuthorizationNode {
   targets: string[];
   /** True if this relation is used as a tupleset target (structural binding) */
   isTuplesetBinding?: boolean;
+  /** For tupleset bindings: the type this relation references (drives color) */
+  referencedType?: string;
 }
 
 /**

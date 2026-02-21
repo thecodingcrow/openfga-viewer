@@ -265,6 +265,13 @@ export function buildAuthorizationGraph(dsl: string): AuthorizationGraph {
           const tuplesetNode = nodeMap.get(tuplesetDepSource);
           if (tuplesetNode) {
             tuplesetNode.isTuplesetBinding = true;
+
+            // Extract referenced type from directly_related_user_types
+            const restrictions = (metadata[tuplesetRel]?.directly_related_user_types ?? [])
+              .filter((r: TypeRestriction) => !r.wildcard && !r.relation);
+            if (restrictions.length === 1) {
+              tuplesetNode.referencedType = restrictions[0].type;
+            }
           }
         }
       }

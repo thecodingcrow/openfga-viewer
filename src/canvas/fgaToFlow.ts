@@ -10,6 +10,7 @@ export interface FgaNodeData {
   isCompound?: boolean;
   hasParent?: boolean;
   isTuplesetBinding?: boolean;
+  referencedType?: string;
   [key: string]: unknown;
 }
 
@@ -28,6 +29,7 @@ export function toFlowNode(node: AuthorizationNode): Node<FgaNodeData> {
       isPermission: node.isPermission,
       definition: node.definition,
       isTuplesetBinding: node.isTuplesetBinding,
+      referencedType: node.referencedType,
     },
   };
 }

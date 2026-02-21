@@ -6,9 +6,9 @@ import { useNodeInteraction } from './useNodeInteraction';
 
 function RelationNodeComponent({ id, data }: NodeProps) {
   const d = data as FgaNodeData;
-  const color = TYPE_PALETTE[d.typeName] ?? TYPE_PALETTE._default;
-  const { dimmed } = useNodeInteraction(id);
   const isBinding = d.isTuplesetBinding;
+  const color = TYPE_PALETTE[isBinding && d.referencedType ? d.referencedType : d.typeName] ?? TYPE_PALETTE._default;
+  const { dimmed } = useNodeInteraction(id);
 
   return (
     <div
