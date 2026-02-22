@@ -47,6 +47,16 @@ export function toFlowElements(graph: AuthorizationGraph): {
   // 2. Classify edges into cross-card (visual) and same-card (text)
   const { crossCard } = classifyEdges(graph.edges);
 
+  // Build lookup: rowId → TTU dimension color (for TTU-inherited rows)
+  const ttuColorByTarget = new Map<string, string>();
+  for (const edge of graph.edges) {
+    if (edge.rewriteRule !== "ttu" || !edge.tuplesetRelation) continue;
+    const dim = dimensions.get(edge.tuplesetRelation);
+    if (dim) {
+      ttuColorByTarget.set(edge.target, dim.color);
+    }
+  }
+
   // 3. Group nodes by type
   const nodesByType = new Map<string, typeof graph.nodes>();
   for (const node of graph.nodes) {
@@ -105,6 +115,7 @@ export function toFlowElements(graph: AuthorizationGraph): {
         id: node.id,
         name: node.relation ?? node.id,
         section: "relation",
+        ttuDimensionColor: ttuColorByTarget.get(node.id),
       });
     }
 
@@ -116,6 +127,7 @@ export function toFlowElements(graph: AuthorizationGraph): {
         expression: node.definition
           ? transformExpression(node.definition)
           : undefined,
+        ttuDimensionColor: ttuColorByTarget.get(node.id),
       });
     }
 

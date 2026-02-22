@@ -133,6 +133,8 @@ export interface CardRow {
   expression?: string;
   /** Dimension color for binding dots (bindings only) */
   dimensionColor?: string;
+  /** Dimension color if this row has an incoming TTU edge (inherited permission) */
+  ttuDimensionColor?: string;
 }
 
 /** Data for a single ERD schema card (one per FGA type) */
