@@ -80,6 +80,11 @@ Recent decisions affecting current work:
 - [02-05]: Search key weights: fullId 2x, type/relation 1.5x, definition 0.5x for intuitive ranking
 - [02-05]: Flat index tracking with const capture for correct onMouseEnter closure binding in grouped results
 - [02-05]: Group headers only shown during active search, hidden for recently visited list
+- [02-06]: Sidebar/panel icon for inspect toggle to avoid confusion with search magnifying glass
+- [02-06]: 320px fixed-width panel overlays canvas (no resize) per locked design decision
+- [02-06]: Local expand state (Set in component) not Zustand since expand/collapse is ephemeral UI state
+- [02-06]: Subgraph tree shows only relevant rows for focused view
+- [02-06]: Tree nodes navigate by section: types downstream, permissions/relations upstream
 
 ### Pending Todos
 
