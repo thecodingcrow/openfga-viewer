@@ -73,12 +73,36 @@ export type FocusMode = "overview" | "neighborhood" | "path";
 export interface GraphFilters {
   /** Show only these types (empty array = show all) */
   types: string[];
-  /** When true, only show permission relations (can_*) and type nodes */
-  permissionsOnly: boolean;
 }
 
 /** Dagre layout direction (top-to-bottom or left-to-right) */
 export type LayoutDirection = "TB" | "LR";
+
+// ─── Navigation types ────────────────────────────────────────────────────────
+
+/** A single frame in the subgraph navigation stack */
+export interface NavigationFrame {
+  /** The node ID that was clicked to enter this subgraph */
+  entryNodeId: string;
+  /** Direction of traversal */
+  direction: "upstream" | "downstream";
+  /** Display label for breadcrumb (e.g., "document#can_view" or "user") */
+  label: string;
+  /** Type names of cards visible in this subgraph */
+  visibleTypeIds: Set<string>;
+  /** Row IDs (AuthorizationNode IDs) that are "relevant" (non-dimmed) */
+  relevantRowIds: Set<string>;
+}
+
+/** A dimension that references itself (e.g., parent category hierarchy) */
+export interface SelfReferencingDimension {
+  /** Dimension name */
+  dimensionName: string;
+  /** The type that self-references */
+  typeName: string;
+  /** Tooltip text explaining the self-reference */
+  tooltip: string;
+}
 
 // ─── Dimension & Schema Card types ──────────────────────────────────────────
 

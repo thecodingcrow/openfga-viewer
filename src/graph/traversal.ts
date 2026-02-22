@@ -2,6 +2,7 @@ import type {
   AuthorizationNode,
   AuthorizationEdge,
   GraphFilters,
+  SelfReferencingDimension,
 } from "../types";
 
 // ─── Neighborhood (focus mode) ──────────────────────────────────────────────
@@ -247,7 +248,7 @@ export function traceDownstream(
 // ─── Filtering ──────────────────────────────────────────────────────────────
 
 /**
- * Apply type and permission filters to the graph.
+ * Apply type filters to the graph.
  * Returns original node/edge refs when no filters are active (referential stability).
  */
 export function applyFilters(
@@ -256,22 +257,13 @@ export function applyFilters(
   filters: GraphFilters,
 ): { nodes: AuthorizationNode[]; edges: AuthorizationEdge[] } {
   const noTypeFilter = filters.types.length === 0;
-  const noPermissionFilter = !filters.permissionsOnly;
 
-  if (noTypeFilter && noPermissionFilter) {
+  if (noTypeFilter) {
     return { nodes, edges };
   }
 
-  let filtered = nodes;
-
-  if (!noTypeFilter) {
-    const typeSet = new Set(filters.types);
-    filtered = filtered.filter((n) => typeSet.has(n.type));
-  }
-
-  if (!noPermissionFilter) {
-    filtered = filtered.filter((n) => n.kind === "type" || n.isPermission || n.isTuplesetBinding);
-  }
+  const typeSet = new Set(filters.types);
+  const filtered = nodes.filter((n) => typeSet.has(n.type));
 
   const nodeIds = new Set(filtered.map((n) => n.id));
   const filteredEdges = edges.filter(
@@ -346,4 +338,39 @@ export function computeDepthLayers(
 /** Extract sorted unique type names from the node set */
 export function extractTypeNames(nodes: AuthorizationNode[]): string[] {
   return [...new Set(nodes.map((n) => n.type))].sort();
+}
+
+// ─── Self-referencing dimension detection ────────────────────────────────────
+
+/**
+ * Detect dimensions where a type references itself via a TTU edge.
+ * e.g., category#parent -> category (parent category hierarchy).
+ * Returns an array of SelfReferencingDimension objects.
+ */
+export function detectSelfReferencingDimensions(
+  edges: AuthorizationEdge[],
+): SelfReferencingDimension[] {
+  const seen = new Set<string>();
+  const results: SelfReferencingDimension[] = [];
+
+  for (const edge of edges) {
+    if (edge.rewriteRule !== "ttu" || !edge.tuplesetRelation) continue;
+
+    const sourceType = edge.source.split("#")[0];
+    const targetType = edge.target.split("#")[0];
+
+    if (sourceType !== targetType) continue;
+
+    const key = `${edge.tuplesetRelation}|${sourceType}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    results.push({
+      dimensionName: edge.tuplesetRelation,
+      typeName: sourceType,
+      tooltip: `Permission can be inherited from parent ${edge.tuplesetRelation}s`,
+    });
+  }
+
+  return results;
 }
