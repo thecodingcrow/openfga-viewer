@@ -373,12 +373,12 @@ function TreeItemComponent({
 
 const TreeItem = memo(TreeItemComponent);
 
-// ─── InspectPanel ────────────────────────────────────────────────────────────
+// ─── InspectContent ──────────────────────────────────────────────────────────
+// Content-only component: filter input, tree area, and navigation footer.
+// Intended to be rendered inside a tabbed container (EditorPanel).
 
-const InspectPanel = () => {
+const InspectContent = () => {
   // Store subscriptions
-  const panelOpen = useViewerStore((s) => s.panelOpen);
-  const togglePanel = useViewerStore((s) => s.togglePanel);
   const nodes = useViewerStore((s) => s.nodes);
   const dimensions = useViewerStore((s) => s.dimensions);
   const navigationStack = useViewerStore((s) => s.navigationStack);
@@ -472,51 +472,7 @@ const InspectPanel = () => {
   }, [clearHover]);
 
   return (
-    <div
-      className="fixed right-0 top-0 bottom-0 z-40 flex flex-col"
-      style={{
-        width: 320,
-        background: "rgba(15, 23, 41, 0.95)",
-        borderLeft: "1px solid #2a3a5c",
-        boxShadow: "-4px 0 12px rgba(0, 0, 0, 0.3)",
-        transform: panelOpen ? "translateX(0)" : "translateX(100%)",
-        transition: "transform 250ms ease-in-out",
-        pointerEvents: panelOpen ? "auto" : "none",
-      }}
-    >
-      {/* Header */}
-      <div
-        className="flex items-center justify-between px-3 py-2 flex-shrink-0"
-        style={{ borderBottom: "1px solid #2a3a5c" }}
-      >
-        <span
-          className="text-sm font-semibold"
-          style={{ color: blueprint.nodeHeader }}
-        >
-          Inspect
-        </span>
-        <button
-          onClick={togglePanel}
-          className="w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer"
-          style={{ color: blueprint.muted }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = blueprint.nodeBody;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = blueprint.muted;
-          }}
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path
-              d="M1 1L9 9M9 1L1 9"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
-      </div>
-
+    <>
       {/* Filter input */}
       <div className="px-3 py-2 flex-shrink-0" style={{ borderBottom: "1px solid #2a3a5c" }}>
         <div className="relative">
@@ -598,8 +554,8 @@ const InspectPanel = () => {
           </span>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
-export default InspectPanel;
+export default InspectContent;

@@ -3,7 +3,6 @@ import Canvas from "./canvas/Canvas";
 import Breadcrumb from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
-import InspectPanel from "./inspect/InspectPanel";
 import { useViewerStore } from "./store/viewer-store";
 
 const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
@@ -114,7 +113,6 @@ const App = () => {
       <Breadcrumb />
       <EditorPanel />
       <Toolbar />
-      <InspectPanel />
     </div>
   );
 };
