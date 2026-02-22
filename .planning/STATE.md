@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 2 of 2 (Interaction & Polish)
-Plan: 2 of 7 in current phase
+Plan: 4 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 -- Completed 02-02 (Navigation Stack Store)
+Last activity: 2026-02-22 -- Completed 02-04 (Breadcrumb & Navigation Wiring)
 
-Progress: [██████████████] 60%
+Progress: [████████████████████] 73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 4min
-- Total execution time: 0.35 hours
+- Total plans completed: 7
+- Average duration: 3min
+- Total execution time: 0.38 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-pipeline | 4 | 16min | 4min |
-| 02-interaction-polish | 2 | 5min | 2.5min |
+| 02-interaction-polish | 3 | 7min | 2.3min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (3min), 01-03 (5min), 01-04 (4min), 02-01 (2min), 02-02 (3min)
+- Last 5 plans: 01-03 (5min), 01-04 (4min), 02-01 (2min), 02-02 (3min), 02-04 (2min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [02-02]: NavigationFrame stores pre-computed Sets (visibleTypeIds, relevantRowIds) for stable references
 - [02-02]: popSubgraph does NOT manipulate browser history -- called BY the popstate handler
 - [02-02]: Self-referencing dimensions detected via TTU edge self-loops (source type === target type)
+- [02-04]: Breadcrumb click handlers call jumpToLevel AND window.history.go to keep store and browser history in sync
+- [02-04]: Esc key priority chain: close search > pop subgraph > do nothing
+- [02-04]: Popstate handler uses empty deps array with getState() for stable reference, no circular history manipulation
 
 ### Pending Todos
 
@@ -81,5 +84,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-02-PLAN.md
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
