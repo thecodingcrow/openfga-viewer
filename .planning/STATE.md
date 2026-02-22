@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 1 of 2 (Core Pipeline)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-22 -- Completed 01-02 (Visual Components)
+Last activity: 2026-02-22 -- Completed 01-03 (ELK Layout & FgaGraph)
 
-Progress: [████░░░░░░] 25%
+Progress: [██████░░░░] 38%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 3.5min
-- Total execution time: 0.12 hours
+- Total plans completed: 3
+- Average duration: 4min
+- Total execution time: 0.2 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-core-pipeline | 2 | 7min | 3.5min |
+| 01-core-pipeline | 3 | 12min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4min), 01-02 (3min)
+- Last 5 plans: 01-01 (4min), 01-02 (3min), 01-03 (5min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -53,6 +53,10 @@ Recent decisions affecting current work:
 - [01-02]: Inline SVG markers per edge instead of shared MarkerType defs for per-edge color matching
 - [01-02]: DimensionEdgeWithMarker wrapper pattern separates marker definition from edge rendering
 - [01-02]: Section-based rendering in TypeCardNode — groups rows by section, skips empty sections
+- [01-03]: Flat ELK layout with no hierarchy -- every card is root-level node with FIXED_ORDER ports
+- [01-03]: Port sides match direction: TB uses WEST/EAST, LR uses NORTH/SOUTH
+- [01-03]: Edge source/target must be card type names (not AuthorizationNode IDs) for React Flow node matching
+- [01-03]: Old pipeline files deleted early (Rule 3) -- Plan 04 should note these are already gone
 
 ### Pending Todos
 
@@ -65,5 +69,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-02-PLAN.md
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

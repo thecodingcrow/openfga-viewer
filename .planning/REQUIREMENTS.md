@@ -14,8 +14,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **VIZ-03**: Permission rows display readable expressions with `↗dimension` notation for cross-type access channels
 - [x] **VIZ-04**: Cross-card edges use dimension-specific colors (categorical palette, colorblind-safe, dark-theme compatible)
 - [x] **VIZ-05**: Type restriction edges (direct) use muted slate styling distinct from dimension edges
-- [ ] **VIZ-06**: Graph uses 1-pass flat ELK layout with orthogonal edge routing (replaces 3-pass compound system)
-- [ ] **VIZ-07**: Layout supports TB and LR direction toggle
+- [x] **VIZ-06**: Graph uses 1-pass flat ELK layout with orthogonal edge routing (replaces 3-pass compound system)
+- [x] **VIZ-07**: Layout supports TB and LR direction toggle
 - [x] **VIZ-08**: Cards use dark glass styling (`bg-slate-900/85`, rounded-xl, type-colored accent bar)
 - [ ] **VIZ-09**: Subgraph enter/exit uses animated transitions (non-relevant cards fade, remaining animate to new positions)
 
@@ -49,8 +49,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **CTRL-04**: Permissions-only toggle collapses relation sections on all cards
 - [ ] **CTRL-05**: Command palette (Cmd+K) searches types, relations, permissions with card/row navigation
 - [ ] **CTRL-06**: Legend shows dimension color key + row type icons (circle=relation, diamond=permission, dot=binding)
-- [ ] **CTRL-07**: Minimap for graph overview
-- [ ] **CTRL-08**: Controls panel for zoom/fit
+- [x] **CTRL-07**: Minimap for graph overview
+- [x] **CTRL-08**: Controls panel for zoom/fit
 
 ## v2 Requirements
 
@@ -97,13 +97,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-03 | Phase 1 | Complete |
 | VIZ-04 | Phase 1 | Complete |
 | VIZ-05 | Phase 1 | Complete |
-| VIZ-06 | Phase 1 | Pending |
-| VIZ-07 | Phase 1 | Pending |
+| VIZ-06 | Phase 1 | Complete |
+| VIZ-07 | Phase 1 | Complete |
 | VIZ-08 | Phase 1 | Complete |
 | INT-01 | Phase 1 | Pending |
 | INT-02 | Phase 1 | Pending |
-| CTRL-07 | Phase 1 | Pending |
-| CTRL-08 | Phase 1 | Pending |
+| CTRL-07 | Phase 1 | Complete |
+| CTRL-08 | Phase 1 | Complete |
 | INT-03 | Phase 2 | Pending |
 | INT-04 | Phase 2 | Pending |
 | INT-05 | Phase 2 | Pending |
