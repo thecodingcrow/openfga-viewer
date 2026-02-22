@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 2 of 2 (Interaction & Polish)
-Plan: 4 of 7 in current phase
+Plan: 7 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 -- Completed 02-04 (Breadcrumb & Navigation Wiring)
+Last activity: 2026-02-22 -- Completed 02-06 (Inspect Panel)
 
-Progress: [████████████████████] 73%
+Progress: [████████████████████████] 91%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
+- Total plans completed: 10
 - Average duration: 3min
-- Total execution time: 0.45 hours
+- Total execution time: 0.57 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-pipeline | 4 | 16min | 4min |
-| 02-interaction-polish | 4 | 11min | 2.75min |
+| 02-interaction-polish | 6 | 18min | 3min |
 
 **Recent Trend:**
-- Last 5 plans: 01-04 (4min), 02-01 (2min), 02-02 (3min), 02-03 (4min), 02-04 (2min)
+- Last 5 plans: 02-02 (3min), 02-03 (4min), 02-04 (2min), 02-05 (3min), 02-06 (4min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -76,6 +76,10 @@ Recent decisions affecting current work:
 - [02-04]: Breadcrumb click handlers call jumpToLevel AND window.history.go to keep store and browser history in sync
 - [02-04]: Esc key priority chain: close search > pop subgraph > do nothing
 - [02-04]: Popstate handler uses empty deps array with getState() for stable reference, no circular history manipulation
+- [02-05]: Fuse.js threshold 0.4 balances fuzzy tolerance vs precision for abbreviated input
+- [02-05]: Search key weights: fullId 2x, type/relation 1.5x, definition 0.5x for intuitive ranking
+- [02-05]: Flat index tracking with const capture for correct onMouseEnter closure binding in grouped results
+- [02-05]: Group headers only shown during active search, hidden for recently visited list
 
 ### Pending Todos
 
@@ -88,5 +92,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-03-PLAN.md and 02-04-PLAN.md
+Stopped at: Completed 02-05-PLAN.md and 02-06-PLAN.md
 Resume file: None

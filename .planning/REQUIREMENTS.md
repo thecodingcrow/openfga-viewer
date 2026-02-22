@@ -47,7 +47,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **CTRL-02**: Modifier+click on dimension chip for solo mode (show only that dimension's edges)
 - [ ] **CTRL-03**: Type filtering shows/hides entire cards
 - [ ] **CTRL-04**: Permissions-only toggle collapses relation sections on all cards
-- [ ] **CTRL-05**: Command palette (Cmd+K) searches types, relations, permissions with card/row navigation
+- [x] **CTRL-05**: Command palette (Cmd+K) searches types, relations, permissions with card/row navigation
 - [x] **CTRL-06**: Legend shows dimension color key + row type icons (circle=relation, diamond=permission, dot=binding)
 - [x] **CTRL-07**: Minimap for graph overview
 - [x] **CTRL-08**: Controls panel for zoom/fit
@@ -116,7 +116,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-02 | Phase 2 | Pending |
 | CTRL-03 | Phase 2 | Pending |
 | CTRL-04 | Phase 2 | Pending |
-| CTRL-05 | Phase 2 | Pending |
+| CTRL-05 | Phase 2 | Complete |
 | CTRL-06 | Phase 2 | Complete |
 
 **Coverage:**
