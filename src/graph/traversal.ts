@@ -250,10 +250,14 @@ export function traceDownstream(
 /**
  * Compute subgraph for drill-in navigation (separate from hover trace).
  *
- * Phase 1: Cross-card BFS via `direct` + `ttu` edges (same as hover trace).
- * Phase 2: Intra-card expansion — from each reached row, follow `computed`
- *          and `tupleset-dep` edges within the same type so that permissions
- *          reachable through discovered bindings also appear as relevant.
+ * Unified single-phase BFS that follows ALL four edge types (direct, ttu,
+ * computed, tupleset-dep) in the correct direction. This naturally interleaves
+ * cross-card hops (direct, ttu) and intra-card hops (computed, tupleset-dep)
+ * because they all use the same node ID space.
+ *
+ * For downstream navigation from a type header, seeds with all rows of that
+ * type + the type node itself (since no edges connect a type node to its own
+ * rows directly).
  *
  * `visibleTypeIds` controls which cards render (all rows shown).
  * `relevantRowIds` controls brightness — rows NOT in this set render dimmed.
@@ -264,50 +268,35 @@ export function computeSubgraph(
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
 ): { visibleTypeIds: Set<string>; relevantRowIds: Set<string> } {
-  // Phase 1: cross-card BFS
-  const trace =
-    direction === "upstream"
-      ? traceUpstream(startNodeId, edges)
-      : traceDownstream(startNodeId, nodes, edges);
+  // For downstream from a type header, seed with all rows of that type + the type node
+  let seeds: string[];
+  if (direction === "downstream") {
+    seeds = nodes
+      .filter((n) => n.type === startNodeId && n.kind !== "type")
+      .map((n) => n.id);
+    seeds.push(startNodeId);
+  } else {
+    seeds = [startNodeId];
+  }
 
-  // Phase 2: intra-card expansion via computed + tupleset-dep edges
-  const relevantRowIds = new Set(trace.rowIds);
-  const queue = [...trace.rowIds];
+  const relevantRowIds = new Set<string>(seeds);
+  const queue = [...seeds];
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-    const currentType = current.split("#")[0];
-
     for (const edge of edges) {
-      if (edge.rewriteRule !== "computed" && edge.rewriteRule !== "tupleset-dep")
-        continue;
+      const matchField = direction === "upstream" ? edge.target : edge.source;
+      const candidate = direction === "upstream" ? edge.source : edge.target;
 
-      // Only follow edges within the same type card
-      const sourceType = edge.source.split("#")[0];
-      const targetType = edge.target.split("#")[0];
-      if (sourceType !== currentType || targetType !== currentType) continue;
+      if (matchField !== current) continue;
+      if (relevantRowIds.has(candidate)) continue;
 
-      if (direction === "downstream") {
-        // Forward: binding → permission
-        if (edge.source === current && !relevantRowIds.has(edge.target)) {
-          relevantRowIds.add(edge.target);
-          queue.push(edge.target);
-        }
-      } else {
-        // Backward: permission → binding
-        if (edge.target === current && !relevantRowIds.has(edge.source)) {
-          relevantRowIds.add(edge.source);
-          queue.push(edge.source);
-        }
-      }
+      relevantRowIds.add(candidate);
+      queue.push(candidate);
     }
   }
 
-  // Visible types = union of original trace + expanded rows
   const visibleTypeIds = new Set<string>();
-  for (const nid of trace.nodeIds) {
-    visibleTypeIds.add(nid.split("#")[0]);
-  }
   for (const nid of relevantRowIds) {
     visibleTypeIds.add(nid.split("#")[0]);
   }
