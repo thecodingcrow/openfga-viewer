@@ -12,8 +12,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **VIZ-01**: Types render as ERD schema cards with binding (ownership), relation, and permission sections
 - [ ] **VIZ-02**: Binding rows show dimension-colored dot indicator identifying which structural dimension they create
 - [ ] **VIZ-03**: Permission rows display readable expressions with `↗dimension` notation for cross-type access channels
-- [ ] **VIZ-04**: Cross-card edges use dimension-specific colors (categorical palette, colorblind-safe, dark-theme compatible)
-- [ ] **VIZ-05**: Type restriction edges (direct) use muted slate styling distinct from dimension edges
+- [x] **VIZ-04**: Cross-card edges use dimension-specific colors (categorical palette, colorblind-safe, dark-theme compatible)
+- [x] **VIZ-05**: Type restriction edges (direct) use muted slate styling distinct from dimension edges
 - [ ] **VIZ-06**: Graph uses 1-pass flat ELK layout with orthogonal edge routing (replaces 3-pass compound system)
 - [ ] **VIZ-07**: Layout supports TB and LR direction toggle
 - [ ] **VIZ-08**: Cards use dark glass styling (`bg-slate-900/85`, rounded-xl, type-colored accent bar)
@@ -21,9 +21,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Model
 
-- [ ] **DATA-01**: Dimensions auto-detected from TTU tupleset patterns (group cross-type edges by structural binding)
-- [ ] **DATA-02**: All edges classified as either `type-restriction` (direct) or `dimension` (TTU)
-- [ ] **DATA-03**: Same-card dependencies (computed, tupleset-dep) rendered as expression text, not edges
+- [x] **DATA-01**: Dimensions auto-detected from TTU tupleset patterns (group cross-type edges by structural binding)
+- [x] **DATA-02**: All edges classified as either `type-restriction` (direct) or `dimension` (TTU)
+- [x] **DATA-03**: Same-card dependencies (computed, tupleset-dep) rendered as expression text, not edges
 - [ ] **DATA-04**: Schema cards built from authorization graph with correct binding/relation/permission classification
 
 ### Interaction
@@ -88,15 +88,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | Phase 1 | Pending |
-| DATA-02 | Phase 1 | Pending |
-| DATA-03 | Phase 1 | Pending |
+| DATA-01 | Phase 1 | Complete |
+| DATA-02 | Phase 1 | Complete |
+| DATA-03 | Phase 1 | Complete |
 | DATA-04 | Phase 1 | Pending |
 | VIZ-01 | Phase 1 | Pending |
 | VIZ-02 | Phase 1 | Pending |
 | VIZ-03 | Phase 1 | Pending |
-| VIZ-04 | Phase 1 | Pending |
-| VIZ-05 | Phase 1 | Pending |
+| VIZ-04 | Phase 1 | Complete |
+| VIZ-05 | Phase 1 | Complete |
 | VIZ-06 | Phase 1 | Pending |
 | VIZ-07 | Phase 1 | Pending |
 | VIZ-08 | Phase 1 | Pending |
