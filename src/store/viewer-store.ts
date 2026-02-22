@@ -114,6 +114,7 @@ interface ViewerStore {
   editorOpen: boolean;
   editorWidth: number;
   searchOpen: boolean;
+  inspectOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
   // ── Actions ──
@@ -152,6 +153,7 @@ interface ViewerStore {
   setEditorWidth: (w: number) => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
+  toggleInspect: () => void;
 
   /** Derived: filtered + focus-mode-scoped graph for rendering */
   getVisibleGraph: () => AuthorizationGraph;
@@ -186,6 +188,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   editorOpen: true,
   editorWidth: loadPersistedEditorWidth(),
   searchOpen: false,
+  inspectOpen: false,
   reactFlowInstance: null,
 
   setSource: (src) => {
@@ -427,6 +430,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   },
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
+  toggleInspect: () => set((s) => ({ inspectOpen: !s.inspectOpen })),
 
   getVisibleGraph: () => {
     const {
