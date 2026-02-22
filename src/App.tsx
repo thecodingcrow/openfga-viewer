@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
-import Breadcrumb from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
@@ -107,7 +106,6 @@ const App = () => {
       )}
       <div className="relative flex-1 min-h-0">
         <Canvas />
-        <Breadcrumb />
         <EditorPanel />
         <Toolbar />
       </div>

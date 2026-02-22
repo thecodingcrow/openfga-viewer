@@ -109,7 +109,7 @@ function DimensionEdgeWithMarker(props: EdgeProps) {
           <marker
             id={`marker-${props.id}`}
             viewBox="0 0 8 8"
-            refX={8}
+            refX={6}
             refY={4}
             markerWidth={8}
             markerHeight={8}
