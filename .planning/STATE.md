@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 1 of 2 (Core Pipeline)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: Executing
-Last activity: 2026-02-22 -- Completed 01-01 (Data Layer)
+Last activity: 2026-02-22 -- Completed 01-02 (Visual Components)
 
-Progress: [██░░░░░░░░] 12%
+Progress: [████░░░░░░] 25%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 4min
-- Total execution time: 0.07 hours
+- Total plans completed: 2
+- Average duration: 3.5min
+- Total execution time: 0.12 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-core-pipeline | 1 | 4min | 4min |
+| 01-core-pipeline | 2 | 7min | 3.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4min)
-- Trend: Starting
+- Last 5 plans: 01-01 (4min), 01-02 (3min)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -50,6 +50,9 @@ Recent decisions affecting current work:
 - [01-01]: Dimension detection as separate layer (src/dimensions/) not embedded in parser
 - [01-01]: String transformation for expressions rather than AST-level access
 - [01-01]: Old edge colors removed from blueprint immediately (expected breakage in old files)
+- [01-02]: Inline SVG markers per edge instead of shared MarkerType defs for per-edge color matching
+- [01-02]: DimensionEdgeWithMarker wrapper pattern separates marker definition from edge rendering
+- [01-02]: Section-based rendering in TypeCardNode — groups rows by section, skips empty sections
 
 ### Pending Todos
 
@@ -62,5 +65,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-01-PLAN.md
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
