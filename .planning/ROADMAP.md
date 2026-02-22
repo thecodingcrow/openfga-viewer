@@ -41,7 +41,7 @@ Plans:
 ### Phase 2: Interaction & Polish
 **Goal**: Users can explore subgraphs by clicking, navigate via breadcrumb/Esc/browser back, collapse cards, search via fuzzy command palette, inspect authorization model tree, and experience a cohesive HUD-style interface with animated transitions
 **Depends on**: Phase 1
-**Requirements**: INT-03, INT-04, INT-05, INT-06, VIZ-09, PATH-01, PATH-02, PATH-03, CTRL-01, CTRL-02, CTRL-03, CTRL-04, CTRL-05, CTRL-06
+**Requirements**: INT-03, INT-04, INT-05, INT-06, VIZ-09, PATH-03, CTRL-01, CTRL-02, CTRL-03, CTRL-04, CTRL-05, CTRL-06
 **Success Criteria** (what must be TRUE):
   1. Clicking a permission row enters upstream subgraph (removes non-relevant cards, re-lays out); clicking a card header enters downstream subgraph; Esc/back exits
   2. Inspect panel provides interactive tree view replacing legend and dimension toggles (CTRL-01, CTRL-02, CTRL-03, CTRL-04, CTRL-06 killed per user decision)
