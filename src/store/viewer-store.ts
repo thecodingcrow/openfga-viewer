@@ -349,6 +349,12 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         edges,
       );
 
+      // DEBUG: trace subgraph computation
+      console.log('[subgraph]', direction, nodeId);
+      console.log('[subgraph] visibleTypeIds:', [...visibleTypeIds]);
+      console.log('[subgraph] relevantRowIds:', [...relevantRowIds]);
+      console.log('[subgraph] total nodes:', nodes.length, 'edges:', edges.length);
+
       // Build navigation frame
       const frame: NavigationFrame = {
         entryNodeId: nodeId,

@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Core Pipeline** - Delete old visualization pipeline. Build new: types, dimensions, schema cards, dimension colors, edge component, flow conversion, flat ELK layout, store updates, wire FgaGraph. End state: ERD cards rendering with dimension-colored edges.
 - [ ] **Phase 2: Interaction & Polish** - Subgraph exploration (click to navigate), dimension toggles, type filtering, card collapse, legend, command palette, path tracing with expression annotation, recursive hierarchy indicators, animated transitions.
+- [ ] **Phase 3: Visual Refinement** - Replace AI-generated aesthetic with polished devtool/HUD design language. Linear/Vercel-quality typography, spacing, color palette, and component polish.
 
 ## Phase Details
 
@@ -62,12 +63,31 @@ Plans:
 - [ ] 02-06-PLAN.md -- Inspect panel with interactive tree view, re-rooting, hover-to-highlight
 - [ ] 02-07-PLAN.md -- Integration verification checkpoint (human-verify)
 
+### Phase 3: Visual Refinement
+**Goal**: Replace AI-generated aesthetic with polished devtool/HUD design language — Linear/Vercel-quality typography, spacing, color, and component polish
+**Depends on**: Phase 2
+**Requirements**: TBD
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 3 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2
+Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
 | 2. Interaction & Polish | 0/7 | In progress | - |
+| 3. Visual Refinement | 0/0 | Not started | - |
+
+### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
+
+**Goal:** [To be planned]
+**Depends on:** Phase 3
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 4 to break down)

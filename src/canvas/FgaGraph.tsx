@@ -88,6 +88,7 @@ const FgaGraphInner = () => {
   }, [edges]);
 
   useEffect(() => {
+    console.log('[setNodes:initial] count:', initialNodes.length, initialNodes.map(n => n.id));
     setNodes(initialNodes);
     setEdges(initialEdges);
     layoutDone.current = false;
@@ -97,12 +98,14 @@ const FgaGraphInner = () => {
   useEffect(() => {
     if (!nodesInitialized || nodesRef.current.length === 0 || layoutDone.current) return;
     let cancelled = false;
+    console.log('[setNodes:layout-start] nodesRef count:', nodesRef.current.length, nodesRef.current.map((n: Node) => n.id));
     getLayoutedElements(
       nodesRef.current,
       edgesRef.current,
       layoutDirection,
     ).then(({ nodes: laid, edges: laidEdges }) => {
       if (cancelled) return;
+      console.log('[setNodes:layout-done] count:', laid.length, laid.map(n => n.id));
       setNodes(laid);
       setEdges(laidEdges);
       layoutDone.current = true;
@@ -152,6 +155,7 @@ const FgaGraphInner = () => {
 
         // Restore all nodes from flow data (the initialNodes/initialEdges
         // effect will trigger with the full set from getVisibleGraph)
+        console.log('[setNodes:overview-restore] count:', initialNodes.length);
         setNodes(initialNodes);
         setEdges(initialEdges);
 
@@ -175,6 +179,11 @@ const FgaGraphInner = () => {
       return;
     }
     const visibleTypeIds = currentFrame.visibleTypeIds;
+
+    // DEBUG: trace transition
+    console.log('[transition] Phase 1 fade. visibleTypeIds:', [...visibleTypeIds]);
+    console.log('[transition] prevNodes:', nodesRef.current.map(n => n.id));
+    console.log('[transition] Phase 1 visibility:', nodesRef.current.map(n => `${n.id}:${visibleTypeIds.has(n.id)}`));
 
     // Phase 1: Fade out non-visible nodes and their edges
     setNodes((prevNodes) =>
@@ -205,6 +214,7 @@ const FgaGraphInner = () => {
       if (transitionIdRef.current !== transitionId) return;
 
       // Filter to only visible nodes/edges
+      console.log('[transition] Phase 2 filter. nodesRef:', nodesRef.current.map(n => n.id));
       const filteredNodes = nodesRef.current
         .filter((n) => visibleTypeIds.has(n.id))
         .map((n) => ({
@@ -223,10 +233,16 @@ const FgaGraphInner = () => {
           data: { ...e.data, elkRoute: undefined },
         }));
 
+      console.log('[transition] Phase 2 filtered:', filteredNodes.map(n => n.id), 'edges:', filteredEdges.length);
+
       // Run ELK layout on the subset
       getLayoutedElements(filteredNodes, filteredEdges, layoutDirection).then(
         ({ nodes: laid, edges: laidEdges }) => {
-          if (transitionIdRef.current !== transitionId) return;
+          if (transitionIdRef.current !== transitionId) {
+            console.log('[setNodes:phase2-elk] STALE, skipped. transitionId:', transitionId, 'current:', transitionIdRef.current);
+            return;
+          }
+          console.log('[setNodes:phase2-elk] count:', laid.length, laid.map(n => n.id), 'transitionId:', transitionId);
           setNodes(laid);
           setEdges(laidEdges);
 
@@ -269,6 +285,7 @@ const FgaGraphInner = () => {
 
       getLayoutedElements(currentNodes, currentEdges, layoutDirection).then(
         ({ nodes: laid, edges: laidEdges }) => {
+          console.log('[setNodes:collapse-layout] count:', laid.length, laid.map(n => n.id));
           setNodes(laid);
           setEdges(laidEdges);
           layoutDone.current = true;

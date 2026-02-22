@@ -94,7 +94,9 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
   }, [clearHover]);
 
   // Header single-click: navigate downstream (with 250ms delay for double-click)
-  const onHeaderClick = useCallback(() => {
+  // stopPropagation prevents React Flow's onNodeClick from firing selectNode
+  const onHeaderClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (getIsTransitioning()) return;
     if (clickTimerRef.current !== null) return; // Already pending
     clickTimerRef.current = setTimeout(() => {
@@ -104,7 +106,8 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
   }, [navigateToSubgraph, d.typeName]);
 
   // Header double-click: collapse/expand card (cancel pending single-click)
-  const onHeaderDoubleClick = useCallback(() => {
+  const onHeaderDoubleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (getIsTransitioning()) return;
     if (clickTimerRef.current !== null) {
       clearTimeout(clickTimerRef.current);
@@ -244,7 +247,9 @@ function RowItemComponent({
   }, [setHoveredRow, row.id, fullEdges]);
 
   // Permission row click: navigate upstream
-  const onRowClick = useCallback(() => {
+  // stopPropagation prevents React Flow's onNodeClick from firing selectNode
+  const onRowClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (getIsTransitioning()) return;
     if (row.section === "permission") {
       navigateToSubgraph(row.id, "upstream");
