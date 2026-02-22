@@ -9,7 +9,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 
 ## Current Position
 
-Phase: 2 of 2 (Interaction & Polish)
+Phase: 2 of 3 (Interaction & Polish)
 Plan: 7 of 7 in current phase
 Status: In Progress
 Last activity: 2026-02-22 -- Completed 02-06 (Inspect Panel)
@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - [02-06]: Subgraph tree shows only relevant rows for focused view
 - [02-06]: Tree nodes navigate by section: types downstream, permissions/relations upstream
 
+### Roadmap Evolution
+
+- Phase 3 added: Visual Refinement — replace AI-generated aesthetic with polished devtool/HUD design language
+
 ### Pending Todos
 
 None yet.
@@ -97,5 +101,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-05-PLAN.md and 02-06-PLAN.md
+Stopped at: Completed quick-1-PLAN.md (fix subgraph BFS + TTU dot colors)
 Resume file: None
