@@ -21,7 +21,7 @@ const ToolbarButton = ({
   <button
     onClick={onClick}
     title={title}
-    className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150 cursor-pointer relative"
+    className="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer relative"
     style={{
       color: active ? blueprint.accent : blueprint.nodeBody,
       background: active ? `${blueprint.accent}15` : "transparent",
@@ -40,7 +40,7 @@ const ToolbarButton = ({
 
 const Separator = () => (
   <div
-    className="w-px h-5 mx-0.5"
+    className="w-px h-7 mx-0.5"
     style={{ background: blueprint.nodeBorder }}
   />
 );
@@ -81,29 +81,25 @@ const Toolbar = () => {
   return (
     <>
       <div
-        className="absolute top-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1.5 px-3 py-2"
         style={{ borderRadius: 9999 }}
       >
-        {/* Editor toggle */}
+        {/* Panel toggle */}
         <ToolbarButton
           onClick={togglePanel}
-          title="Toggle editor (⌘E)"
+          title="Toggle panel (Cmd+E)"
           active={panelOpen}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M2 3H12M2 7H9M2 11H11"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
+            <rect x="1" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" fill={panelOpen ? "currentColor" : "none"} fillOpacity={panelOpen ? 0.2 : 0} />
+            <rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />
           </svg>
         </ToolbarButton>
         <span
-          className="text-[9px] px-1 py-0.5 rounded border select-none"
+          className="text-[10px] px-1 py-0.5 rounded border select-none"
           style={{ color: blueprint.muted, borderColor: blueprint.nodeBorder }}
         >
-          ⌘E
+          Cmd+E
         </span>
 
         <Separator />
@@ -111,40 +107,26 @@ const Toolbar = () => {
         {/* Search */}
         <ToolbarButton
           onClick={() => setSearchOpen(true)}
-          title="Search (⌘K)"
+          title="Search (Cmd+K)"
           active={searchOpen}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
             <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
             <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
           </svg>
         </ToolbarButton>
         <span
-          className="text-[9px] px-1 py-0.5 rounded border select-none"
+          className="text-[10px] px-1 py-0.5 rounded border select-none"
           style={{ color: blueprint.muted, borderColor: blueprint.nodeBorder }}
         >
-          ⌘K
+          Cmd+K
         </span>
-
-        <Separator />
-
-        {/* Inspect panel toggle */}
-        <ToolbarButton
-          onClick={togglePanel}
-          title="Inspect model"
-          active={panelOpen}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M2 4H6M2 7H5M2 10H6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-          </svg>
-        </ToolbarButton>
 
         <Separator />
 
         {/* Fit view */}
         <ToolbarButton onClick={handleFit} title="Fit view">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
             <path
               d="M1 5V2C1 1.5 1.5 1 2 1H5M9 1H12C12.5 1 13 1.5 13 2V5M13 9V12C13 12.5 12.5 13 12 13H9M5 13H2C1.5 13 1 12.5 1 12V9"
               stroke="currentColor"
@@ -159,7 +141,7 @@ const Toolbar = () => {
           onClick={() => fileInputRef.current?.click()}
           title="Import .fga file"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
             <path
               d="M7 9V1M4 4L7 1L10 4M2 11H12"
               stroke="currentColor"
@@ -175,7 +157,7 @@ const Toolbar = () => {
           onClick={() => window.open(REPO_URL, "_blank", "noopener")}
           title="View on GitHub"
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
             <path
               d="M7 1C3.7 1 1 3.7 1 7C1 9.5 2.6 11.7 4.8 12.5C5.1 12.5 5.2 12.4 5.2 12.2V11.2C3.5 11.6 3.1 10.4 3.1 10.4C2.8 9.7 2.4 9.5 2.4 9.5C1.9 9.2 2.5 9.2 2.5 9.2C3 9.2 3.3 9.7 3.3 9.7C3.8 10.5 4.6 10.3 5.2 10.1C5.2 9.8 5.4 9.5 5.5 9.3C4.2 9.1 2.8 8.6 2.8 6.4C2.8 5.8 3 5.3 3.3 4.9C3.3 4.7 3.1 4.1 3.4 3.4C3.4 3.4 3.9 3.2 5.2 4C5.8 3.8 6.4 3.8 7 3.8C7.6 3.8 8.2 3.8 8.8 4C10.1 3.2 10.6 3.4 10.6 3.4C10.9 4.1 10.7 4.7 10.7 4.9C11 5.3 11.2 5.8 11.2 6.4C11.2 8.6 9.8 9.1 8.5 9.3C8.7 9.5 8.8 9.9 8.8 10.4V12.2C8.8 12.4 8.9 12.6 9.2 12.5C11.4 11.7 13 9.5 13 7C13 3.7 10.3 1 7 1Z"
               fill="currentColor"
