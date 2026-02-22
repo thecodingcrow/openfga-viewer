@@ -30,10 +30,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. Old node components (TypeNode, RelationNode, PermissionNode), old edge components (DirectEdge, ComputedEdge, TuplesetDepEdge), old conversion (fgaToFlow), and old layout (elk-layout) are deleted
   7. Minimap and controls panel are available
   8. Default model renders correctly in browser
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md -- Data layer: dimension detection, edge classification, expression transform, colorblind-safe palette
+- [ ] 01-02-PLAN.md -- ERD card node, dimension edge component, flow conversion rewrite
+- [ ] 01-03-PLAN.md -- 1-pass flat ELK layout with ports, FgaGraph wiring, MiniMap, Controls
+- [ ] 01-04-PLAN.md -- Row-level hover highlighting, store updates, delete old pipeline
 
 ### Phase 2: Interaction & Polish
 **Goal**: Users can explore subgraphs by clicking, filter by dimension and type, collapse cards, search via command palette, and see annotated path traces with animated transitions
@@ -59,5 +62,5 @@ Phases execute in numeric order: 1 -> 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Pipeline | 0/0 | Not started | - |
+| 1. Core Pipeline | 0/4 | Planned | - |
 | 2. Interaction & Polish | 0/0 | Not started | - |
