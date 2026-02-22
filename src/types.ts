@@ -67,7 +67,7 @@ export interface AuthorizationGraph {
 }
 
 /** Exploration focus mode */
-export type FocusMode = "overview" | "neighborhood" | "path";
+export type FocusMode = "overview" | "neighborhood";
 
 /** Graph filter state */
 export interface GraphFilters {

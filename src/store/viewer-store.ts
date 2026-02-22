@@ -17,8 +17,6 @@ import { detectDimensions } from "../dimensions/detect";
 import { assignDimensionColors } from "../theme/dimensions";
 import {
   computeNeighborhood,
-  findPaths,
-  collectPathElements,
   applyFilters,
   extractTypeNames,
   computeSubgraph,
@@ -27,21 +25,9 @@ import {
 import type { ReactFlowInstance } from "@xyflow/react";
 
 const STORAGE_KEY = "openfga-viewer-source";
-const EDITOR_WIDTH_KEY = "openfga-viewer-editor-width";
-
-export const DEFAULT_EDITOR_WIDTH = 520;
-export const MIN_EDITOR_WIDTH = 250;
-export const MAX_EDITOR_WIDTH_RATIO = 0.5;
 
 const loadPersistedSource = (): string =>
   localStorage.getItem(STORAGE_KEY) ?? SAMPLE_FGA_MODEL;
-
-const loadPersistedEditorWidth = (): number => {
-  const raw = localStorage.getItem(EDITOR_WIDTH_KEY);
-  if (!raw) return DEFAULT_EDITOR_WIDTH;
-  const n = Number(raw);
-  return Number.isFinite(n) ? Math.max(MIN_EDITOR_WIDTH, n) : DEFAULT_EDITOR_WIDTH;
-};
 
 const DEFAULT_FILTERS: GraphFilters = {
   types: [],
@@ -92,13 +78,6 @@ interface ViewerStore {
   selectedEdgeId: string | null;
   neighborhoodHops: number;
 
-  // Path tracing
-  pathStart: string | null;
-  pathEnd: string | null;
-  tracedPaths: string[][] | null;
-  tracedNodeIds: Set<string> | null;
-  tracedEdgeIds: Set<string> | null;
-
   // Filters
   filters: GraphFilters;
 
@@ -112,7 +91,6 @@ interface ViewerStore {
   // UI
   panelOpen: boolean;
   panelTab: 'editor' | 'inspector';
-  editorWidth: number;
   searchOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
@@ -126,11 +104,6 @@ interface ViewerStore {
 
   setFocusMode: (mode: FocusMode) => void;
   setNeighborhoodHops: (hops: number) => void;
-
-  setPathStart: (id: string | null) => void;
-  setPathEnd: (id: string | null) => void;
-  tracePath: () => void;
-  clearPath: () => void;
 
   setFilter: (partial: Partial<GraphFilters>) => void;
   resetFilters: () => void;
@@ -150,7 +123,6 @@ interface ViewerStore {
   togglePanel: () => void;
   setPanelOpen: (open: boolean) => void;
   setPanelTab: (tab: 'editor' | 'inspector') => void;
-  setEditorWidth: (w: number) => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
 
@@ -173,11 +145,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   selectedNodeId: null,
   selectedEdgeId: null,
   neighborhoodHops: 1,
-  pathStart: null,
-  pathEnd: null,
-  tracedPaths: null,
-  tracedNodeIds: null,
-  tracedEdgeIds: null,
   filters: { ...DEFAULT_FILTERS },
   navigationStack: [],
   collapsedCards: new Set(),
@@ -186,7 +153,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   selfReferencingDimensions: [],
   panelOpen: true,
   panelTab: 'editor' as const,
-  editorWidth: loadPersistedEditorWidth(),
   searchOpen: false,
   reactFlowInstance: null,
 
@@ -214,11 +180,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         selectedNodeId: null,
         selectedEdgeId: null,
         focusMode: "overview",
-        pathStart: null,
-        pathEnd: null,
-        tracedPaths: null,
-        tracedNodeIds: null,
-        tracedEdgeIds: null,
         navigationStack: [],
         collapsedCards: new Set(),
       });
@@ -234,11 +195,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         selectedNodeId: null,
         selectedEdgeId: null,
         focusMode: "overview",
-        pathStart: null,
-        pathEnd: null,
-        tracedPaths: null,
-        tracedNodeIds: null,
-        tracedEdgeIds: null,
         navigationStack: [],
         collapsedCards: new Set(),
       });
@@ -268,11 +224,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         set({
           focusMode,
           selectedNodeId: null,
-          pathStart: null,
-          pathEnd: null,
-          tracedPaths: null,
-          tracedNodeIds: null,
-          tracedEdgeIds: null,
         });
       } else {
         set({ focusMode });
@@ -281,44 +232,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   },
 
   setNeighborhoodHops: (neighborhoodHops) => set({ neighborhoodHops }),
-
-  setPathStart: (pathStart) => {
-    set({
-      pathStart,
-      focusMode: "path",
-      tracedPaths: null,
-      tracedNodeIds: null,
-      tracedEdgeIds: null,
-    });
-  },
-
-  setPathEnd: (pathEnd) => {
-    set({
-      pathEnd,
-      focusMode: "path",
-      tracedPaths: null,
-      tracedNodeIds: null,
-      tracedEdgeIds: null,
-    });
-  },
-
-  tracePath: () => {
-    const { pathStart, pathEnd, edges } = get();
-    if (!pathStart || !pathEnd) return;
-    const paths = findPaths(edges, pathStart, pathEnd);
-    const { nodeIds, edgeIds } = collectPathElements(edges, paths);
-    set({ tracedPaths: paths, tracedNodeIds: nodeIds, tracedEdgeIds: edgeIds });
-  },
-
-  clearPath: () =>
-    set({
-      pathStart: null,
-      pathEnd: null,
-      tracedPaths: null,
-      tracedNodeIds: null,
-      tracedEdgeIds: null,
-      focusMode: "overview",
-    }),
 
   setFilter: (partial) => {
     startTransition(() => {
@@ -348,12 +261,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         nodes,
         edges,
       );
-
-      // DEBUG: trace subgraph computation
-      console.log('[subgraph]', direction, nodeId);
-      console.log('[subgraph] visibleTypeIds:', [...visibleTypeIds]);
-      console.log('[subgraph] relevantRowIds:', [...relevantRowIds]);
-      console.log('[subgraph] total nodes:', nodes.length, 'edges:', edges.length);
 
       // Build navigation frame
       const frame: NavigationFrame = {
@@ -426,11 +333,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
   setPanelOpen: (open) => set({ panelOpen: open }),
   setPanelTab: (tab) => set({ panelTab: tab, panelOpen: true }),
-  setEditorWidth: (w) => {
-    const clamped = Math.max(MIN_EDITOR_WIDTH, Math.min(w, window.innerWidth * MAX_EDITOR_WIDTH_RATIO));
-    localStorage.setItem(EDITOR_WIDTH_KEY, String(clamped));
-    set({ editorWidth: clamped });
-  },
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
 
