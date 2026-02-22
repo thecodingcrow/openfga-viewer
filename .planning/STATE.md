@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** The graph must be immediately readable -- a user looking at it should see how access flows through types, relations, and permissions without untangling spaghetti edges or guessing what connects to what.
-**Current focus:** Phase 1: Core Pipeline
+**Current focus:** Phase 2: Interaction & Polish
 
 ## Current Position
 
-Phase: 1 of 2 (Core Pipeline)
-Plan: 4 of 4 in current phase
-Status: Phase Complete
-Last activity: 2026-02-22 -- Completed 01-04 (Row-Level Hover & Old Pipeline Cleanup)
+Phase: 2 of 2 (Interaction & Polish)
+Plan: 1 of 7 in current phase
+Status: In Progress
+Last activity: 2026-02-22 -- Completed 02-01 (HUD Theme & Layout)
 
-Progress: [██████████] 50%
+Progress: [█████████████] 55%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 4min
-- Total execution time: 0.27 hours
+- Total execution time: 0.30 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-pipeline | 4 | 16min | 4min |
+| 02-interaction-polish | 1 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4min), 01-02 (3min), 01-03 (5min), 01-04 (4min)
+- Last 5 plans: 01-02 (3min), 01-03 (5min), 01-04 (4min), 02-01 (2min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -61,6 +62,10 @@ Recent decisions affecting current work:
 - [01-04]: Pre-computed highlight sets in hover-store avoid per-component BFS recomputation
 - [01-04]: Memoized RowItem component prevents unnecessary re-renders on hover
 - [01-04]: Dimensions computed in viewer-store parse() for store-level access
+- [02-01]: Overlay layout over flex-row: canvas fills viewport, editor/toolbar float on top
+- [02-01]: CSS transform translateX for editor slide vs width animation: smoother, no canvas resize
+- [02-01]: Fixed 480px editor width instead of resizable: overlays don't need resize
+- [02-01]: Pill shape toolbar (border-radius: 9999px) at top-center for floating HUD look
 
 ### Pending Todos
 
@@ -73,5 +78,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-04-PLAN.md (Phase 1 complete)
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
