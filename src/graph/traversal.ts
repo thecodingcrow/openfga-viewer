@@ -245,6 +245,76 @@ export function traceDownstream(
   return { nodeIds, edgeIds, rowIds };
 }
 
+// ─── Subgraph navigation ─────────────────────────────────────────────────────
+
+/**
+ * Compute subgraph for drill-in navigation (separate from hover trace).
+ *
+ * Phase 1: Cross-card BFS via `direct` + `ttu` edges (same as hover trace).
+ * Phase 2: Intra-card expansion — from each reached row, follow `computed`
+ *          and `tupleset-dep` edges within the same type so that permissions
+ *          reachable through discovered bindings also appear as relevant.
+ *
+ * `visibleTypeIds` controls which cards render (all rows shown).
+ * `relevantRowIds` controls brightness — rows NOT in this set render dimmed.
+ */
+export function computeSubgraph(
+  startNodeId: string,
+  direction: "upstream" | "downstream",
+  nodes: AuthorizationNode[],
+  edges: AuthorizationEdge[],
+): { visibleTypeIds: Set<string>; relevantRowIds: Set<string> } {
+  // Phase 1: cross-card BFS
+  const trace =
+    direction === "upstream"
+      ? traceUpstream(startNodeId, edges)
+      : traceDownstream(startNodeId, nodes, edges);
+
+  // Phase 2: intra-card expansion via computed + tupleset-dep edges
+  const relevantRowIds = new Set(trace.rowIds);
+  const queue = [...trace.rowIds];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    const currentType = current.split("#")[0];
+
+    for (const edge of edges) {
+      if (edge.rewriteRule !== "computed" && edge.rewriteRule !== "tupleset-dep")
+        continue;
+
+      // Only follow edges within the same type card
+      const sourceType = edge.source.split("#")[0];
+      const targetType = edge.target.split("#")[0];
+      if (sourceType !== currentType || targetType !== currentType) continue;
+
+      if (direction === "downstream") {
+        // Forward: binding → permission
+        if (edge.source === current && !relevantRowIds.has(edge.target)) {
+          relevantRowIds.add(edge.target);
+          queue.push(edge.target);
+        }
+      } else {
+        // Backward: permission → binding
+        if (edge.target === current && !relevantRowIds.has(edge.source)) {
+          relevantRowIds.add(edge.source);
+          queue.push(edge.source);
+        }
+      }
+    }
+  }
+
+  // Visible types = union of original trace + expanded rows
+  const visibleTypeIds = new Set<string>();
+  for (const nid of trace.nodeIds) {
+    visibleTypeIds.add(nid.split("#")[0]);
+  }
+  for (const nid of relevantRowIds) {
+    visibleTypeIds.add(nid.split("#")[0]);
+  }
+
+  return { visibleTypeIds, relevantRowIds };
+}
+
 // ─── Filtering ──────────────────────────────────────────────────────────────
 
 /**

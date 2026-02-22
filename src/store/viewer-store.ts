@@ -21,8 +21,7 @@ import {
   collectPathElements,
   applyFilters,
   extractTypeNames,
-  traceUpstream,
-  traceDownstream,
+  computeSubgraph,
   detectSelfReferencingDimensions,
 } from "../graph/traversal";
 import type { ReactFlowInstance } from "@xyflow/react";
@@ -342,16 +341,13 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     startTransition(() => {
       const { nodes, edges, navigationStack, recentlyVisited } = get();
 
-      // Compute subgraph based on direction
-      const trace = direction === 'upstream'
-        ? traceUpstream(nodeId, edges)
-        : traceDownstream(nodeId, nodes, edges);
-
-      // Extract visible type IDs from traced node IDs
-      const visibleTypeIds = new Set<string>();
-      for (const nid of trace.nodeIds) {
-        visibleTypeIds.add(nid.split('#')[0]);
-      }
+      // Compute subgraph with intra-card expansion
+      const { visibleTypeIds, relevantRowIds } = computeSubgraph(
+        nodeId,
+        direction,
+        nodes,
+        edges,
+      );
 
       // Build navigation frame
       const frame: NavigationFrame = {
@@ -359,7 +355,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         direction,
         label: nodeId,
         visibleTypeIds,
-        relevantRowIds: trace.rowIds,
+        relevantRowIds,
       };
 
       // Update recently visited: prepend, deduplicate, keep last 5
