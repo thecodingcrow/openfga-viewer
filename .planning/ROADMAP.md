@@ -39,21 +39,28 @@ Plans:
 - [x] 01-04-PLAN.md -- Row-level hover highlighting, store updates, delete old pipeline
 
 ### Phase 2: Interaction & Polish
-**Goal**: Users can explore subgraphs by clicking, filter by dimension and type, collapse cards, search via command palette, and see annotated path traces with animated transitions
+**Goal**: Users can explore subgraphs by clicking, navigate via breadcrumb/Esc/browser back, collapse cards, search via fuzzy command palette, inspect authorization model tree, and experience a cohesive HUD-style interface with animated transitions
 **Depends on**: Phase 1
 **Requirements**: INT-03, INT-04, INT-05, INT-06, VIZ-09, PATH-01, PATH-02, PATH-03, CTRL-01, CTRL-02, CTRL-03, CTRL-04, CTRL-05, CTRL-06
 **Success Criteria** (what must be TRUE):
-  1. Clicking a permission row enters upstream subgraph (removes non-relevant cards, re-lays out); clicking a card header enters downstream subgraph; Esc exits
-  2. Dimension toggle chips in toolbar -- one per dimension, togglable, modifier+click for solo mode
-  3. Type filtering shows/hides cards, permissions-only toggle collapses relation sections, double-click collapses cards to header-only
-  4. Command palette (Cmd+K) searches types/relations/permissions with card/row navigation
-  5. Traced paths highlight specific expression terms in accent color, binding bridges show indicators, self-referencing dimensions show info tooltip
-  6. Legend shows dimension colors and row type icons
-  7. Subgraph enter/exit uses animated transitions (fade + reposition)
-**Plans**: TBD
+  1. Clicking a permission row enters upstream subgraph (removes non-relevant cards, re-lays out); clicking a card header enters downstream subgraph; Esc/back exits
+  2. Inspect panel provides interactive tree view replacing legend and dimension toggles (CTRL-01, CTRL-02, CTRL-03, CTRL-04, CTRL-06 killed per user decision)
+  3. Double-click collapses cards to header-only with re-layout
+  4. Command palette (Cmd+K) uses fuzzy search with grouped results, subgraph navigation on select
+  5. Self-referencing dimensions show info tooltip on binding rows
+  6. HUD aesthetic with mustard accent, floating pill toolbar, editor overlay, dot grid canvas
+  7. Subgraph enter/exit uses two-phase animated transitions (fade + reposition)
+  8. PATH-01, PATH-02 deferred to Phase 3 per user decision
+**Plans**: 7 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md -- HUD theming, overlay layout, toolbar redesign, delete LegendPanel
+- [ ] 02-02-PLAN.md -- Navigation stack state machine, collapse state, browser history, self-referencing detection
+- [ ] 02-03-PLAN.md -- Subgraph navigation UI, two-phase animated transitions, row dimming, card collapse
+- [ ] 02-04-PLAN.md -- Breadcrumb trail, Esc key navigation, browser popstate handler
+- [ ] 02-05-PLAN.md -- Command palette upgrade with fuse.js fuzzy search, grouped results, subgraph navigation
+- [ ] 02-06-PLAN.md -- Inspect panel with interactive tree view, re-rooting, hover-to-highlight
+- [ ] 02-07-PLAN.md -- Integration verification checkpoint (human-verify)
 
 ## Progress
 
@@ -63,4 +70,4 @@ Phases execute in numeric order: 1 -> 2
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
-| 2. Interaction & Polish | 0/0 | Not started | - |
+| 2. Interaction & Polish | 0/7 | In progress | - |
