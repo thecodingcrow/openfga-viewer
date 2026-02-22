@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 2 of 2 (Interaction & Polish)
-Plan: 1 of 7 in current phase
+Plan: 2 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 -- Completed 02-01 (HUD Theme & Layout)
+Last activity: 2026-02-22 -- Completed 02-02 (Navigation Stack Store)
 
-Progress: [█████████████] 55%
+Progress: [██████████████] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 4min
-- Total execution time: 0.30 hours
+- Total execution time: 0.35 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-pipeline | 4 | 16min | 4min |
-| 02-interaction-polish | 1 | 2min | 2min |
+| 02-interaction-polish | 2 | 5min | 2.5min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (3min), 01-03 (5min), 01-04 (4min), 02-01 (2min)
+- Last 5 plans: 01-02 (3min), 01-03 (5min), 01-04 (4min), 02-01 (2min), 02-02 (3min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [02-01]: CSS transform translateX for editor slide vs width animation: smoother, no canvas resize
 - [02-01]: Fixed 480px editor width instead of resizable: overlays don't need resize
 - [02-01]: Pill shape toolbar (border-radius: 9999px) at top-center for floating HUD look
+- [02-02]: NavigationFrame stores pre-computed Sets (visibleTypeIds, relevantRowIds) for stable references
+- [02-02]: popSubgraph does NOT manipulate browser history -- called BY the popstate handler
+- [02-02]: Self-referencing dimensions detected via TTU edge self-loops (source type === target type)
 
 ### Pending Todos
 
@@ -78,5 +81,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-01-PLAN.md
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

@@ -30,16 +30,16 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **INT-01**: Hovering a permission row highlights upstream feeding paths without layout change (preview)
 - [x] **INT-02**: Hovering a card header highlights downstream enabled paths without layout change (preview)
-- [ ] **INT-03**: Clicking a permission row enters upstream subgraph -- removes non-relevant cards and re-lays out
-- [ ] **INT-04**: Clicking a card header enters downstream subgraph -- removes non-relevant cards and re-lays out
-- [ ] **INT-05**: Esc key or back button exits subgraph and returns to full graph
-- [ ] **INT-06**: Cards can be collapsed to header-only via double-click, triggering re-layout
+- [x] **INT-03**: Clicking a permission row enters upstream subgraph -- removes non-relevant cards and re-lays out
+- [x] **INT-04**: Clicking a card header enters downstream subgraph -- removes non-relevant cards and re-lays out
+- [x] **INT-05**: Esc key or back button exits subgraph and returns to full graph
+- [x] **INT-06**: Cards can be collapsed to header-only via double-click, triggering re-layout
 
 ### Path Tracing
 
 - [ ] **PATH-01**: In subgraph view, traced paths highlight specific expression terms in accent color (e.g., `admin | director | **MEMBER**`)
 - [ ] **PATH-02**: Binding rows that enable TTU hops show bridge highlight indicator during trace
-- [ ] **PATH-03**: Self-referencing dimensions show info icon with tooltip (e.g., "Permission can be inherited from parent categories")
+- [x] **PATH-03**: Self-referencing dimensions show info icon with tooltip (e.g., "Permission can be inherited from parent categories")
 
 ### Controls
 
@@ -104,14 +104,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INT-02 | Phase 1 | Complete |
 | CTRL-07 | Phase 1 | Complete |
 | CTRL-08 | Phase 1 | Complete |
-| INT-03 | Phase 2 | Pending |
-| INT-04 | Phase 2 | Pending |
-| INT-05 | Phase 2 | Pending |
-| INT-06 | Phase 2 | Pending |
+| INT-03 | Phase 2 | Complete |
+| INT-04 | Phase 2 | Complete |
+| INT-05 | Phase 2 | Complete |
+| INT-06 | Phase 2 | Complete |
 | VIZ-09 | Phase 2 | Pending |
 | PATH-01 | Phase 2 | Pending |
 | PATH-02 | Phase 2 | Pending |
-| PATH-03 | Phase 2 | Pending |
+| PATH-03 | Phase 2 | Complete |
 | CTRL-01 | Phase 2 | Pending |
 | CTRL-02 | Phase 2 | Pending |
 | CTRL-03 | Phase 2 | Pending |
