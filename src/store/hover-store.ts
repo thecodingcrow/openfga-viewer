@@ -1,45 +1,78 @@
 import { create } from "zustand";
-import type { AuthorizationEdge } from "../types";
-import { expandViaTtu } from "../graph/traversal";
+import type { AuthorizationNode, AuthorizationEdge } from "../types";
+import { traceUpstream, traceDownstream } from "../graph/traversal";
 
 const EMPTY_SET = new Set<string>();
 
 interface HoverStore {
-  hoveredNodeId: string | null;
-  /** TTU BFS expansion — used by edges to decide highlight vs dim */
-  expandedNodeIds: Set<string>;
-  /** TTU BFS + 1-hop rendered-edge neighbors — used by nodes to decide dim */
-  focalNodeIds: Set<string>;
-  setHoveredNode: (id: string | null, allEdges?: AuthorizationEdge[]) => void;
+  // Current hover state
+  hoveredRowId: string | null;
+  hoveredCardTypeId: string | null;
+
+  // Pre-computed highlight sets (avoid recomputation in each component)
+  highlightedNodeIds: Set<string>;
+  highlightedEdgeIds: Set<string>;
+  highlightedRowIds: Set<string>;
+
+  // Whether any hover is active (for dimming logic)
+  isHoverActive: boolean;
+
+  // Actions
+  setHoveredRow: (
+    rowId: string | null,
+    edges: AuthorizationEdge[],
+  ) => void;
+  setHoveredCard: (
+    typeId: string | null,
+    nodes: AuthorizationNode[],
+    edges: AuthorizationEdge[],
+  ) => void;
+  clearHover: () => void;
 }
 
-function buildHoverSets(
-  hoveredNodeId: string,
-  allEdges: AuthorizationEdge[],
-): { expanded: Set<string>; focal: Set<string> } {
-  const expanded = expandViaTtu(hoveredNodeId, allEdges);
-
-  // Focal = expanded + 1-hop neighbors via rendered edges
-  const focal = new Set(expanded);
-  for (const edge of allEdges) {
-    if (edge.rewriteRule === "ttu") continue;
-    if (expanded.has(edge.source)) focal.add(edge.target);
-    if (expanded.has(edge.target)) focal.add(edge.source);
-  }
-
-  return { expanded, focal };
-}
+const CLEAR_STATE = {
+  hoveredRowId: null,
+  hoveredCardTypeId: null,
+  highlightedNodeIds: EMPTY_SET,
+  highlightedEdgeIds: EMPTY_SET,
+  highlightedRowIds: EMPTY_SET,
+  isHoverActive: false,
+} as const;
 
 export const useHoverStore = create<HoverStore>((set) => ({
-  hoveredNodeId: null,
-  expandedNodeIds: EMPTY_SET,
-  focalNodeIds: EMPTY_SET,
-  setHoveredNode: (hoveredNodeId, allEdges) => {
-    if (hoveredNodeId && allEdges) {
-      const { expanded, focal } = buildHoverSets(hoveredNodeId, allEdges);
-      set({ hoveredNodeId, expandedNodeIds: expanded, focalNodeIds: focal });
-    } else {
-      set({ hoveredNodeId, expandedNodeIds: EMPTY_SET, focalNodeIds: EMPTY_SET });
+  ...CLEAR_STATE,
+
+  setHoveredRow: (rowId, edges) => {
+    if (!rowId) {
+      set(CLEAR_STATE);
+      return;
     }
+    const { nodeIds, edgeIds, rowIds } = traceUpstream(rowId, edges);
+    set({
+      hoveredRowId: rowId,
+      hoveredCardTypeId: null,
+      highlightedNodeIds: nodeIds,
+      highlightedEdgeIds: edgeIds,
+      highlightedRowIds: rowIds,
+      isHoverActive: true,
+    });
   },
+
+  setHoveredCard: (typeId, nodes, edges) => {
+    if (!typeId) {
+      set(CLEAR_STATE);
+      return;
+    }
+    const { nodeIds, edgeIds, rowIds } = traceDownstream(typeId, nodes, edges);
+    set({
+      hoveredRowId: null,
+      hoveredCardTypeId: typeId,
+      highlightedNodeIds: nodeIds,
+      highlightedEdgeIds: edgeIds,
+      highlightedRowIds: rowIds,
+      isHoverActive: true,
+    });
+  },
+
+  clearHover: () => set(CLEAR_STATE),
 }));

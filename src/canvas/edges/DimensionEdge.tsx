@@ -8,6 +8,7 @@ import type { EdgeClassification } from "../../types";
 import type { Point } from "../../layout/elk-path";
 import { elkPointsToPath } from "../../layout/elk-path";
 import { TYPE_RESTRICTION_COLOR } from "../../theme/dimensions";
+import { useHoverStore } from "../../store/hover-store";
 
 /** Edge data passed via React Flow edge.data */
 interface DimensionEdgeData {
@@ -39,14 +40,20 @@ function DimensionEdgeComponent(props: EdgeProps) {
 
   const d = data as DimensionEdgeData | undefined;
 
+  // Hover state for dimming
+  const isHoverActive = useHoverStore((s) => s.isHoverActive);
+  const highlightedEdgeIds = useHoverStore((s) => s.highlightedEdgeIds);
+
   // Determine stroke color based on edge classification
   const strokeColor =
     d?.classification === "dimension"
       ? (d.dimensionColor ?? TYPE_RESTRICTION_COLOR)
       : TYPE_RESTRICTION_COLOR;
 
-  // Determine opacity — allow hover system override, default to base
-  const opacity = d?.opacity ?? BASE_OPACITY;
+  // Determine opacity: dim non-highlighted edges when hover is active
+  const opacity = isHoverActive
+    ? highlightedEdgeIds.has(id) ? BASE_OPACITY : 0.08
+    : BASE_OPACITY;
 
   // Build path: prefer ELK route when available, else fallback to smooth step
   let path: string;

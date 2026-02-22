@@ -4,12 +4,15 @@ import type {
   AuthorizationNode,
   AuthorizationEdge,
   AuthorizationGraph,
+  Dimension,
   LayoutDirection,
   FocusMode,
   GraphFilters,
 } from "../types";
 import { buildAuthorizationGraph } from "../parser/parse-model";
 import { SAMPLE_FGA_MODEL } from "../parser/sample-model";
+import { detectDimensions } from "../dimensions/detect";
+import { assignDimensionColors } from "../theme/dimensions";
 import {
   computeNeighborhood,
   findPaths,
@@ -74,6 +77,7 @@ interface ViewerStore {
   nodes: AuthorizationNode[];
   edges: AuthorizationEdge[];
   availableTypes: string[];
+  dimensions: Map<string, Dimension>;
   parseVersion: number;
 
   // Layout
@@ -141,6 +145,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   nodes: [],
   edges: [],
   availableTypes: [],
+  dimensions: new Map(),
   parseVersion: 0,
   layoutDirection: "TB" as LayoutDirection,
   focusMode: "overview",
@@ -169,10 +174,13 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     try {
       const { nodes, edges } = buildAuthorizationGraph(source);
       const parseVersion = get().parseVersion + 1;
+      const rawDimensions = detectDimensions({ nodes, edges });
+      const dimensions = assignDimensionColors(rawDimensions);
       set({
         nodes,
         edges,
         availableTypes: extractTypeNames(nodes),
+        dimensions,
         parseVersion,
         parseError: null,
         selectedNodeId: null,
@@ -190,6 +198,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         nodes: [],
         edges: [],
         availableTypes: [],
+        dimensions: new Map(),
         parseVersion: get().parseVersion + 1,
         selectedNodeId: null,
         selectedEdgeId: null,

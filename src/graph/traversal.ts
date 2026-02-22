@@ -168,6 +168,79 @@ export function expandViaTtu(
   return visited;
 }
 
+// ─── Row-level hover tracing ─────────────────────────────────────────────────
+
+/**
+ * Trace upstream from a row (permission/relation).
+ * BFS backward through cross-card edges only (direct + ttu).
+ * Follows edges where `edge.target === currentId`, collects `edge.source`.
+ * Returns all visited node IDs, edge IDs, and row IDs.
+ */
+export function traceUpstream(
+  startRowId: string,
+  edges: AuthorizationEdge[],
+): { nodeIds: Set<string>; edgeIds: Set<string>; rowIds: Set<string> } {
+  const nodeIds = new Set<string>([startRowId]);
+  const edgeIds = new Set<string>();
+  const rowIds = new Set<string>([startRowId]);
+  const queue = [startRowId];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of edges) {
+      if (edge.rewriteRule !== "direct" && edge.rewriteRule !== "ttu") continue;
+      if (edge.target !== current) continue;
+      if (nodeIds.has(edge.source)) {
+        edgeIds.add(edge.id);
+        continue;
+      }
+      nodeIds.add(edge.source);
+      rowIds.add(edge.source);
+      edgeIds.add(edge.id);
+      queue.push(edge.source);
+    }
+  }
+
+  return { nodeIds, edgeIds, rowIds };
+}
+
+/**
+ * Trace downstream from a type card (header hover).
+ * Collects all relations/permissions belonging to the type, then BFS forward
+ * through cross-card edges (direct + ttu).
+ * Returns all visited node IDs, edge IDs, and row IDs.
+ */
+export function traceDownstream(
+  startTypeId: string,
+  nodes: AuthorizationNode[],
+  edges: AuthorizationEdge[],
+): { nodeIds: Set<string>; edgeIds: Set<string>; rowIds: Set<string> } {
+  // Start with all rows belonging to the given type
+  const seedIds = nodes
+    .filter((n) => n.type === startTypeId && n.kind !== "type")
+    .map((n) => n.id);
+
+  const nodeIds = new Set<string>(seedIds);
+  const edgeIds = new Set<string>();
+  const rowIds = new Set<string>(seedIds);
+  const queue = [...seedIds];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const edge of edges) {
+      if (edge.rewriteRule !== "direct" && edge.rewriteRule !== "ttu") continue;
+      if (edge.source !== current) continue;
+      edgeIds.add(edge.id);
+      if (nodeIds.has(edge.target)) continue;
+      nodeIds.add(edge.target);
+      rowIds.add(edge.target);
+      queue.push(edge.target);
+    }
+  }
+
+  return { nodeIds, edgeIds, rowIds };
+}
+
 // ─── Filtering ──────────────────────────────────────────────────────────────
 
 /**
