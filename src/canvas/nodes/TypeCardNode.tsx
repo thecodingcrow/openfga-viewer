@@ -288,6 +288,7 @@ function RowItemComponent({
       />
       {/* Dot indicator */}
       <span
+        title={row.ttuDimensionColor != null ? "Inherited via TTU" : undefined}
         style={{
           display: "inline-block",
           width: 6,
@@ -297,7 +298,7 @@ function RowItemComponent({
           background:
             row.section === "binding"
               ? (row.dimensionColor ?? NEUTRAL_DOT)
-              : NEUTRAL_DOT,
+              : (row.ttuDimensionColor ?? NEUTRAL_DOT),
         }}
       />
       <span className="whitespace-nowrap">{row.name}</span>
