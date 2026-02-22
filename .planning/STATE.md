@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 Phase: 2 of 3 (Interaction & Polish)
 Plan: 7 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 - Completed quick task 3: Fix toolbar sizing/borders and EditorPanel tab visibility
+Last activity: 2026-02-22 - Completed quick task 4: Fix inspector scrollbar styling and expression overflow
 
 Progress: [████████████████████████] 91%
 
@@ -90,6 +90,8 @@ Recent decisions affecting current work:
 - [quick-2]: InspectPanel refactored to content-only export: EditorPanel hosts the shell/tabs
 - [quick-3]: Removed inline shortcut badges from toolbar; shortcuts preserved in title tooltips
 - [quick-3]: Inactive tab color uses nodeBody (#94a3b8) instead of muted (#64748b) for better contrast
+- [quick-4]: Reusable .scrollbar-dark CSS class instead of inline styles for dark scrollbar theming
+- [quick-4]: flex-1 min-w-0 truncation pattern replaces fixed maxWidth:140 for responsive expression truncation
 
 ### Roadmap Evolution
 
@@ -111,9 +113,10 @@ None yet.
 | 1 | Fix subgraph BFS to interleave cross-card and intra-card traversal so inherited permissions appear | 2026-02-22 | cc55ab8 | [1-fix-subgraph-bfs-to-interleave-cross-car](./quick/1-fix-subgraph-bfs-to-interleave-cross-car/) |
 | 2 | Move toolbar to bottom, doubled size, shared tabbed panel | 2026-02-22 | 404b9a9 | [2-move-toolbar-to-bottom-doubled-size-shar](./quick/2-move-toolbar-to-bottom-doubled-size-shar/) |
 | 3 | Fix toolbar sizing/borders and EditorPanel tab visibility | 2026-02-22 | 81d2a1a | [3-fix-toolbar-sizing-borders-and-merge-edi](./quick/3-fix-toolbar-sizing-borders-and-merge-edi/) |
+| 4 | Fix inspector scrollbar styling and expression overflow | 2026-02-22 | feb4903 | [4-fix-inspector-scrollbar-styling-and-expr](./quick/4-fix-inspector-scrollbar-styling-and-expr/) |
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed quick-3-PLAN.md (toolbar sizing/borders and tab visibility)
+Stopped at: Completed quick-4-PLAN.md (inspector scrollbar styling and expression overflow)
 Resume file: None
