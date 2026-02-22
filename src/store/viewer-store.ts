@@ -41,7 +41,6 @@ const loadPersistedEditorWidth = (): number => {
 
 const DEFAULT_FILTERS: GraphFilters = {
   types: [],
-  permissionsOnly: false,
 };
 
 // Memoized visible graph cache — recomputes only when inputs change
@@ -102,7 +101,6 @@ interface ViewerStore {
   // UI
   editorOpen: boolean;
   editorWidth: number;
-  legendOpen: boolean;
   searchOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
@@ -129,7 +127,6 @@ interface ViewerStore {
   toggleEditor: () => void;
   setEditorOpen: (open: boolean) => void;
   setEditorWidth: (w: number) => void;
-  toggleLegend: () => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
 
@@ -160,7 +157,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   filters: { ...DEFAULT_FILTERS },
   editorOpen: true,
   editorWidth: loadPersistedEditorWidth(),
-  legendOpen: false,
   searchOpen: false,
   reactFlowInstance: null,
 
@@ -310,7 +306,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     localStorage.setItem(EDITOR_WIDTH_KEY, String(clamped));
     set({ editorWidth: clamped });
   },
-  toggleLegend: () => set((s) => ({ legendOpen: !s.legendOpen })),
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
 
