@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 Phase: 2 of 3 (Interaction & Polish)
 Plan: 7 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 -- Completed 02-06 (Inspect Panel)
+Last activity: 2026-02-22 - Completed quick task 1: Fix subgraph BFS to interleave cross-card and intra-card traversal so inherited permissions appear
 
 Progress: [████████████████████████] 91%
 
@@ -89,6 +89,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 3 added: Visual Refinement — replace AI-generated aesthetic with polished devtool/HUD design language
+- Phase 4 added: Hover focus layout — move highlighted nodes closer together, dim non-highlighted nodes in background
 
 ### Pending Todos
 
@@ -97,6 +98,12 @@ None yet.
 ### Blockers/Concerns
 
 None yet.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 1 | Fix subgraph BFS to interleave cross-card and intra-card traversal so inherited permissions appear | 2026-02-22 | cc55ab8 | [1-fix-subgraph-bfs-to-interleave-cross-car](./quick/1-fix-subgraph-bfs-to-interleave-cross-car/) |
 
 ## Session Continuity
 
