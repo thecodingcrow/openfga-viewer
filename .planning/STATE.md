@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 Phase: 2 of 3 (Interaction & Polish)
 Plan: 7 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 - Completed quick task 4: Fix inspector scrollbar styling and expression overflow
+Last activity: 2026-02-22 - Completed quick task 5: Add styled hover tooltips to truncated expressions
 
 Progress: [████████████████████████] 91%
 
@@ -92,6 +92,9 @@ Recent decisions affecting current work:
 - [quick-3]: Inactive tab color uses nodeBody (#94a3b8) instead of muted (#64748b) for better contrast
 - [quick-4]: Reusable .scrollbar-dark CSS class instead of inline styles for dark scrollbar theming
 - [quick-4]: flex-1 min-w-0 truncation pattern replaces fixed maxWidth:140 for responsive expression truncation
+- [quick-5]: Portal-based TruncationTooltip into document.body to escape overflow:hidden clipping
+- [quick-5]: Truncation detection via scrollWidth > clientWidth — no tooltip for non-truncated text
+- [quick-5]: No stopPropagation on tooltip handlers — row hover highlighting preserved
 
 ### Roadmap Evolution
 
@@ -114,9 +117,10 @@ None yet.
 | 2 | Move toolbar to bottom, doubled size, shared tabbed panel | 2026-02-22 | 404b9a9 | [2-move-toolbar-to-bottom-doubled-size-shar](./quick/2-move-toolbar-to-bottom-doubled-size-shar/) |
 | 3 | Fix toolbar sizing/borders and EditorPanel tab visibility | 2026-02-22 | 81d2a1a | [3-fix-toolbar-sizing-borders-and-merge-edi](./quick/3-fix-toolbar-sizing-borders-and-merge-edi/) |
 | 4 | Fix inspector scrollbar styling and expression overflow | 2026-02-22 | feb4903 | [4-fix-inspector-scrollbar-styling-and-expr](./quick/4-fix-inspector-scrollbar-styling-and-expr/) |
+| 5 | Add styled hover tooltips to truncated expressions | 2026-02-22 | 9f058e1 | [5-add-styled-hover-tooltips-to-truncated-e](./quick/5-add-styled-hover-tooltips-to-truncated-e/) |
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed quick-4-PLAN.md (inspector scrollbar styling and expression overflow)
+Stopped at: Completed quick-5-PLAN.md (styled hover tooltips for truncated expressions)
 Resume file: None
