@@ -64,13 +64,25 @@ Plans:
 - [ ] 02-07-PLAN.md -- Integration verification checkpoint (human-verify)
 
 ### Phase 3: Visual Refinement
-**Goal**: Replace AI-generated aesthetic with polished devtool/HUD design language — Linear/Vercel-quality typography, spacing, color, and component polish
+**Goal**: Replace AI-generated aesthetic with polished devtool/HUD design language -- warm dark palette via CSS custom properties, solid surface cards, muted edges, desaturated editor theme, right-docked toolbar, all-monospace typography, zero blue tint
 **Depends on**: Phase 2
-**Requirements**: TBD
-**Plans**: 0 plans
+**Requirements**: THEME-01, THEME-02, THEME-03, THEME-04, THEME-05, THEME-06, THEME-07, THEME-08, THEME-09
+**Success Criteria** (what must be TRUE):
+  1. Every color in the app derives from CSS custom properties defined in @theme -- no hardcoded hex values in component files
+  2. No per-type rainbow colors exist anywhere -- TYPE_PALETTE, getTypeColor, and accentColor fully removed
+  3. The app uses warm neutral tones (#111, #1a1a territory) with zero blue tint
+  4. Cards display as elevated solid surfaces with bottom-border headers and 1px section separators
+  5. Dimension edges are muted by default (~0.35 opacity) and vivid on hover/select
+  6. Editor syntax highlighting uses muted/desaturated colors
+  7. Toolbar is docked to right side as vertical bar
+  8. All text uses monospace font, Tailwind type scale levels only
+**Plans**: 4 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 3 to break down)
+- [ ] 03-01-PLAN.md -- Token foundation: warm @theme palette, eliminate blueprint const, remove TYPE_PALETTE/getTypeColor/accentColor
+- [ ] 03-02-PLAN.md -- Card, canvas, edge restyle: solid surfaces, warm dot grid, muted edges, remaining surfaces
+- [ ] 03-03-PLAN.md -- Editor muted theme, right-docked toolbar, inspector/command palette warm restyle
+- [ ] 03-04-PLAN.md -- Visual verification checkpoint (human-verify)
 
 ## Progress
 
@@ -81,7 +93,7 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
 | 2. Interaction & Polish | 0/7 | In progress | - |
-| 3. Visual Refinement | 0/0 | Not started | - |
+| 3. Visual Refinement | 0/4 | Not started | - |
 
 ### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
 

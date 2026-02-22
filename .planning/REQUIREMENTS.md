@@ -52,6 +52,18 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CTRL-07**: Minimap for graph overview
 - [x] **CTRL-08**: Controls panel for zoom/fit
 
+### Theme & Design System
+
+- [ ] **THEME-01**: Warm dark palette (Vercel-style off-blacks #111/#1a1a territory) replaces cool blue blueprint palette via CSS custom properties in @theme
+- [ ] **THEME-02**: All per-type color coding removed -- TYPE_PALETTE, getTypeColor, accentColor eliminated entirely
+- [ ] **THEME-03**: Cards use elevated solid surfaces with bottom-border headers, 1px section separators, and section-coded neutral dots
+- [ ] **THEME-04**: Canvas dot grid, MiniMap, and Controls use warm neutral tones (no blue tint)
+- [ ] **THEME-05**: Dimension edges muted by default (~0.35 opacity), vivid on hover/select; edge weight 1.5-2px
+- [ ] **THEME-06**: Editor syntax highlighting uses muted/desaturated colors (GitHub Dark / One Dark Pro direction)
+- [ ] **THEME-07**: Toolbar docked to right side as vertical bar (macOS Dock concept), sharp and professional
+- [ ] **THEME-08**: All monospace typography throughout; Tailwind type scale levels only (no arbitrary text-[Npx])
+- [ ] **THEME-09**: Design tokens enforced -- every color references CSS custom properties via @theme, no hardcoded hex in components
+
 ## v2 Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -119,11 +131,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-05 | Phase 2 | Complete |
 | CTRL-06 | Phase 2 | Complete |
 
+| THEME-01 | Phase 3 | Pending |
+| THEME-02 | Phase 3 | Pending |
+| THEME-03 | Phase 3 | Pending |
+| THEME-04 | Phase 3 | Pending |
+| THEME-05 | Phase 3 | Pending |
+| THEME-06 | Phase 3 | Pending |
+| THEME-07 | Phase 3 | Pending |
+| THEME-08 | Phase 3 | Pending |
+| THEME-09 | Phase 3 | Pending |
+
 **Coverage:**
-- v1 requirements: 30 total
-- Mapped to phases: 30
-- Unmapped: 0 ✓
+- v1 requirements: 39 total
+- Mapped to phases: 39
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after roadmap restructure to 2 phases*
+*Last updated: 2026-02-22 after Phase 3 planning*
