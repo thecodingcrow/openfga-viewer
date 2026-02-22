@@ -269,7 +269,7 @@ function TreeItemComponent({
   return (
     <div>
       <div
-        className="flex items-center gap-1.5 py-0.5 px-2 text-xs cursor-pointer select-none group"
+        className="flex items-center gap-1.5 py-0.5 px-2 text-xs cursor-pointer select-none group overflow-hidden"
         style={{
           paddingLeft: depth * 16 + 8,
           cursor: isClickable ? "pointer" : "default",
@@ -337,12 +337,11 @@ function TreeItemComponent({
         {/* Expression */}
         {node.expression != null && (
           <span
-            className="ml-1 whitespace-nowrap overflow-hidden text-ellipsis"
+            className="ml-1 whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex-1"
             style={{
               color: blueprint.muted,
               fontSize: "0.65rem",
               fontFamily: "ui-monospace, monospace",
-              maxWidth: 140,
             }}
           >
             {node.expression}
@@ -510,7 +509,7 @@ const InspectContent = () => {
       </div>
 
       {/* Tree area */}
-      <div className="flex-1 overflow-y-auto py-1">
+      <div className="flex-1 overflow-y-auto py-1 scrollbar-dark">
         {tree.length === 0 ? (
           <div
             className="px-3 py-4 text-xs text-center"

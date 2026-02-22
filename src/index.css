@@ -64,3 +64,23 @@ body,
   border: 1px solid #2a3a5c;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
+
+/* Dark-themed scrollbar matching editor style */
+.scrollbar-dark {
+  scrollbar-width: thin;
+  scrollbar-color: #253553 transparent;
+}
+.scrollbar-dark::-webkit-scrollbar {
+  width: 0.3125rem;
+  height: 0.3125rem;
+}
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background: #253553;
+  border-radius: 0.1875rem;
+}
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}

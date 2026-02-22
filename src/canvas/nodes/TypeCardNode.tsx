@@ -275,7 +275,7 @@ function RowItemComponent({
 
   return (
     <div
-      className="px-3 py-0.5 font-mono text-xs flex items-center gap-1.5 text-slate-300"
+      className="px-3 py-0.5 font-mono text-xs flex items-center gap-1.5 text-slate-300 overflow-hidden"
       style={{
         background: rowBg,
         opacity: rowOpacity,
@@ -330,7 +330,7 @@ function RowItemComponent({
         </span>
       )}
       {row.expression != null && (
-        <span className="text-slate-500 ml-auto whitespace-nowrap">
+        <span className="text-slate-500 ml-auto whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
           {row.expression}
         </span>
       )}
