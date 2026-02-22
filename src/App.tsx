@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
+import Breadcrumb from "./canvas/Breadcrumb";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
@@ -13,6 +14,8 @@ const App = () => {
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
   const setSource = useViewerStore((s) => s.setSource);
+  const popSubgraph = useViewerStore((s) => s.popSubgraph);
+  const navDepth = useViewerStore((s) => s.navigationStack.length);
 
   useEffect(() => {
     parse();
@@ -31,10 +34,13 @@ const App = () => {
       if (e.key === "Escape") {
         if (searchOpen) {
           setSearchOpen(false);
+        } else if (navDepth > 0) {
+          popSubgraph();
+          window.history.back();
         }
       }
     },
-    [toggleEditor, toggleSearch, searchOpen, setSearchOpen],
+    [toggleEditor, toggleSearch, searchOpen, setSearchOpen, navDepth, popSubgraph],
   );
 
   useEffect(() => {
@@ -60,6 +66,18 @@ const App = () => {
 
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const targetDepth = (e.state as { stackDepth?: number })?.stackDepth ?? 0;
+      const currentDepth = useViewerStore.getState().navigationStack.length;
+      if (targetDepth < currentDepth) {
+        useViewerStore.getState().jumpToLevel(targetDepth);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   useEffect(() => {
@@ -92,6 +110,7 @@ const App = () => {
         </div>
       )}
       <Canvas />
+      <Breadcrumb />
       <EditorPanel />
       <Toolbar />
     </div>
