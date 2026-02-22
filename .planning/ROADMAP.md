@@ -12,7 +12,7 @@ Rip out the entire compound node visualization pipeline and replace it with ERD 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Core Pipeline** - Delete old visualization pipeline. Build new: types, dimensions, schema cards, dimension colors, edge component, flow conversion, flat ELK layout, store updates, wire FgaGraph. End state: ERD cards rendering with dimension-colored edges.
+- [x] **Phase 1: Core Pipeline** - Delete old visualization pipeline. Build new: types, dimensions, schema cards, dimension colors, edge component, flow conversion, flat ELK layout, store updates, wire FgaGraph. End state: ERD cards rendering with dimension-colored edges.
 - [ ] **Phase 2: Interaction & Polish** - Subgraph exploration (click to navigate), dimension toggles, type filtering, card collapse, legend, command palette, path tracing with expression annotation, recursive hierarchy indicators, animated transitions.
 
 ## Phase Details
@@ -33,10 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Data layer: dimension detection, edge classification, expression transform, colorblind-safe palette
-- [ ] 01-02-PLAN.md -- ERD card node, dimension edge component, flow conversion rewrite
-- [ ] 01-03-PLAN.md -- 1-pass flat ELK layout with ports, FgaGraph wiring, MiniMap, Controls
-- [ ] 01-04-PLAN.md -- Row-level hover highlighting, store updates, delete old pipeline
+- [x] 01-01-PLAN.md -- Data layer: dimension detection, edge classification, expression transform, colorblind-safe palette
+- [x] 01-02-PLAN.md -- ERD card node, dimension edge component, flow conversion rewrite
+- [x] 01-03-PLAN.md -- 1-pass flat ELK layout with ports, FgaGraph wiring, MiniMap, Controls
+- [x] 01-04-PLAN.md -- Row-level hover highlighting, store updates, delete old pipeline
 
 ### Phase 2: Interaction & Polish
 **Goal**: Users can explore subgraphs by clicking, filter by dimension and type, collapse cards, search via command palette, and see annotated path traces with animated transitions
@@ -62,5 +62,5 @@ Phases execute in numeric order: 1 -> 2
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Pipeline | 0/4 | Planned | - |
+| 1. Core Pipeline | 4/4 | Complete | 2026-02-22 |
 | 2. Interaction & Polish | 0/0 | Not started | - |

@@ -28,8 +28,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Interaction
 
-- [ ] **INT-01**: Hovering a permission row highlights upstream feeding paths without layout change (preview)
-- [ ] **INT-02**: Hovering a card header highlights downstream enabled paths without layout change (preview)
+- [x] **INT-01**: Hovering a permission row highlights upstream feeding paths without layout change (preview)
+- [x] **INT-02**: Hovering a card header highlights downstream enabled paths without layout change (preview)
 - [ ] **INT-03**: Clicking a permission row enters upstream subgraph -- removes non-relevant cards and re-lays out
 - [ ] **INT-04**: Clicking a card header enters downstream subgraph -- removes non-relevant cards and re-lays out
 - [ ] **INT-05**: Esc key or back button exits subgraph and returns to full graph
@@ -100,8 +100,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIZ-06 | Phase 1 | Complete |
 | VIZ-07 | Phase 1 | Complete |
 | VIZ-08 | Phase 1 | Complete |
-| INT-01 | Phase 1 | Pending |
-| INT-02 | Phase 1 | Pending |
+| INT-01 | Phase 1 | Complete |
+| INT-02 | Phase 1 | Complete |
 | CTRL-07 | Phase 1 | Complete |
 | CTRL-08 | Phase 1 | Complete |
 | INT-03 | Phase 2 | Pending |

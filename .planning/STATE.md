@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 ## Current Position
 
 Phase: 1 of 2 (Core Pipeline)
-Plan: 3 of 4 in current phase
-Status: Executing
-Last activity: 2026-02-22 -- Completed 01-03 (ELK Layout & FgaGraph)
+Plan: 4 of 4 in current phase
+Status: Phase Complete
+Last activity: 2026-02-22 -- Completed 01-04 (Row-Level Hover & Old Pipeline Cleanup)
 
-Progress: [██████░░░░] 38%
+Progress: [██████████] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 4min
-- Total execution time: 0.2 hours
+- Total execution time: 0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-core-pipeline | 3 | 12min | 4min |
+| 01-core-pipeline | 4 | 16min | 4min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (4min), 01-02 (3min), 01-03 (5min)
+- Last 5 plans: 01-01 (4min), 01-02 (3min), 01-03 (5min), 01-04 (4min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -57,6 +57,10 @@ Recent decisions affecting current work:
 - [01-03]: Port sides match direction: TB uses WEST/EAST, LR uses NORTH/SOUTH
 - [01-03]: Edge source/target must be card type names (not AuthorizationNode IDs) for React Flow node matching
 - [01-03]: Old pipeline files deleted early (Rule 3) -- Plan 04 should note these are already gone
+- [01-04]: Row-level hover events from TypeCardNode, not FgaGraph node-level callbacks
+- [01-04]: Pre-computed highlight sets in hover-store avoid per-component BFS recomputation
+- [01-04]: Memoized RowItem component prevents unnecessary re-renders on hover
+- [01-04]: Dimensions computed in viewer-store parse() for store-level access
 
 ### Pending Todos
 
@@ -69,5 +73,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 01-03-PLAN.md
+Stopped at: Completed 01-04-PLAN.md (Phase 1 complete)
 Resume file: None
