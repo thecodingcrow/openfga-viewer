@@ -5,6 +5,7 @@ import { useHoverStore } from "../store/hover-store";
 import { getTypeColor } from "../theme/colors";
 import { blueprint } from "../theme/colors";
 import { transformExpression } from "../dimensions/detect";
+import { TruncationTooltip } from "../components/Tooltip";
 
 // ─── Tree data model ─────────────────────────────────────────────────────────
 
@@ -336,16 +337,15 @@ function TreeItemComponent({
 
         {/* Expression */}
         {node.expression != null && (
-          <span
+          <TruncationTooltip
+            text={node.expression}
             className="ml-1 whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex-1"
             style={{
               color: blueprint.muted,
               fontSize: "0.65rem",
               fontFamily: "ui-monospace, monospace",
             }}
-          >
-            {node.expression}
-          </span>
+          />
         )}
       </div>
 

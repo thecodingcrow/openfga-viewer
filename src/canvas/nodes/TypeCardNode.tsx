@@ -9,6 +9,7 @@ import type {
 import { useHoverStore } from "../../store/hover-store";
 import { useViewerStore } from "../../store/viewer-store";
 import { getIsTransitioning } from "../transition-state";
+import { TruncationTooltip } from "../../components/Tooltip";
 
 /** React Flow requires [key: string]: unknown on node data */
 type TypeCardData = SchemaCard & { [key: string]: unknown };
@@ -330,9 +331,10 @@ function RowItemComponent({
         </span>
       )}
       {row.expression != null && (
-        <span className="text-slate-500 ml-auto whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
-          {row.expression}
-        </span>
+        <TruncationTooltip
+          text={row.expression}
+          className="text-slate-500 ml-auto whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+        />
       )}
       <Handle
         type="source"
