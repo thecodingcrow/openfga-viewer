@@ -84,15 +84,16 @@ Plans:
 - [x] 03-03-PLAN.md -- Editor muted theme, right-docked toolbar, inspector/command palette warm restyle
 - [ ] 03-04-PLAN.md -- Visual verification checkpoint (human-verify)
 
-### Phase 5: Gap Closure — Breadcrumb Fix + Dead Code Cleanup
-**Goal**: Fix breadcrumb visibility when panel is open, remove orphaned code (expandViaTtu, computeDepthLayers, ResizeHandle, editorWidth, path tracing store state), clean milestone for completion
+### Phase 5: Gap Closure — Edge Alignment, Breadcrumb Hide, Dead Code Cleanup
+**Goal**: Fix edge arrow connection points shifted after Phase 3 restyle, hide breadcrumbs from UI, remove orphaned code (expandViaTtu, computeDepthLayers, ResizeHandle, editorWidth, path tracing store state), clean milestone for completion
 **Depends on**: Phase 3
 **Requirements**: INT-05
 **Gap Closure**: Closes gaps from v1.0 audit
-**Plans**: 0 plans
+**Plans**: 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 5 to break down)
+- [ ] 05-01-PLAN.md -- Edge arrow alignment fix, breadcrumb hide from UI
+- [ ] 05-02-PLAN.md -- Dead code removal (traversal, elk-path, store state, ResizeHandle, console.log, FocusMode)
 
 ## Progress
 
@@ -104,7 +105,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 5
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
 | 2. Interaction & Polish | 6/7 | Complete    | 2026-02-22 |
 | 3. Visual Refinement | 3/4 | Complete    | 2026-02-22 |
-| 5. Gap Closure | 0/0 | Not started | - |
+| 5. Gap Closure | 0/2 | Not started | - |
 
 ### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
 
