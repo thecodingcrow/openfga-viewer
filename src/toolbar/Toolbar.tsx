@@ -48,12 +48,10 @@ const Separator = () => (
 // ─── Toolbar ────────────────────────────────────────────────────────────────
 
 const Toolbar = () => {
-  const legendOpen = useViewerStore((s) => s.legendOpen);
-  const toggleLegend = useViewerStore((s) => s.toggleLegend);
+  const editorOpen = useViewerStore((s) => s.editorOpen);
+  const toggleEditor = useViewerStore((s) => s.toggleEditor);
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
-  const filters = useViewerStore((s) => s.filters);
-  const setFilter = useViewerStore((s) => s.setFilter);
   const setSource = useViewerStore((s) => s.setSource);
   const parse = useViewerStore((s) => s.parse);
   const reactFlowInstance = useViewerStore((s) => s.reactFlowInstance);
@@ -80,16 +78,36 @@ const Toolbar = () => {
     reactFlowInstance?.fitView({ duration: 200 });
   }, [reactFlowInstance]);
 
-  const handlePermissionsToggle = useCallback(() => {
-    setFilter({ permissionsOnly: !filters.permissionsOnly });
-  }, [filters.permissionsOnly, setFilter]);
-
   return (
     <>
       <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
-        style={{ borderRadius: 8 }}
+        className="absolute top-4 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
+        style={{ borderRadius: 9999 }}
       >
+        {/* Editor toggle */}
+        <ToolbarButton
+          onClick={toggleEditor}
+          title="Toggle editor (⌘E)"
+          active={editorOpen}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M2 3H12M2 7H9M2 11H11"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </ToolbarButton>
+        <span
+          className="text-[9px] px-1 py-0.5 rounded border select-none"
+          style={{ color: blueprint.muted, borderColor: blueprint.nodeBorder }}
+        >
+          ⌘E
+        </span>
+
+        <Separator />
+
         {/* Search */}
         <ToolbarButton
           onClick={() => setSearchOpen(true)}
@@ -107,40 +125,6 @@ const Toolbar = () => {
         >
           ⌘K
         </span>
-
-        <Separator />
-
-        {/* Permissions only */}
-        <ToolbarButton
-          onClick={handlePermissionsToggle}
-          title={filters.permissionsOnly ? "Show all relations" : "Permissions only"}
-          active={filters.permissionsOnly}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M7 1L2 4V7C2 10.3 4.1 13.2 7 13.5C9.9 13.2 12 10.3 12 7V4L7 1Z"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
-            <path d="M5 7L6.5 8.5L9 5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </ToolbarButton>
-
-        <Separator />
-
-        {/* Legend toggle */}
-        <ToolbarButton
-          onClick={toggleLegend}
-          title={legendOpen ? "Hide legend" : "Show legend"}
-          active={legendOpen}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M7 6.5V10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-            <circle cx="7" cy="4.5" r="0.75" fill="currentColor" />
-          </svg>
-        </ToolbarButton>
 
         <Separator />
 

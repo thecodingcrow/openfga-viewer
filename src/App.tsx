@@ -1,8 +1,6 @@
 import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
 import EditorPanel from "./editor/EditorPanel";
-import ResizeHandle from "./components/ResizeHandle";
-import LegendPanel from "./legend/LegendPanel";
 import Toolbar from "./toolbar/Toolbar";
 import { useViewerStore } from "./store/viewer-store";
 
@@ -74,7 +72,7 @@ const App = () => {
   }, [handleDrop, handleDragOver]);
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden">
       {SHOW_ALPHA_BANNER && (
         <div
           style={{
@@ -83,21 +81,19 @@ const App = () => {
             fontSize: "0.8rem",
             padding: "4px 12px",
             textAlign: "center",
-            flexShrink: 0,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 60,
           }}
         >
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <div className="flex-1 overflow-hidden flex flex-row">
-        <EditorPanel />
-        <ResizeHandle />
-        <div className="relative flex-1 min-w-0 overflow-hidden">
-          <Canvas />
-          <Toolbar />
-          <LegendPanel />
-        </div>
-      </div>
+      <Canvas />
+      <EditorPanel />
+      <Toolbar />
     </div>
   );
 };

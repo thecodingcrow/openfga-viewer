@@ -2,21 +2,29 @@ import { useViewerStore } from "../store/viewer-store";
 import { blueprint } from "../theme/colors";
 import FgaEditor from "./FgaEditor";
 
+const PANEL_WIDTH = 480;
+
 const EditorPanel = () => {
   const editorOpen = useViewerStore((s) => s.editorOpen);
-  const editorWidth = useViewerStore((s) => s.editorWidth);
   const toggleEditor = useViewerStore((s) => s.toggleEditor);
   const parseError = useViewerStore((s) => s.parseError);
 
   return (
     <div
-      className="shrink-0 flex flex-col overflow-hidden"
+      className="flex flex-col overflow-hidden"
       style={{
-        width: editorOpen ? editorWidth : 0,
-        minWidth: 0,
-        transition: "width 250ms ease-out",
-        background: blueprint.surface,
-        boxShadow: "0.25rem 0 1.5rem rgba(0, 0, 0, 0.3)",
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        zIndex: 40,
+        width: PANEL_WIDTH,
+        transform: editorOpen ? "translateX(0)" : "translateX(-100%)",
+        transition: "transform 250ms ease-out",
+        background: "rgba(15, 23, 41, 0.95)",
+        boxShadow: editorOpen
+          ? "4px 0 24px rgba(0, 0, 0, 0.4)"
+          : "none",
       }}
     >
       <div

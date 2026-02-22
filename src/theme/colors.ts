@@ -7,7 +7,7 @@ export const blueprint = {
   nodeBody: "#94a3b8",
   edgeStroke: "#4a6fa5",
   edgeArrow: "#5b8cc9",
-  accent: "#38bdf8",
+  accent: "#d4a017",
   surface: "#162033",
   surfaceBorder: "#253553",
   muted: "#64748b",

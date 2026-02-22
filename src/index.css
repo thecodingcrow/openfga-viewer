@@ -8,7 +8,7 @@
   --color-blueprint-header: #7dd3fc;
   --color-blueprint-body: #94a3b8;
   --color-blueprint-edge: #4a6fa5;
-  --color-blueprint-accent: #38bdf8;
+  --color-blueprint-accent: #d4a017;
   --color-blueprint-surface: #162033;
   --color-blueprint-muted: #64748b;
   --color-blueprint-danger: #f87171;
@@ -59,7 +59,7 @@ body,
 
 /* Shared floating HUD panel */
 .hud-panel {
-  background: rgba(15, 23, 41, 0.9);
+  background: rgba(15, 23, 41, 0.95);
   backdrop-filter: blur(12px);
   border: 1px solid #2a3a5c;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
