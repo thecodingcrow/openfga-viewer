@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-21)
 Phase: 2 of 3 (Interaction & Polish)
 Plan: 7 of 7 in current phase
 Status: In Progress
-Last activity: 2026-02-22 - Completed quick task 2: Move toolbar to bottom, doubled size, shared tabbed panel
+Last activity: 2026-02-22 - Completed quick task 3: Fix toolbar sizing/borders and EditorPanel tab visibility
 
 Progress: [████████████████████████] 91%
 
@@ -88,6 +88,8 @@ Recent decisions affecting current work:
 - [quick-2]: panelOpen + panelTab replaces editorOpen/inspectOpen: simpler state, one toggle controls visibility
 - [quick-2]: setPanelTab auto-opens panel: switching tab always ensures panel is visible
 - [quick-2]: InspectPanel refactored to content-only export: EditorPanel hosts the shell/tabs
+- [quick-3]: Removed inline shortcut badges from toolbar; shortcuts preserved in title tooltips
+- [quick-3]: Inactive tab color uses nodeBody (#94a3b8) instead of muted (#64748b) for better contrast
 
 ### Roadmap Evolution
 
@@ -108,9 +110,10 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 1 | Fix subgraph BFS to interleave cross-card and intra-card traversal so inherited permissions appear | 2026-02-22 | cc55ab8 | [1-fix-subgraph-bfs-to-interleave-cross-car](./quick/1-fix-subgraph-bfs-to-interleave-cross-car/) |
 | 2 | Move toolbar to bottom, doubled size, shared tabbed panel | 2026-02-22 | 404b9a9 | [2-move-toolbar-to-bottom-doubled-size-shar](./quick/2-move-toolbar-to-bottom-doubled-size-shar/) |
+| 3 | Fix toolbar sizing/borders and EditorPanel tab visibility | 2026-02-22 | 81d2a1a | [3-fix-toolbar-sizing-borders-and-merge-edi](./quick/3-fix-toolbar-sizing-borders-and-merge-edi/) |
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed quick-2-PLAN.md (toolbar to bottom, shared tabbed panel)
+Stopped at: Completed quick-3-PLAN.md (toolbar sizing/borders and tab visibility)
 Resume file: None
