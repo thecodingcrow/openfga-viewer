@@ -1,110 +1,170 @@
-import { MarkerType, type Node, type Edge } from '@xyflow/react';
-import type { AuthorizationNode, AuthorizationEdge } from '../types';
-import { blueprint } from '../theme/colors';
+/**
+ * Converts an AuthorizationGraph into React Flow elements using the ERD-card pipeline.
+ *
+ * Groups AuthorizationNodes by type into SchemaCard nodes. Filters edges to
+ * cross-card only (direct + ttu). Returns dimension data alongside flow elements.
+ */
 
-export interface FgaNodeData {
-  typeName: string;
-  relation: string;
-  isPermission: boolean;
-  definition?: string;
-  isCompound?: boolean;
-  hasParent?: boolean;
-  isTuplesetBinding?: boolean;
-  referencedType?: string;
+import type { Node, Edge } from "@xyflow/react";
+import type {
+  AuthorizationGraph,
+  Dimension,
+  SchemaCard,
+  CardRow,
+  EdgeClassification,
+} from "../types";
+import { detectDimensions, classifyEdges, transformExpression } from "../dimensions/detect";
+import { assignDimensionColors } from "../theme/dimensions";
+import { getTypeColor } from "../theme/colors";
+
+/** React Flow node data with index signature for compatibility */
+type SchemaCardData = SchemaCard & { [key: string]: unknown };
+
+/** Edge data for DimensionEdge */
+interface DimensionEdgeData {
+  classification: EdgeClassification;
+  dimensionColor?: string;
   [key: string]: unknown;
 }
 
-export function toFlowNode(node: AuthorizationNode): Node<FgaNodeData> {
-  const nodeType = node.kind === 'type'
-    ? 'type'
-    : node.isPermission ? 'permission' : 'relation';
+/**
+ * Convert an AuthorizationGraph into React Flow nodes (TypeCardNode) and
+ * edges (DimensionEdge), plus the detected dimension map.
+ *
+ * - One React Flow node per FGA type (not per relation)
+ * - Only cross-card edges (direct + ttu) become visual edges
+ * - Same-card edges (computed, tupleset-dep) appear as expression text within cards
+ */
+export function toFlowElements(graph: AuthorizationGraph): {
+  nodes: Node[];
+  edges: Edge[];
+  dimensions: Map<string, Dimension>;
+} {
+  // 1. Detect and color dimensions
+  const rawDimensions = detectDimensions(graph);
+  const dimensions = assignDimensionColors(rawDimensions);
 
-  return {
-    id: node.id,
-    type: nodeType,
-    position: { x: 0, y: 0 },
-    data: {
-      typeName: node.type,
-      relation: node.relation ?? '',
-      isPermission: node.isPermission,
-      definition: node.definition,
-      isTuplesetBinding: node.isTuplesetBinding,
-      referencedType: node.referencedType,
-    },
-  };
-}
+  // 2. Classify edges into cross-card (visual) and same-card (text)
+  const { crossCard } = classifyEdges(graph.edges);
 
-// Marker definitions per visual edge type
-const MARKERS: Record<'direct' | 'computed' | 'tupleset-dep', Edge['markerEnd']> = {
-  computed: {
-    type: MarkerType.Arrow,
-    width: 12,
-    height: 12,
-    color: blueprint.edgeComputed,
-  },
-  'tupleset-dep': {
-    type: MarkerType.Arrow,
-    width: 10,
-    height: 10,
-    color: blueprint.edgeTuplesetDep,
-  },
-  direct: {
-    type: MarkerType.Arrow,
-    width: 10,
-    height: 10,
-    color: blueprint.edgeDirect,
-  },
-};
-
-export function toFlowEdge(edge: AuthorizationEdge): Edge {
-  const rule = edge.rewriteRule as 'direct' | 'computed' | 'tupleset-dep';
-  return {
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    type: rule,
-    animated: false,
-    markerEnd: MARKERS[rule],
-  };
-}
-
-export function toFlowElements(
-  nodes: AuthorizationNode[],
-  edges: AuthorizationEdge[],
-): { nodes: Node<FgaNodeData>[]; edges: Edge[] } {
-  // Determine which types are compound (have relation/permission children)
-  const compoundTypes = new Set<string>();
-  for (const node of nodes) {
-    if (node.kind !== 'type') {
-      compoundTypes.add(node.type);
+  // 3. Group nodes by type
+  const nodesByType = new Map<string, typeof graph.nodes>();
+  for (const node of graph.nodes) {
+    const typeNodes = nodesByType.get(node.type);
+    if (typeNodes) {
+      typeNodes.push(node);
+    } else {
+      nodesByType.set(node.type, [node]);
     }
   }
 
-  const flowNodes = nodes.map((node) => {
-    const n = toFlowNode(node);
-    if (node.kind === 'type' && compoundTypes.has(node.type)) {
-      n.data.isCompound = true;
+  // 4. Build React Flow nodes — one per type
+  const flowNodes: Node[] = [];
+  for (const [typeName, typeNodes] of nodesByType) {
+    const rows: CardRow[] = [];
+
+    // Separate type node from child nodes
+    const children = typeNodes.filter((n) => n.kind !== "type");
+
+    // Classify children into sections
+    const bindings: typeof children = [];
+    const relations: typeof children = [];
+    const permissions: typeof children = [];
+
+    for (const child of children) {
+      if (child.isTuplesetBinding) {
+        bindings.push(child);
+      } else if (child.isPermission) {
+        permissions.push(child);
+      } else {
+        relations.push(child);
+      }
     }
-    // Mark child nodes that will be inside a compound
-    if (node.kind !== 'type' && compoundTypes.has(node.type)) {
-      n.data.hasParent = true;
+
+    // Sort each section alphabetically by relation name for stable order
+    const byName = (a: (typeof children)[0], b: (typeof children)[0]) =>
+      (a.relation ?? "").localeCompare(b.relation ?? "");
+    bindings.sort(byName);
+    relations.sort(byName);
+    permissions.sort(byName);
+
+    // Build rows: bindings first, then relations, then permissions
+    for (const node of bindings) {
+      // Look up dimension color from the node's relation (dimension name)
+      const dim = node.relation ? dimensions.get(node.relation) : undefined;
+      rows.push({
+        id: node.id,
+        name: node.relation ?? node.id,
+        section: "binding",
+        dimensionColor: dim?.color,
+      });
     }
-    return n;
-  });
 
-  // React Flow v12 requires parent nodes before children in the array
-  flowNodes.sort((a, b) => {
-    const aIsType = a.type === 'type' ? 0 : 1;
-    const bIsType = b.type === 'type' ? 0 : 1;
-    return aIsType - bIsType;
-  });
+    for (const node of relations) {
+      rows.push({
+        id: node.id,
+        name: node.relation ?? node.id,
+        section: "relation",
+      });
+    }
 
-  // Filter out TTU edges — they only exist as hover metadata, never render
-  const visualEdges = edges.filter((e) => e.rewriteRule !== 'ttu');
-  const flowEdges = visualEdges.map(toFlowEdge);
+    for (const node of permissions) {
+      rows.push({
+        id: node.id,
+        name: node.relation ?? node.id,
+        section: "permission",
+        expression: node.definition
+          ? transformExpression(node.definition)
+          : undefined,
+      });
+    }
 
-  return {
-    nodes: flowNodes,
-    edges: flowEdges,
-  };
+    const accentColor = getTypeColor(typeName);
+
+    const schemaCard: SchemaCardData = {
+      typeName,
+      accentColor,
+      rows,
+    };
+
+    flowNodes.push({
+      id: typeName,
+      type: "typeCard",
+      position: { x: 0, y: 0 },
+      data: schemaCard,
+    });
+  }
+
+  // 5. Build React Flow edges — cross-card only
+  const flowEdges: Edge[] = [];
+  for (const edge of crossCard) {
+    // Determine classification and color
+    let classification: EdgeClassification;
+    let dimensionColor: string | undefined;
+
+    if (edge.rewriteRule === "ttu" && edge.tuplesetRelation) {
+      classification = "dimension";
+      const dim = dimensions.get(edge.tuplesetRelation);
+      dimensionColor = dim?.color;
+    } else {
+      classification = "type-restriction";
+    }
+
+    const edgeData: DimensionEdgeData = {
+      classification,
+      dimensionColor,
+    };
+
+    flowEdges.push({
+      id: edge.id,
+      source: edge.source,
+      target: edge.target,
+      type: "dimension",
+      sourceHandle: `${edge.source}__source`,
+      targetHandle: `${edge.target}__target`,
+      data: edgeData,
+    });
+  }
+
+  return { nodes: flowNodes, edges: flowEdges, dimensions };
 }
