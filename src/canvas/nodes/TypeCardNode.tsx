@@ -14,15 +14,12 @@ import { TruncationTooltip } from "../../components/Tooltip";
 /** React Flow requires [key: string]: unknown on node data */
 type TypeCardData = SchemaCard & { [key: string]: unknown };
 
-/** Section background colors -- banded shades per CONTEXT.md locked decision */
+/** Section background colors -- warm neutral banded shades */
 const SECTION_BG: Record<CardRow["section"], string> = {
-  binding: "rgba(15, 23, 42, 0.95)",
-  relation: "rgba(15, 23, 42, 0.88)",
-  permission: "rgba(15, 23, 42, 0.80)",
+  binding: "var(--color-surface-raised)",
+  relation: "rgba(34, 34, 34, 0.92)",
+  permission: "rgba(34, 34, 34, 0.82)",
 };
-
-/** Neutral dot color for relation/permission rows */
-const NEUTRAL_DOT = "#64748b";
 
 /** Hidden handle style -- exists for edge attachment only */
 const hiddenHandle: React.CSSProperties = {
@@ -32,7 +29,7 @@ const hiddenHandle: React.CSSProperties = {
 };
 
 /** Subtle background tint for highlighted rows */
-const HIGHLIGHTED_ROW_BG = "rgba(136, 204, 238, 0.08)";
+const HIGHLIGHTED_ROW_BG = "rgba(212, 160, 23, 0.08)";
 
 /** Delay (ms) to distinguish single-click from double-click on header */
 const CLICK_DELAY = 250;
@@ -133,9 +130,8 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
     <div
       className="rounded-xl overflow-hidden"
       style={{
-        background: "rgba(15, 23, 42, 0.85)",
-        backdropFilter: "blur(8px)",
-        border: "1px solid rgba(51, 65, 85, 0.5)",
+        background: "var(--color-surface-raised)",
+        border: "1px solid var(--color-border)",
         minWidth: 200,
         maxWidth: 380,
         width: "fit-content",
@@ -146,10 +142,10 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
     >
       {/* Header -- type name with accent bar */}
       <div
-        className="px-3 py-1.5 text-sm font-semibold text-slate-100 cursor-pointer select-none"
+        className="px-3 py-1.5 text-sm font-semibold cursor-pointer select-none"
         style={{
-          borderTop: `3px solid ${d.accentColor}`,
-          background: "rgba(15, 23, 42, 0.98)",
+          borderBottom: "1px solid var(--color-border)",
+          color: "var(--color-text-primary)",
         }}
         data-header="true"
         onMouseEnter={onHeaderMouseEnter}
@@ -164,7 +160,7 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
         />
         {d.typeName}
         {isCollapsed && (
-          <span className="ml-1.5 text-xs text-slate-500 font-normal">
+          <span className="ml-1.5 text-xs font-normal" style={{ color: "var(--color-text-muted)" }}>
             ({d.rows.length})
           </span>
         )}
@@ -178,10 +174,13 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
 
       {/* Section bands -- hidden when collapsed */}
       {!isCollapsed &&
-        sections.map((section) => (
+        sections.map((section, sectionIdx) => (
           <div
             key={section.key}
-            style={{ background: SECTION_BG[section.key] }}
+            style={{
+              background: SECTION_BG[section.key],
+              borderTop: sectionIdx > 0 ? "1px solid var(--color-border-subtle)" : undefined,
+            }}
           >
             {section.rows.map((row) => {
               const isRelevant = currentFrame
@@ -276,10 +275,11 @@ function RowItemComponent({
 
   return (
     <div
-      className="px-3 py-0.5 font-mono text-xs flex items-center gap-1.5 text-slate-300 overflow-hidden"
+      className="px-3 py-0.5 font-mono text-xs flex items-center gap-1.5 overflow-hidden"
       style={{
         background: rowBg,
         opacity: rowOpacity,
+        color: "var(--color-text-secondary)",
         cursor: isPermission ? "pointer" : undefined,
         transition: "opacity 120ms ease-out",
       }}
@@ -292,7 +292,7 @@ function RowItemComponent({
         id={`${row.id}__target`}
         style={hiddenHandle}
       />
-      {/* Dot indicator */}
+      {/* Dot indicator -- dimension colors for bindings, section-coded neutrals for others */}
       <span
         title={row.ttuDimensionColor != null ? "Inherited via TTU" : undefined}
         style={{
@@ -303,8 +303,10 @@ function RowItemComponent({
           flexShrink: 0,
           background:
             row.section === "binding"
-              ? (row.dimensionColor ?? NEUTRAL_DOT)
-              : (row.ttuDimensionColor ?? NEUTRAL_DOT),
+              ? (row.dimensionColor ?? "var(--color-dot-binding)")
+              : row.section === "permission"
+                ? (row.ttuDimensionColor ?? "var(--color-dot-permission)")
+                : (row.ttuDimensionColor ?? "var(--color-dot-relation)"),
         }}
       />
       <span className="whitespace-nowrap">{row.name}</span>
@@ -319,10 +321,10 @@ function RowItemComponent({
             width: 12,
             height: 12,
             borderRadius: "50%",
-            border: "1px solid #64748b",
+            border: "1px solid var(--color-text-muted)",
             fontSize: 8,
             lineHeight: 1,
-            color: "#94a3b8",
+            color: "var(--color-text-secondary)",
             flexShrink: 0,
             cursor: "help",
           }}
@@ -333,7 +335,8 @@ function RowItemComponent({
       {row.expression != null && (
         <TruncationTooltip
           text={row.expression}
-          className="text-slate-500 ml-auto whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+          className="ml-auto whitespace-nowrap overflow-hidden text-ellipsis min-w-0"
+          style={{ color: "var(--color-text-muted)" }}
         />
       )}
       <Handle

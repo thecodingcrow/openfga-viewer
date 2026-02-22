@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react";
 import { useViewerStore } from "../store/viewer-store";
-import { blueprint } from "../theme/colors";
 import CommandPalette from "./CommandPalette";
 
 const REPO_URL = "https://github.com/evansims/openfga-viewer";
@@ -21,14 +20,14 @@ const ToolbarButton = ({
   <button
     onClick={onClick}
     title={title}
-    className="w-8 h-8 flex items-center justify-center rounded-full transition-all duration-150 cursor-pointer relative"
+    className="w-8 h-8 flex items-center justify-center rounded transition-all duration-150 cursor-pointer relative"
     style={{
-      color: active ? blueprint.accent : blueprint.nodeBody,
-      background: active ? `${blueprint.accent}15` : "transparent",
-      border: `1px solid ${active ? `${blueprint.accent}40` : "transparent"}`,
+      color: active ? "var(--color-accent)" : "var(--color-text-secondary)",
+      background: active ? "rgba(212, 160, 23, 0.08)" : "transparent",
+      border: active ? "1px solid rgba(212, 160, 23, 0.25)" : "1px solid transparent",
     }}
     onMouseEnter={(e) => {
-      if (!active) e.currentTarget.style.background = `${blueprint.accent}10`;
+      if (!active) e.currentTarget.style.background = "rgba(212, 160, 23, 0.05)";
     }}
     onMouseLeave={(e) => {
       if (!active) e.currentTarget.style.background = "transparent";
@@ -40,8 +39,8 @@ const ToolbarButton = ({
 
 const Separator = () => (
   <div
-    className="w-px h-5 mx-0.5"
-    style={{ background: blueprint.nodeBorder }}
+    className="h-px w-5 my-0.5"
+    style={{ background: "var(--color-border)" }}
   />
 );
 
@@ -81,8 +80,12 @@ const Toolbar = () => {
   return (
     <>
       <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 hud-panel flex items-center gap-1 px-2 py-1.5"
-        style={{ borderRadius: 9999 }}
+        className="absolute right-3 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-1 px-1.5 py-2"
+        style={{
+          background: "var(--color-surface-overlay)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 8,
+        }}
       >
         {/* Panel toggle */}
         <ToolbarButton

@@ -1,5 +1,4 @@
 import { useViewerStore } from "../store/viewer-store";
-import { blueprint } from "../theme/colors";
 import FgaEditor from "./FgaEditor";
 import InspectContent from "../inspect/InspectPanel";
 
@@ -29,7 +28,7 @@ const EditorPanel = () => {
         width: PANEL_WIDTH,
         transform: panelOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 250ms ease-out",
-        background: "rgba(15, 23, 41, 0.95)",
+        background: "rgba(17, 17, 17, 0.95)",
         boxShadow: panelOpen
           ? "4px 0 24px rgba(0, 0, 0, 0.4)"
           : "none",
@@ -40,7 +39,7 @@ const EditorPanel = () => {
         className="flex items-center justify-between px-4 shrink-0"
         style={{
           height: "2.75rem",
-          borderBottom: `1px solid ${blueprint.surfaceBorder}`,
+          borderBottom: "1px solid var(--color-border-subtle)",
         }}
       >
         {/* Tab buttons */}
@@ -51,18 +50,18 @@ const EditorPanel = () => {
               onClick={() => setPanelTab(tab.key)}
               className="text-xs font-semibold tracking-wider uppercase cursor-pointer pb-px relative"
               style={{
-                color: panelTab === tab.key ? blueprint.accent : blueprint.nodeBody,
+                color: panelTab === tab.key ? "var(--color-accent)" : "var(--color-text-secondary)",
                 background: "transparent",
                 border: "none",
                 borderBottom: panelTab === tab.key
-                  ? `2px solid ${blueprint.accent}`
+                  ? "2px solid var(--color-accent)"
                   : "2px solid transparent",
               }}
               onMouseEnter={(e) => {
-                if (panelTab !== tab.key) e.currentTarget.style.color = blueprint.accent;
+                if (panelTab !== tab.key) e.currentTarget.style.color = "var(--color-accent)";
               }}
               onMouseLeave={(e) => {
-                if (panelTab !== tab.key) e.currentTarget.style.color = blueprint.nodeBody;
+                if (panelTab !== tab.key) e.currentTarget.style.color = "var(--color-text-secondary)";
               }}
             >
               {tab.label}
@@ -73,10 +72,10 @@ const EditorPanel = () => {
         {/* Right side: shortcut badge + close */}
         <div className="flex items-center gap-1.5">
           <span
-            className="text-[9px] px-1 py-0.5 rounded select-none"
+            className="text-xs px-1 py-0.5 rounded select-none"
             style={{
-              color: `${blueprint.muted}aa`,
-              background: `${blueprint.nodeBorder}30`,
+              color: "var(--color-text-muted)",
+              background: "rgba(46, 46, 46, 0.3)",
             }}
           >
             Cmd+E
@@ -84,7 +83,7 @@ const EditorPanel = () => {
           <button
             onClick={togglePanel}
             className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/5 transition-colors cursor-pointer"
-            style={{ color: blueprint.muted }}
+            style={{ color: "var(--color-text-muted)" }}
             title="Collapse panel"
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -111,9 +110,9 @@ const EditorPanel = () => {
             <div
               className="px-3 py-1.5 text-xs shrink-0"
               style={{
-                color: blueprint.danger,
-                background: `${blueprint.danger}08`,
-                borderTop: `0.0625rem solid ${blueprint.danger}20`,
+                color: "var(--color-danger)",
+                background: "rgba(239, 68, 68, 0.05)",
+                borderTop: "1px solid rgba(239, 68, 68, 0.12)",
               }}
             >
               {parseError}

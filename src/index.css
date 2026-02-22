@@ -1,17 +1,34 @@
 @import "tailwindcss";
 
 @theme {
-  --color-blueprint-bg: #0f1729;
-  --color-blueprint-dot: #1e2d4a;
-  --color-blueprint-node: #1a2640;
-  --color-blueprint-border: #2a3a5c;
-  --color-blueprint-header: #7dd3fc;
-  --color-blueprint-body: #94a3b8;
-  --color-blueprint-edge: #4a6fa5;
-  --color-blueprint-accent: #d4a017;
-  --color-blueprint-surface: #162033;
-  --color-blueprint-muted: #64748b;
-  --color-blueprint-danger: #f87171;
+  /* Backgrounds */
+  --color-bg: #111111;
+  --color-surface: #191919;
+  --color-surface-raised: #222222;
+  --color-surface-overlay: #282828;
+
+  /* Borders */
+  --color-border: #2e2e2e;
+  --color-border-subtle: #242424;
+
+  /* Text */
+  --color-text-primary: #ebebeb;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #666666;
+
+  /* Accent */
+  --color-accent: #d4a017;
+
+  /* Feedback */
+  --color-danger: #ef4444;
+
+  /* Canvas */
+  --color-dot-grid: #222222;
+
+  /* Section dots (per-section neutral shades) */
+  --color-dot-binding: #a0a0a0;
+  --color-dot-relation: #777777;
+  --color-dot-permission: #555555;
 }
 
 html,
@@ -22,7 +39,7 @@ body,
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: var(--color-blueprint-bg);
+  background-color: var(--color-bg);
   font-family:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
@@ -59,16 +76,16 @@ body,
 
 /* Shared floating HUD panel */
 .hud-panel {
-  background: rgba(15, 23, 41, 0.95);
+  background: rgba(17, 17, 17, 0.95);
   backdrop-filter: blur(12px);
-  border: 1px solid #2a3a5c;
+  border: 1px solid var(--color-border);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* Dark-themed scrollbar matching editor style */
 .scrollbar-dark {
   scrollbar-width: thin;
-  scrollbar-color: #253553 transparent;
+  scrollbar-color: var(--color-border) transparent;
 }
 .scrollbar-dark::-webkit-scrollbar {
   width: 0.3125rem;
@@ -78,9 +95,9 @@ body,
   background: transparent;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb {
-  background: #253553;
+  background: var(--color-border);
   border-radius: 0.1875rem;
 }
 .scrollbar-dark::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: var(--color-text-muted);
 }

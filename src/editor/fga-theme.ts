@@ -1,30 +1,29 @@
 import { EditorView } from "@codemirror/view";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
-import { blueprint } from "../theme/colors";
 
-const blueprintEditorTheme = EditorView.theme(
+const editorTheme = EditorView.theme(
   {
     "&": {
-      backgroundColor: blueprint.surface,
-      color: blueprint.nodeBody,
+      backgroundColor: "var(--color-surface)",
+      color: "var(--color-text-secondary)",
       fontSize: "0.8125rem",
       fontFamily:
         'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
     },
     ".cm-content": {
-      caretColor: blueprint.accent,
+      caretColor: "var(--color-accent)",
       padding: "0.25rem 0",
     },
     ".cm-cursor, .cm-dropCursor": {
-      borderLeftColor: blueprint.accent,
+      borderLeftColor: "var(--color-accent)",
     },
     "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {
-      backgroundColor: `${blueprint.accent}22`,
+      backgroundColor: "rgba(212, 160, 23, 0.12)",
     },
     ".cm-gutters": {
       backgroundColor: "transparent",
-      color: `${blueprint.muted}99`,
+      color: "var(--color-text-muted)",
       border: "none",
       paddingRight: "0.25rem",
     },
@@ -35,28 +34,28 @@ const blueprintEditorTheme = EditorView.theme(
     },
     ".cm-activeLineGutter": {
       backgroundColor: "transparent",
-      color: blueprint.muted,
+      color: "var(--color-text-muted)",
     },
     ".cm-activeLine": {
-      backgroundColor: `${blueprint.accent}06`,
+      backgroundColor: "rgba(212, 160, 23, 0.04)",
     },
     ".cm-matchingBracket": {
-      backgroundColor: `${blueprint.accent}30`,
-      outline: `0.0625rem solid ${blueprint.accent}50`,
+      backgroundColor: "rgba(212, 160, 23, 0.2)",
+      color: "var(--color-text-primary) !important",
     },
     ".cm-foldPlaceholder": {
-      backgroundColor: blueprint.nodeBorder,
+      backgroundColor: "var(--color-border)",
       border: "none",
-      color: blueprint.muted,
+      color: "var(--color-text-muted)",
     },
     ".cm-tooltip": {
-      backgroundColor: blueprint.nodeBg,
-      border: `0.0625rem solid ${blueprint.nodeBorder}`,
-      color: blueprint.nodeBody,
+      backgroundColor: "var(--color-surface-raised)",
+      border: "1px solid var(--color-border)",
+      color: "var(--color-text-secondary)",
     },
     ".cm-scroller": {
       scrollbarWidth: "thin",
-      scrollbarColor: `${blueprint.surfaceBorder} transparent`,
+      scrollbarColor: "var(--color-border-subtle) transparent",
     },
     ".cm-scroller::-webkit-scrollbar": {
       width: "0.3125rem",
@@ -66,28 +65,28 @@ const blueprintEditorTheme = EditorView.theme(
       background: "transparent",
     },
     ".cm-scroller::-webkit-scrollbar-thumb": {
-      background: blueprint.surfaceBorder,
+      background: "var(--color-border-subtle)",
       borderRadius: "0.1875rem",
     },
     ".cm-scroller::-webkit-scrollbar-thumb:hover": {
-      background: blueprint.muted,
+      background: "var(--color-text-muted)",
     },
   },
   { dark: true },
 );
 
-const blueprintHighlight = HighlightStyle.define([
-  { tag: tags.keyword, color: "#c084fc" },
-  { tag: tags.typeName, color: blueprint.nodeHeader },
-  { tag: tags.variableName, color: "#67e8f9" },
-  { tag: tags.operator, color: "#fb923c" },
-  { tag: tags.bracket, color: "#fbbf24" },
-  { tag: tags.number, color: "#34d399" },
-  { tag: tags.comment, color: blueprint.muted, fontStyle: "italic" },
-  { tag: tags.string, color: "#86efac" },
+const mutedHighlight = HighlightStyle.define([
+  { tag: tags.keyword, color: "#b098d4" },      // dusty lavender
+  { tag: tags.typeName, color: "#ebebeb" },      // primary text -- types are primary content
+  { tag: tags.variableName, color: "#9cc4c4" },  // muted teal
+  { tag: tags.operator, color: "#c8a070" },      // warm sand
+  { tag: tags.bracket, color: "#a0a0a0" },       // neutral
+  { tag: tags.number, color: "#8fb8a0" },        // sage
+  { tag: tags.comment, color: "#666666", fontStyle: "italic" }, // warm muted
+  { tag: tags.string, color: "#a4c99e" },        // soft green
 ]);
 
 export const fgaTheme = [
-  blueprintEditorTheme,
-  syntaxHighlighting(blueprintHighlight),
+  editorTheme,
+  syntaxHighlighting(mutedHighlight),
 ];

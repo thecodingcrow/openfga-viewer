@@ -11,7 +11,7 @@ interface TruncationTooltipProps {
 const MAX_TOOLTIP_WIDTH = 400;
 
 /**
- * A span that renders `text` and shows a styled tooltip on hover —
+ * A span that renders `text` and shows a styled tooltip on hover --
  * but ONLY when the text is truncated (scrollWidth > clientWidth).
  *
  * Uses createPortal to render the tooltip into document.body so it is
@@ -71,9 +71,9 @@ export function TruncationTooltip({
               transform: tooltip.flipBelow
                 ? "translateX(-50%)"
                 : "translateX(-50%) translateY(-100%)",
-              background: "rgba(15, 23, 42, 0.98)",
-              border: "1px solid #2a3a5c",
-              color: "#cbd5e1",
+              background: "var(--color-surface-overlay)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-secondary)",
               fontFamily: "ui-monospace, monospace",
               fontSize: "0.7rem",
               padding: "4px 8px",

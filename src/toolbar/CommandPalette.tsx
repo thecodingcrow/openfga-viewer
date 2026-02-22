@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Fuse from "fuse.js";
 import { useViewerStore } from "../store/viewer-store";
-import { getTypeColor, blueprint } from "../theme/colors";
 import type { AuthorizationNode } from "../types";
 
 /** Shape of items indexed by Fuse */
@@ -204,21 +203,26 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
 
       {/* Panel */}
       <div
-        className="fixed top-[20vh] left-1/2 -translate-x-1/2 w-[480px] max-h-[420px] z-[60] hud-panel rounded-xl flex flex-col overflow-hidden"
-        style={{ borderRadius: 12 }}
+        className="fixed top-[20vh] left-1/2 -translate-x-1/2 w-[480px] max-h-[420px] z-[60] rounded-xl flex flex-col overflow-hidden"
+        style={{
+          borderRadius: 12,
+          background: "var(--color-surface-overlay)",
+          border: "1px solid var(--color-border)",
+          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4)",
+        }}
         onKeyDown={handleKeyDown}
       >
         {/* Search input */}
         <div
           className="flex items-center gap-2 px-3 py-2.5 shrink-0"
-          style={{ borderBottom: `1px solid ${blueprint.nodeBorder}` }}
+          style={{ borderBottom: "1px solid var(--color-border)" }}
         >
           <svg
             width="14"
             height="14"
             viewBox="0 0 14 14"
             fill="none"
-            style={{ color: blueprint.muted, flexShrink: 0 }}
+            style={{ color: "var(--color-text-muted)", flexShrink: 0 }}
           >
             <circle
               cx="6"
@@ -241,13 +245,13 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
             onChange={handleQueryChange}
             placeholder="Search types & relations..."
             className="flex-1 bg-transparent outline-none text-sm"
-            style={{ color: blueprint.nodeBody }}
+            style={{ color: "var(--color-text-secondary)" }}
           />
           <kbd
-            className="text-[10px] px-1.5 py-0.5 rounded"
+            className="text-xs px-1.5 py-0.5 rounded"
             style={{
-              color: blueprint.muted,
-              background: `${blueprint.nodeBorder}60`,
+              color: "var(--color-text-muted)",
+              background: "rgba(46, 46, 46, 0.6)",
             }}
           >
             esc
@@ -255,11 +259,11 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="overflow-y-auto flex-1">
+        <div ref={listRef} className="overflow-y-auto flex-1 scrollbar-dark">
           {flatList.length === 0 ? (
             <div
               className="px-3 py-6 text-center text-xs"
-              style={{ color: blueprint.muted }}
+              style={{ color: "var(--color-text-muted)" }}
             >
               {query.trim() ? "No matches" : "No recent items"}
             </div>
@@ -268,8 +272,8 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
               {/* "Recent" label when showing recently visited */}
               {!query.trim() && recentlyVisited.length > 0 && (
                 <div
-                  className="px-3 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider"
-                  style={{ color: blueprint.muted }}
+                  className="px-3 pt-2 pb-1 text-xs font-medium uppercase tracking-wider"
+                  style={{ color: "var(--color-text-muted)" }}
                 >
                   Recent
                 </div>
@@ -281,15 +285,15 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                   {query.trim() && (
                     <div
                       className="flex items-center gap-2 px-3 pt-2.5 pb-1 sticky top-0"
-                      style={{ background: blueprint.nodeBg }}
+                      style={{ background: "var(--color-surface-overlay)" }}
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: getTypeColor(typeName) }}
+                        style={{ background: "var(--color-accent)" }}
                       />
                       <span
-                        className="text-[10px] font-medium uppercase tracking-wider"
-                        style={{ color: blueprint.muted }}
+                        className="text-xs font-medium uppercase tracking-wider"
+                        style={{ color: "var(--color-text-muted)" }}
                       >
                         {typeName}
                       </span>
@@ -302,13 +306,19 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                     const currentIndex = flatIndex;
                     const isHighlighted = currentIndex === safeHighlight;
                     const isType = item.kind === "type";
-                    const typeColor = getTypeColor(item.type);
 
                     // Dimension color for bindings
                     const dimensionColor =
                       item.relation
                         ? dimensions.get(item.relation)?.color
                         : undefined;
+
+                    // Icon color: accent for types, section-coded for rows
+                    const iconColor = isType
+                      ? "var(--color-accent)"
+                      : item.isPermission
+                        ? "var(--color-dot-permission)"
+                        : "var(--color-dot-relation)";
 
                     return (
                       <button
@@ -322,23 +332,23 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                         className="w-full flex items-center gap-2.5 px-3 py-1.5 text-left cursor-pointer transition-colors"
                         style={{
                           background: isHighlighted
-                            ? `${blueprint.accent}12`
+                            ? "rgba(212, 160, 23, 0.08)"
                             : "transparent",
                         }}
                       >
                         {/* Row type icon */}
                         {isType ? (
                           <span
-                            className="w-2.5 h-2.5 rounded-sm shrink-0"
+                            className="w-2.5 h-2.5 shrink-0"
                             style={{
-                              background: typeColor,
+                              background: iconColor,
                               borderRadius: 2,
                             }}
                           />
                         ) : item.isPermission ? (
-                          <PermissionIcon color={typeColor} />
+                          <PermissionIcon color={iconColor} />
                         ) : (
-                          <RelationIcon color={typeColor} />
+                          <RelationIcon color={iconColor} />
                         )}
 
                         {/* Dimension color dot */}
@@ -352,7 +362,7 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                         {/* Name */}
                         <span
                           className="text-xs font-medium truncate"
-                          style={{ color: blueprint.nodeBody }}
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
                           {isType
                             ? item.type
@@ -362,10 +372,10 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                         {/* Permission badge */}
                         {item.isPermission && (
                           <span
-                            className="text-[9px] px-1 py-px rounded shrink-0"
+                            className="text-xs px-1 py-px rounded shrink-0"
                             style={{
-                              color: "#34d399",
-                              background: "rgba(52, 211, 153, 0.12)",
+                              color: "var(--color-accent)",
+                              background: "rgba(212, 160, 23, 0.08)",
                             }}
                           >
                             permission
@@ -375,8 +385,8 @@ const CommandPaletteInner = ({ onClose }: { onClose: () => void }) => {
                         {/* Definition (expression) */}
                         {item.definition && (
                           <span
-                            className="text-[10px] truncate ml-auto max-w-[160px]"
-                            style={{ color: blueprint.muted }}
+                            className="text-xs truncate ml-auto max-w-[160px]"
+                            style={{ color: "var(--color-text-muted)" }}
                           >
                             {item.definition}
                           </span>

@@ -1,6 +1,5 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useViewerStore } from "../store/viewer-store";
-import { blueprint } from "../theme/colors";
 import FgaGraph from "./FgaGraph";
 
 const Canvas = () => {
@@ -12,9 +11,9 @@ const Canvas = () => {
     return (
       <div
         className="h-full w-full flex items-center justify-center"
-        style={{ background: blueprint.bg }}
+        style={{ background: "var(--color-bg)" }}
       >
-        <span style={{ color: blueprint.nodeBody, fontSize: 14 }}>{msg}</span>
+        <span style={{ color: "var(--color-text-secondary)", fontSize: 14 }}>{msg}</span>
       </div>
     );
   }

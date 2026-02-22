@@ -376,16 +376,16 @@ const FgaGraphInner = () => {
         colorMode="dark"
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} color="#1e3a5c" gap={24} size={1} />
+        <Background variant={BackgroundVariant.Dots} color="#222222" gap={24} size={1} />
         <MiniMap
-          style={{ background: 'rgba(15, 23, 41, 0.95)', border: '1px solid #2a3a5c' }}
-          maskColor="rgba(15, 23, 41, 0.7)"
-          nodeColor={() => '#334155'}
+          style={{ background: 'rgba(17, 17, 17, 0.95)', border: '1px solid var(--color-border)' }}
+          maskColor="rgba(17, 17, 17, 0.7)"
+          nodeColor={() => '#333333'}
           pannable
           zoomable
         />
         <Controls
-          style={{ background: 'rgba(15, 23, 41, 0.95)', border: '1px solid #2a3a5c' }}
+          style={{ background: 'rgba(17, 17, 17, 0.95)', border: '1px solid var(--color-border)' }}
           showInteractive={false}
         />
       </ReactFlow>

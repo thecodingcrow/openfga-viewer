@@ -20,11 +20,11 @@ interface DimensionEdgeData {
   [key: string]: unknown;
 }
 
-/** Base stroke opacity -- subtle, cards dominate (locked decision) */
-const BASE_OPACITY = 0.6;
+/** Base stroke opacity -- muted by default, vivid on hover */
+const BASE_OPACITY = 0.35;
 
-/** Stroke width -- thin per locked decision ~1-1.5px */
-const STROKE_WIDTH = 1.25;
+/** Stroke width -- medium weight per locked decision */
+const STROKE_WIDTH = 1.5;
 
 function DimensionEdgeComponent(props: EdgeProps) {
   const {
@@ -55,7 +55,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
   // otherwise use hover-based dimming
   const transitionOpacity = edgeStyle?.opacity;
   const hoverOpacity = isHoverActive
-    ? highlightedEdgeIds.has(id) ? BASE_OPACITY : 0.08
+    ? highlightedEdgeIds.has(id) ? 1.0 : 0.08
     : BASE_OPACITY;
 
   const opacity = transitionOpacity != null ? transitionOpacity : hoverOpacity;

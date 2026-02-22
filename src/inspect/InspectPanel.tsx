@@ -2,8 +2,6 @@ import { useState, useMemo, useCallback, memo } from "react";
 import type { AuthorizationNode, Dimension } from "../types";
 import { useViewerStore } from "../store/viewer-store";
 import { useHoverStore } from "../store/hover-store";
-import { getTypeColor } from "../theme/colors";
-import { blueprint } from "../theme/colors";
 import { transformExpression } from "../dimensions/detect";
 import { TruncationTooltip } from "../components/Tooltip";
 
@@ -90,7 +88,6 @@ function buildOverviewTree(
     return {
       id: typeName,
       label: typeName,
-      color: getTypeColor(typeName),
       section: "type" as const,
       children: childNodes,
     };
@@ -181,7 +178,6 @@ function buildSubgraphTree(
     return {
       id: typeName,
       label: typeName,
-      color: getTypeColor(typeName),
       section: "type" as const,
       children: childNodes,
     };
@@ -225,8 +221,6 @@ function collectMatchingAncestors(
 
 // ─── TreeItem component ──────────────────────────────────────────────────────
 
-const NEUTRAL_DOT = "#64748b";
-
 interface TreeItemProps {
   node: TreeNode;
   expanded: Set<string>;
@@ -258,12 +252,15 @@ function TreeItemComponent({
   // When filtering, hide non-matching branches
   if (filter && !filterMatchIds.has(node.id)) return null;
 
+  // Dot color: dimension color for bindings, section-coded neutral for others
   const dotColor =
     node.section === "type"
-      ? node.color ?? NEUTRAL_DOT
+      ? "var(--color-accent)"
       : node.section === "binding"
-        ? (node.color ?? NEUTRAL_DOT)
-        : NEUTRAL_DOT;
+        ? (node.color ?? "var(--color-dot-binding)")
+        : node.section === "permission"
+          ? "var(--color-dot-permission)"
+          : "var(--color-dot-relation)";
 
   const isClickable = node.section === "type" || node.section === "permission";
 
@@ -288,7 +285,7 @@ function TreeItemComponent({
             className="inline-flex items-center justify-center w-3 h-3 flex-shrink-0 transition-transform duration-150"
             style={{
               transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-              color: blueprint.muted,
+              color: "var(--color-text-muted)",
             }}
             onClick={(e) => {
               e.stopPropagation();
@@ -323,12 +320,10 @@ function TreeItemComponent({
 
         {/* Label */}
         <span
-          className="whitespace-nowrap group-hover:text-slate-100 transition-colors duration-100"
+          className="whitespace-nowrap transition-colors duration-100"
           style={{
-            color: node.section === "type" ? blueprint.nodeHeader : "#cbd5e1",
+            color: node.section === "type" ? "var(--color-text-primary)" : "var(--color-text-secondary)",
             fontWeight: node.section === "type" ? 600 : 400,
-            fontFamily:
-              node.section === "type" ? "inherit" : "ui-monospace, monospace",
             fontSize: node.section === "type" ? "0.8rem" : "0.7rem",
           }}
         >
@@ -341,9 +336,8 @@ function TreeItemComponent({
             text={node.expression}
             className="ml-1 whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex-1"
             style={{
-              color: blueprint.muted,
+              color: "var(--color-text-muted)",
               fontSize: "0.65rem",
-              fontFamily: "ui-monospace, monospace",
             }}
           />
         )}
@@ -473,7 +467,7 @@ const InspectContent = () => {
   return (
     <>
       {/* Filter input */}
-      <div className="px-3 py-2 flex-shrink-0" style={{ borderBottom: "1px solid #2a3a5c" }}>
+      <div className="px-3 py-2 flex-shrink-0" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
         <div className="relative">
           <svg
             width="12"
@@ -481,7 +475,7 @@ const InspectContent = () => {
             viewBox="0 0 14 14"
             fill="none"
             className="absolute left-2 top-1/2 -translate-y-1/2"
-            style={{ color: blueprint.muted }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
             <path d="M9.5 9.5L13 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
@@ -493,16 +487,16 @@ const InspectContent = () => {
             placeholder="Filter..."
             className="w-full text-xs py-1 pl-7 pr-2 rounded"
             style={{
-              background: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid #2a3a5c",
-              color: "#cbd5e1",
+              background: "var(--color-surface-raised)",
+              border: "1px solid var(--color-border-subtle)",
+              color: "var(--color-text-secondary)",
               outline: "none",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = blueprint.accent;
+              e.currentTarget.style.borderColor = "var(--color-accent)";
             }}
             onBlur={(e) => {
-              e.currentTarget.style.borderColor = "#2a3a5c";
+              e.currentTarget.style.borderColor = "var(--color-border-subtle)";
             }}
           />
         </div>
@@ -513,7 +507,7 @@ const InspectContent = () => {
         {tree.length === 0 ? (
           <div
             className="px-3 py-4 text-xs text-center"
-            style={{ color: blueprint.muted }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             No types to display
           </div>
@@ -540,15 +534,15 @@ const InspectContent = () => {
       {/* Footer - navigation context */}
       {currentFrame && (
         <div
-          className="px-3 py-1.5 text-[10px] flex-shrink-0"
+          className="px-3 py-1.5 text-xs flex-shrink-0"
           style={{
-            borderTop: "1px solid #2a3a5c",
-            color: blueprint.muted,
+            borderTop: "1px solid var(--color-border-subtle)",
+            color: "var(--color-text-muted)",
           }}
         >
           Viewing: {currentFrame.label}
           {" "}
-          <span style={{ color: blueprint.accent }}>
+          <span style={{ color: "var(--color-accent)" }}>
             ({currentFrame.direction})
           </span>
         </div>

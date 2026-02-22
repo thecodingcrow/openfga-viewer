@@ -15,7 +15,6 @@ import type {
 } from "../types";
 import { detectDimensions, classifyEdges, transformExpression } from "../dimensions/detect";
 import { assignDimensionColors } from "../theme/dimensions";
-import { getTypeColor } from "../theme/colors";
 
 /** React Flow node data with index signature for compatibility */
 type SchemaCardData = SchemaCard & { [key: string]: unknown };
@@ -131,11 +130,8 @@ export function toFlowElements(graph: AuthorizationGraph): {
       });
     }
 
-    const accentColor = getTypeColor(typeName);
-
     const schemaCard: SchemaCardData = {
       typeName,
-      accentColor,
       rows,
     };
 

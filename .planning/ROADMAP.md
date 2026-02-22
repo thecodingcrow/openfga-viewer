@@ -13,8 +13,8 @@ Rip out the entire compound node visualization pipeline and replace it with ERD 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Core Pipeline** - Delete old visualization pipeline. Build new: types, dimensions, schema cards, dimension colors, edge component, flow conversion, flat ELK layout, store updates, wire FgaGraph. End state: ERD cards rendering with dimension-colored edges.
-- [ ] **Phase 2: Interaction & Polish** - Subgraph exploration (click to navigate), dimension toggles, type filtering, card collapse, legend, command palette, path tracing with expression annotation, recursive hierarchy indicators, animated transitions.
-- [ ] **Phase 3: Visual Refinement** - Replace AI-generated aesthetic with polished devtool/HUD design language. Linear/Vercel-quality typography, spacing, color palette, and component polish.
+- [x] **Phase 2: Interaction & Polish** - Subgraph exploration (click to navigate), dimension toggles, type filtering, card collapse, legend, command palette, path tracing with expression annotation, recursive hierarchy indicators, animated transitions.
+- [x] **Phase 3: Visual Refinement** - Replace AI-generated aesthetic with polished devtool/HUD design language. Linear/Vercel-quality typography, spacing, color palette, and component polish.
 
 ## Phase Details
 
@@ -79,9 +79,9 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Token foundation: warm @theme palette, eliminate blueprint const, remove TYPE_PALETTE/getTypeColor/accentColor
-- [ ] 03-02-PLAN.md -- Card, canvas, edge restyle: solid surfaces, warm dot grid, muted edges, remaining surfaces
-- [ ] 03-03-PLAN.md -- Editor muted theme, right-docked toolbar, inspector/command palette warm restyle
+- [x] 03-01-PLAN.md -- Token foundation: warm @theme palette, eliminate blueprint const, remove TYPE_PALETTE/getTypeColor/accentColor
+- [x] 03-02-PLAN.md -- Card, canvas, edge restyle: solid surfaces, warm dot grid, muted edges, remaining surfaces
+- [x] 03-03-PLAN.md -- Editor muted theme, right-docked toolbar, inspector/command palette warm restyle
 - [ ] 03-04-PLAN.md -- Visual verification checkpoint (human-verify)
 
 ## Progress
@@ -92,8 +92,8 @@ Phases execute in numeric order: 1 -> 2 -> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
-| 2. Interaction & Polish | 0/7 | In progress | - |
-| 3. Visual Refinement | 0/4 | Not started | - |
+| 2. Interaction & Polish | 6/7 | Complete    | 2026-02-22 |
+| 3. Visual Refinement | 3/4 | In progress | - |
 
 ### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
 

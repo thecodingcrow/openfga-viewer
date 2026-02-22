@@ -1,6 +1,5 @@
 import { Fragment, useCallback } from "react";
 import { useViewerStore } from "../store/viewer-store";
-import { blueprint } from "../theme/colors";
 
 const Breadcrumb = () => {
   const navigationStack = useViewerStore((s) => s.navigationStack);
@@ -20,7 +19,7 @@ const Breadcrumb = () => {
     <div className="absolute top-4 left-3 z-40 flex items-center gap-1 text-xs">
       <button
         className="hud-panel px-2 py-1 rounded-md cursor-pointer"
-        style={{ color: blueprint.muted }}
+        style={{ color: "var(--color-text-muted)" }}
         onClick={() => handleClick(0, navigationStack.length)}
       >
         Overview
@@ -30,10 +29,10 @@ const Breadcrumb = () => {
         const stepsBack = navigationStack.length - (i + 1);
         return (
           <Fragment key={frame.entryNodeId + "-" + i}>
-            <span style={{ color: blueprint.muted }}>/</span>
+            <span style={{ color: "var(--color-text-muted)" }}>/</span>
             <button
               className="hud-panel px-2 py-1 rounded-md cursor-pointer"
-              style={{ color: isLast ? blueprint.accent : blueprint.muted }}
+              style={{ color: isLast ? "var(--color-accent)" : "var(--color-text-muted)" }}
               onClick={() => handleClick(i + 1, stepsBack)}
             >
               {frame.label}

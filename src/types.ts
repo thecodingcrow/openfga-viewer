@@ -141,8 +141,6 @@ export interface CardRow {
 export interface SchemaCard {
   /** FGA type name — e.g., "client" */
   typeName: string;
-  /** Type accent color for the header bar */
-  accentColor: string;
   /** All rows in display order: bindings, then relations, then permissions */
   rows: CardRow[];
 }

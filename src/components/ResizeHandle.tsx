@@ -1,6 +1,5 @@
 import { useRef, useCallback } from "react";
 import { useViewerStore, DEFAULT_EDITOR_WIDTH } from "../store/viewer-store";
-import { blueprint } from "../theme/colors";
 
 const ResizeHandle = () => {
   const panelOpen = useViewerStore((s) => s.panelOpen);
@@ -50,8 +49,8 @@ const ResizeHandle = () => {
         <button
           onClick={togglePanel}
           className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-150 hover:bg-white/5"
-          style={{ color: blueprint.muted }}
-          title="Show editor (⌘E)"
+          style={{ color: "var(--color-text-muted)" }}
+          title="Show editor (Cmd+E)"
         >
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
             <path
@@ -62,8 +61,8 @@ const ResizeHandle = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <span className="text-[8px] select-none" style={{ color: blueprint.muted }}>
-            ⌘+E
+          <span className="text-xs select-none" style={{ color: "var(--color-text-muted)" }}>
+            Cmd+E
           </span>
         </button>
       </div>
@@ -85,7 +84,7 @@ const ResizeHandle = () => {
         className="h-full transition-colors duration-150 group-hover:opacity-100 opacity-60"
         style={{
           width: 1,
-          background: blueprint.nodeBorder,
+          background: "var(--color-border)",
         }}
       />
       {/* Collapse chevron — appears on hover */}
@@ -93,11 +92,11 @@ const ResizeHandle = () => {
         onClick={togglePanel}
         className="absolute top-1/2 -translate-y-1/2 w-5 h-8 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer"
         style={{
-          background: "rgba(15, 23, 41, 0.95)",
-          border: `1px solid ${blueprint.nodeBorder}`,
-          color: blueprint.muted,
+          background: "rgba(17, 17, 17, 0.95)",
+          border: "1px solid var(--color-border)",
+          color: "var(--color-text-muted)",
         }}
-        title="Hide editor (⌘E)"
+        title="Hide editor (Cmd+E)"
       >
         <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
           <path

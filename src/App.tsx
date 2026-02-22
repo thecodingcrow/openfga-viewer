@@ -90,29 +90,27 @@ const App = () => {
   }, [handleDrop, handleDragOver]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
+    <div className="relative w-screen h-screen overflow-hidden flex flex-col">
       {SHOW_ALPHA_BANNER && (
         <div
+          className="shrink-0"
           style={{
-            background: "#1a1a2e",
-            color: "#f59e0b",
+            background: "var(--color-surface)",
+            color: "var(--color-accent)",
             fontSize: "0.8rem",
             padding: "4px 12px",
             textAlign: "center",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 60,
           }}
         >
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <Canvas />
-      <Breadcrumb />
-      <EditorPanel />
-      <Toolbar />
+      <div className="relative flex-1 min-h-0">
+        <Canvas />
+        <Breadcrumb />
+        <EditorPanel />
+        <Toolbar />
+      </div>
     </div>
   );
 };
