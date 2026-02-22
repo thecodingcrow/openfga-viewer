@@ -8,12 +8,6 @@ export const blueprint = {
   edgeStroke: "#4a6fa5",
   edgeArrow: "#5b8cc9",
   accent: "#38bdf8",
-  edgeDirect: "#334d6e",
-  edgeDirectActive: "#4a6fa5",
-  edgeComputed: "#b07a4f",
-  edgeComputedActive: "#d4976a",
-  edgeTuplesetDep: "#6d8a50",
-  edgeTuplesetDepActive: "#8aad66",
   surface: "#162033",
   surfaceBorder: "#253553",
   muted: "#64748b",
@@ -49,3 +43,10 @@ function hashString(s: string): number {
 export function getTypeColor(typeName: string): string {
   return TYPE_PALETTE[typeName] ?? EXTRA_COLORS[hashString(typeName) % EXTRA_COLORS.length];
 }
+
+// Re-export dimension palette for convenient single-import access
+export {
+  DIMENSION_PALETTE,
+  TYPE_RESTRICTION_COLOR,
+  assignDimensionColors,
+} from "./dimensions";
