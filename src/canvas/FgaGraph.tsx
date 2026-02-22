@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
+  MiniMap,
+  Controls,
   useNodesState,
   useEdgesState,
   useNodesInitialized,
@@ -20,24 +22,11 @@ import { useHoverStore } from '../store/hover-store';
 import { getLayoutedElements } from '../layout/elk-layout';
 import { toFlowElements } from './fgaToFlow';
 
-import { TypeNode } from './nodes/TypeNode';
-import { RelationNode } from './nodes/RelationNode';
-import { PermissionNode } from './nodes/PermissionNode';
-import { DirectEdge } from './edges/DirectEdge';
-import { ComputedEdge } from './edges/ComputedEdge';
-import { TuplesetDepEdge } from './edges/TuplesetDepEdge';
+import { TypeCardNode } from './nodes/TypeCardNode';
+import { DimensionEdge } from './edges/DimensionEdge';
 
-const nodeTypes = {
-  type: TypeNode,
-  relation: RelationNode,
-  permission: PermissionNode,
-};
-
-const edgeTypes = {
-  direct: DirectEdge,
-  computed: ComputedEdge,
-  'tupleset-dep': TuplesetDepEdge,
-};
+const nodeTypes = { typeCard: TypeCardNode };
+const edgeTypes = { dimension: DimensionEdge };
 
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
@@ -55,7 +44,7 @@ const FgaGraphInner = () => {
   );
 
   const { nodes: flowNodes, edges: flowEdges } = useMemo(
-    () => toFlowElements(visibleNodes, visibleEdges),
+    () => toFlowElements({ nodes: visibleNodes, edges: visibleEdges }),
     [visibleNodes, visibleEdges],
   );
 
@@ -103,7 +92,7 @@ const FgaGraphInner = () => {
       setLayoutReady(true);
       window.requestAnimationFrame(() => {
         window.requestAnimationFrame(() => {
-          reactFlow.fitView({ duration: 200, minZoom: 0.35, padding: 0.1 });
+          reactFlow.fitView({ duration: 200, minZoom: 0.5, maxZoom: 1.2, padding: 0.08 });
         });
       });
     });
@@ -144,8 +133,6 @@ const FgaGraphInner = () => {
 
   const onNodeMouseEnter = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      // Skip hover on compound type nodes — they're containers, not exploration targets
-      if (node.type === 'type' && (node.data as { isCompound?: boolean }).isCompound) return;
       setHoveredNode(node.id, fullEdges);
     },
     [setHoveredNode, fullEdges],
@@ -187,31 +174,42 @@ const FgaGraphInner = () => {
       }}
     >
       <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      nodeTypes={nodeTypes}
-      edgeTypes={edgeTypes}
-      onInit={onInit}
-      onNodeClick={onNodeClick}
-      onEdgeClick={onEdgeClick}
-      onNodeMouseEnter={onNodeMouseEnter}
-      onNodeMouseLeave={onNodeMouseLeave}
-      onPaneClick={onPaneClick}
-      onNodeDragStart={onNodeDragStart}
-      fitView
-      minZoom={0.2}
-      maxZoom={2}
-      panOnScroll
-      panOnScrollMode={PanOnScrollMode.Free}
-      zoomOnPinch
-      zoomOnScroll={false}
-      colorMode="dark"
-      proOptions={{ hideAttribution: true }}
-    >
-      <Background variant={BackgroundVariant.Dots} color="#334155" gap={20} size={1.5} />
-    </ReactFlow>
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onInit={onInit}
+        onNodeClick={onNodeClick}
+        onEdgeClick={onEdgeClick}
+        onNodeMouseEnter={onNodeMouseEnter}
+        onNodeMouseLeave={onNodeMouseLeave}
+        onPaneClick={onPaneClick}
+        onNodeDragStart={onNodeDragStart}
+        fitView
+        minZoom={0.2}
+        maxZoom={2}
+        panOnScroll
+        panOnScrollMode={PanOnScrollMode.Free}
+        zoomOnPinch
+        zoomOnScroll={false}
+        colorMode="dark"
+        proOptions={{ hideAttribution: true }}
+      >
+        <Background variant={BackgroundVariant.Dots} color="#334155" gap={20} size={1.5} />
+        <MiniMap
+          style={{ background: 'rgba(15, 23, 42, 0.9)' }}
+          maskColor="rgba(15, 23, 42, 0.7)"
+          nodeColor={() => '#334155'}
+          pannable
+          zoomable
+        />
+        <Controls
+          style={{ background: 'rgba(15, 23, 42, 0.9)', border: '1px solid #2a3a5c' }}
+          showInteractive={false}
+        />
+      </ReactFlow>
     </div>
   );
 };

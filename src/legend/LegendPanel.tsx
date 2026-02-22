@@ -1,5 +1,6 @@
 import { useViewerStore } from "../store/viewer-store";
 import { blueprint } from "../theme/colors";
+import { TYPE_RESTRICTION_COLOR } from "../theme/dimensions";
 
 // ─── Inline visual swatches ─────────────────────────────────────────────────
 
@@ -213,19 +214,14 @@ const LegendPanel = () => {
 
         <SectionLabel>Edges</SectionLabel>
         <LegendItem
-          swatch={<EdgeSwatch color={blueprint.edgeDirect} strokeWidth={1} opacity={0.6} />}
-          title="Direct"
-          desc="— type restriction"
+          swatch={<EdgeSwatch color={TYPE_RESTRICTION_COLOR} strokeWidth={1.25} opacity={0.6} />}
+          title="Type Restriction"
+          desc="— direct type reference"
         />
         <LegendItem
-          swatch={<EdgeSwatch color={blueprint.edgeComputed} strokeWidth={1.5} dashed />}
-          title="Computed"
-          desc="— userset reference"
-        />
-        <LegendItem
-          swatch={<EdgeSwatch color="#6d8a50" strokeWidth={1.5} dashArray="2 4" />}
-          title="Tupleset Dep"
-          desc="— binding \u2192 permission link"
+          swatch={<EdgeSwatch color="#CC6677" strokeWidth={1.25} opacity={0.6} filled />}
+          title="Dimension"
+          desc="— cross-type access channel"
         />
 
         <SectionLabel>Colors</SectionLabel>
