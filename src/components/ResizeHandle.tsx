@@ -3,21 +3,21 @@ import { useViewerStore, DEFAULT_EDITOR_WIDTH } from "../store/viewer-store";
 import { blueprint } from "../theme/colors";
 
 const ResizeHandle = () => {
-  const editorOpen = useViewerStore((s) => s.editorOpen);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
+  const panelOpen = useViewerStore((s) => s.panelOpen);
+  const togglePanel = useViewerStore((s) => s.togglePanel);
   const setEditorWidth = useViewerStore((s) => s.setEditorWidth);
   const dragging = useRef(false);
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!editorOpen) return;
+      if (!panelOpen) return;
       if ((e.target as HTMLElement).closest("button")) return;
       e.currentTarget.setPointerCapture(e.pointerId);
       dragging.current = true;
       document.body.style.cursor = "col-resize";
       document.body.style.userSelect = "none";
     },
-    [editorOpen],
+    [panelOpen],
   );
 
   const onPointerMove = useCallback(
@@ -40,15 +40,15 @@ const ResizeHandle = () => {
   );
 
   const onDoubleClick = useCallback(() => {
-    if (editorOpen) setEditorWidth(DEFAULT_EDITOR_WIDTH);
-  }, [editorOpen, setEditorWidth]);
+    if (panelOpen) setEditorWidth(DEFAULT_EDITOR_WIDTH);
+  }, [panelOpen, setEditorWidth]);
 
   // Collapsed state — thin strip with expand chevron + shortcut hint
-  if (!editorOpen) {
+  if (!panelOpen) {
     return (
       <div className="shrink-0 flex items-center" style={{ width: 16 }}>
         <button
-          onClick={toggleEditor}
+          onClick={togglePanel}
           className="w-full h-full flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-150 hover:bg-white/5"
           style={{ color: blueprint.muted }}
           title="Show editor (⌘E)"
@@ -90,7 +90,7 @@ const ResizeHandle = () => {
       />
       {/* Collapse chevron — appears on hover */}
       <button
-        onClick={toggleEditor}
+        onClick={togglePanel}
         className="absolute top-1/2 -translate-y-1/2 w-5 h-8 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150 cursor-pointer"
         style={{
           background: "rgba(15, 23, 41, 0.95)",

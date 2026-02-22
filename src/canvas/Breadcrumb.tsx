@@ -17,7 +17,7 @@ const Breadcrumb = () => {
   if (navigationStack.length === 0) return null;
 
   return (
-    <div className="absolute bottom-4 left-3 z-40 flex items-center gap-1 text-xs">
+    <div className="absolute top-4 left-3 z-40 flex items-center gap-1 text-xs">
       <button
         className="hud-panel px-2 py-1 rounded-md cursor-pointer"
         style={{ color: blueprint.muted }}

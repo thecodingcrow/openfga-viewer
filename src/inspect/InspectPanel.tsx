@@ -377,8 +377,8 @@ const TreeItem = memo(TreeItemComponent);
 
 const InspectPanel = () => {
   // Store subscriptions
-  const inspectOpen = useViewerStore((s) => s.inspectOpen);
-  const toggleInspect = useViewerStore((s) => s.toggleInspect);
+  const panelOpen = useViewerStore((s) => s.panelOpen);
+  const togglePanel = useViewerStore((s) => s.togglePanel);
   const nodes = useViewerStore((s) => s.nodes);
   const dimensions = useViewerStore((s) => s.dimensions);
   const navigationStack = useViewerStore((s) => s.navigationStack);
@@ -479,9 +479,9 @@ const InspectPanel = () => {
         background: "rgba(15, 23, 41, 0.95)",
         borderLeft: "1px solid #2a3a5c",
         boxShadow: "-4px 0 12px rgba(0, 0, 0, 0.3)",
-        transform: inspectOpen ? "translateX(0)" : "translateX(100%)",
+        transform: panelOpen ? "translateX(0)" : "translateX(100%)",
         transition: "transform 250ms ease-in-out",
-        pointerEvents: inspectOpen ? "auto" : "none",
+        pointerEvents: panelOpen ? "auto" : "none",
       }}
     >
       {/* Header */}
@@ -496,7 +496,7 @@ const InspectPanel = () => {
           Inspect
         </span>
         <button
-          onClick={toggleInspect}
+          onClick={togglePanel}
           className="w-6 h-6 flex items-center justify-center rounded transition-colors cursor-pointer"
           style={{ color: blueprint.muted }}
           onMouseEnter={(e) => {

@@ -10,7 +10,7 @@ const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
 
 const App = () => {
   const parse = useViewerStore((s) => s.parse);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
+  const togglePanel = useViewerStore((s) => s.togglePanel);
   const toggleSearch = useViewerStore((s) => s.toggleSearch);
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
@@ -26,7 +26,7 @@ const App = () => {
     (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "e") {
         e.preventDefault();
-        toggleEditor();
+        togglePanel();
       }
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -41,7 +41,7 @@ const App = () => {
         }
       }
     },
-    [toggleEditor, toggleSearch, searchOpen, setSearchOpen, navDepth, popSubgraph],
+    [togglePanel, toggleSearch, searchOpen, setSearchOpen, navDepth, popSubgraph],
   );
 
   useEffect(() => {

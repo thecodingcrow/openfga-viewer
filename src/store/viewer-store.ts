@@ -110,10 +110,10 @@ interface ViewerStore {
   selfReferencingDimensions: SelfReferencingDimension[];
 
   // UI
-  editorOpen: boolean;
+  panelOpen: boolean;
+  panelTab: 'editor' | 'inspector';
   editorWidth: number;
   searchOpen: boolean;
-  inspectOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
   // ── Actions ──
@@ -147,12 +147,12 @@ interface ViewerStore {
   toggleDimmedRowsHidden: () => void;
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
-  toggleEditor: () => void;
-  setEditorOpen: (open: boolean) => void;
+  togglePanel: () => void;
+  setPanelOpen: (open: boolean) => void;
+  setPanelTab: (tab: 'editor' | 'inspector') => void;
   setEditorWidth: (w: number) => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
-  toggleInspect: () => void;
 
   /** Derived: filtered + focus-mode-scoped graph for rendering */
   getVisibleGraph: () => AuthorizationGraph;
@@ -184,10 +184,10 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   dimmedRowsHidden: false,
   recentlyVisited: [],
   selfReferencingDimensions: [],
-  editorOpen: true,
+  panelOpen: true,
+  panelTab: 'editor' as const,
   editorWidth: loadPersistedEditorWidth(),
   searchOpen: false,
-  inspectOpen: false,
   reactFlowInstance: null,
 
   setSource: (src) => {
@@ -423,8 +423,9 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   },
 
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
-  toggleEditor: () => set((s) => ({ editorOpen: !s.editorOpen })),
-  setEditorOpen: (open) => set({ editorOpen: open }),
+  togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
+  setPanelOpen: (open) => set({ panelOpen: open }),
+  setPanelTab: (tab) => set({ panelTab: tab, panelOpen: true }),
   setEditorWidth: (w) => {
     const clamped = Math.max(MIN_EDITOR_WIDTH, Math.min(w, window.innerWidth * MAX_EDITOR_WIDTH_RATIO));
     localStorage.setItem(EDITOR_WIDTH_KEY, String(clamped));
@@ -432,7 +433,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   },
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
-  toggleInspect: () => set((s) => ({ inspectOpen: !s.inspectOpen })),
 
   getVisibleGraph: () => {
     const {

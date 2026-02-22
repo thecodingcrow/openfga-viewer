@@ -48,12 +48,10 @@ const Separator = () => (
 // ─── Toolbar ────────────────────────────────────────────────────────────────
 
 const Toolbar = () => {
-  const editorOpen = useViewerStore((s) => s.editorOpen);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
+  const panelOpen = useViewerStore((s) => s.panelOpen);
+  const togglePanel = useViewerStore((s) => s.togglePanel);
   const searchOpen = useViewerStore((s) => s.searchOpen);
   const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
-  const inspectOpen = useViewerStore((s) => s.inspectOpen);
-  const toggleInspect = useViewerStore((s) => s.toggleInspect);
   const setSource = useViewerStore((s) => s.setSource);
   const parse = useViewerStore((s) => s.parse);
   const reactFlowInstance = useViewerStore((s) => s.reactFlowInstance);
@@ -88,9 +86,9 @@ const Toolbar = () => {
       >
         {/* Editor toggle */}
         <ToolbarButton
-          onClick={toggleEditor}
+          onClick={togglePanel}
           title="Toggle editor (⌘E)"
-          active={editorOpen}
+          active={panelOpen}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path
@@ -132,9 +130,9 @@ const Toolbar = () => {
 
         {/* Inspect panel toggle */}
         <ToolbarButton
-          onClick={toggleInspect}
+          onClick={togglePanel}
           title="Inspect model"
-          active={inspectOpen}
+          active={panelOpen}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <rect x="8" y="1" width="5" height="12" rx="1" stroke="currentColor" strokeWidth="1.2" />

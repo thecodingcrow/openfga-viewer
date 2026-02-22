@@ -5,8 +5,8 @@ import FgaEditor from "./FgaEditor";
 const PANEL_WIDTH = 480;
 
 const EditorPanel = () => {
-  const editorOpen = useViewerStore((s) => s.editorOpen);
-  const toggleEditor = useViewerStore((s) => s.toggleEditor);
+  const panelOpen = useViewerStore((s) => s.panelOpen);
+  const togglePanel = useViewerStore((s) => s.togglePanel);
   const parseError = useViewerStore((s) => s.parseError);
 
   return (
@@ -19,10 +19,10 @@ const EditorPanel = () => {
         bottom: 0,
         zIndex: 40,
         width: PANEL_WIDTH,
-        transform: editorOpen ? "translateX(0)" : "translateX(-100%)",
+        transform: panelOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 250ms ease-out",
         background: "rgba(15, 23, 41, 0.95)",
-        boxShadow: editorOpen
+        boxShadow: panelOpen
           ? "4px 0 24px rgba(0, 0, 0, 0.4)"
           : "none",
       }}
@@ -51,7 +51,7 @@ const EditorPanel = () => {
             ⌘+E
           </span>
           <button
-            onClick={toggleEditor}
+            onClick={togglePanel}
             className="w-6 h-6 flex items-center justify-center rounded hover:bg-white/5 transition-colors cursor-pointer"
             style={{ color: blueprint.muted }}
             title="Collapse editor"
