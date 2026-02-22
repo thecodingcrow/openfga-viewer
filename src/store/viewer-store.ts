@@ -8,6 +8,8 @@ import type {
   LayoutDirection,
   FocusMode,
   GraphFilters,
+  NavigationFrame,
+  SelfReferencingDimension,
 } from "../types";
 import { buildAuthorizationGraph } from "../parser/parse-model";
 import { SAMPLE_FGA_MODEL } from "../parser/sample-model";
@@ -19,6 +21,9 @@ import {
   collectPathElements,
   applyFilters,
   extractTypeNames,
+  traceUpstream,
+  traceDownstream,
+  detectSelfReferencingDimensions,
 } from "../graph/traversal";
 import type { ReactFlowInstance } from "@xyflow/react";
 
@@ -98,6 +103,13 @@ interface ViewerStore {
   // Filters
   filters: GraphFilters;
 
+  // Navigation
+  navigationStack: NavigationFrame[];
+  collapsedCards: Set<string>;
+  dimmedRowsHidden: boolean;
+  recentlyVisited: string[];
+  selfReferencingDimensions: SelfReferencingDimension[];
+
   // UI
   editorOpen: boolean;
   editorWidth: number;
@@ -122,6 +134,17 @@ interface ViewerStore {
 
   setFilter: (partial: Partial<GraphFilters>) => void;
   resetFilters: () => void;
+
+  // Navigation actions
+  navigateToSubgraph: (nodeId: string, direction: 'upstream' | 'downstream') => void;
+  popSubgraph: () => void;
+  jumpToLevel: (index: number) => void;
+
+  // Card collapse
+  toggleCardCollapse: (typeName: string) => void;
+
+  // Dimmed rows toggle
+  toggleDimmedRowsHidden: () => void;
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
   toggleEditor: () => void;
@@ -155,6 +178,11 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   tracedNodeIds: null,
   tracedEdgeIds: null,
   filters: { ...DEFAULT_FILTERS },
+  navigationStack: [],
+  collapsedCards: new Set(),
+  dimmedRowsHidden: false,
+  recentlyVisited: [],
+  selfReferencingDimensions: [],
   editorOpen: true,
   editorWidth: loadPersistedEditorWidth(),
   searchOpen: false,
@@ -172,11 +200,13 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
       const parseVersion = get().parseVersion + 1;
       const rawDimensions = detectDimensions({ nodes, edges });
       const dimensions = assignDimensionColors(rawDimensions);
+      const selfReferencingDimensions = detectSelfReferencingDimensions(edges);
       set({
         nodes,
         edges,
         availableTypes: extractTypeNames(nodes),
         dimensions,
+        selfReferencingDimensions,
         parseVersion,
         parseError: null,
         selectedNodeId: null,
@@ -187,6 +217,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         tracedPaths: null,
         tracedNodeIds: null,
         tracedEdgeIds: null,
+        navigationStack: [],
+        collapsedCards: new Set(),
       });
     } catch (e) {
       set({
@@ -195,6 +227,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         edges: [],
         availableTypes: [],
         dimensions: new Map(),
+        selfReferencingDimensions: [],
         parseVersion: get().parseVersion + 1,
         selectedNodeId: null,
         selectedEdgeId: null,
@@ -204,6 +237,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         tracedPaths: null,
         tracedNodeIds: null,
         tracedEdgeIds: null,
+        navigationStack: [],
+        collapsedCards: new Set(),
       });
     }
   },
@@ -296,6 +331,90 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   resetFilters: () => {
     _cachedFiltersStr = JSON.stringify(DEFAULT_FILTERS);
     set({ filters: { ...DEFAULT_FILTERS } });
+  },
+
+  // ─── Navigation actions ──────────────────────────────────────────────────
+
+  navigateToSubgraph: (nodeId, direction) => {
+    startTransition(() => {
+      const { nodes, edges, navigationStack, recentlyVisited } = get();
+
+      // Compute subgraph based on direction
+      const trace = direction === 'upstream'
+        ? traceUpstream(nodeId, edges)
+        : traceDownstream(nodeId, nodes, edges);
+
+      // Extract visible type IDs from traced node IDs
+      const visibleTypeIds = new Set<string>();
+      for (const nid of trace.nodeIds) {
+        visibleTypeIds.add(nid.split('#')[0]);
+      }
+
+      // Build navigation frame
+      const frame: NavigationFrame = {
+        entryNodeId: nodeId,
+        direction,
+        label: nodeId,
+        visibleTypeIds,
+        relevantRowIds: trace.rowIds,
+      };
+
+      // Update recently visited: prepend, deduplicate, keep last 5
+      const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 5);
+
+      const newStack = [...navigationStack, frame];
+
+      set({
+        navigationStack: newStack,
+        recentlyVisited: updatedRecent,
+      });
+
+      // Push browser history state for back-button support
+      window.history.pushState({ stackDepth: newStack.length }, '');
+    });
+  },
+
+  popSubgraph: () => {
+    startTransition(() => {
+      const { navigationStack } = get();
+      if (navigationStack.length === 0) return;
+
+      set({
+        navigationStack: navigationStack.slice(0, -1),
+      });
+      // Do NOT call history.back() or history.pushState here —
+      // this action is called BY the popstate handler.
+    });
+  },
+
+  jumpToLevel: (index) => {
+    startTransition(() => {
+      const { navigationStack } = get();
+      if (index <= 0) {
+        set({ navigationStack: [] });
+        return;
+      }
+      if (index >= navigationStack.length) return;
+      set({ navigationStack: navigationStack.slice(0, index) });
+    });
+  },
+
+  // ─── Card collapse ──────────────────────────────────────────────────────
+
+  toggleCardCollapse: (typeName) => {
+    const newSet = new Set(get().collapsedCards);
+    if (newSet.has(typeName)) {
+      newSet.delete(typeName);
+    } else {
+      newSet.add(typeName);
+    }
+    set({ collapsedCards: newSet });
+  },
+
+  // ─── Dimmed rows toggle ─────────────────────────────────────────────────
+
+  toggleDimmedRowsHidden: () => {
+    set((s) => ({ dimmedRowsHidden: !s.dimmedRowsHidden }));
   },
 
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
