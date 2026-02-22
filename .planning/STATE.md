@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-21)
 
 **Core value:** The graph must be immediately readable -- a user looking at it should see how access flows through types, relations, and permissions without untangling spaghetti edges or guessing what connects to what.
-**Current focus:** Phase 3: Visual Refinement (verification pending)
+**Current focus:** Phase 5: Gap Closure (executing)
 
 ## Current Position
 
-Phase: 3 of 3 (Visual Refinement)
-Plan: 4 of 4 in current phase (human-verify pending)
+Phase: 5 (Gap Closure)
+Plan: 05-02 complete, 05-01 at checkpoint (human-verify pending)
 Status: In Progress
-Last activity: 2026-02-22 - Completed plans 03-01, 03-02, 03-03 (token foundation, card/canvas/edge restyle, editor/toolbar/inspector restyle)
+Last activity: 2026-02-22 - Completed plan 05-02 (dead code removal), plan 05-01 task 1 done (edge alignment + breadcrumb hide), awaiting human verification
 
 Progress: [██████████████████████████] 96%
 
