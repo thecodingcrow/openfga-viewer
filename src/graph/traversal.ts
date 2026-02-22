@@ -215,10 +215,13 @@ export function traceDownstream(
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
 ): { nodeIds: Set<string>; edgeIds: Set<string>; rowIds: Set<string> } {
-  // Start with all rows belonging to the given type
+  // Start with all rows belonging to the given type, plus the type node itself.
+  // The type node ID must be included because type-restriction edges
+  // (e.g., [user]) originate from the type node as source.
   const seedIds = nodes
     .filter((n) => n.type === startTypeId && n.kind !== "type")
     .map((n) => n.id);
+  seedIds.push(startTypeId);
 
   const nodeIds = new Set<string>(seedIds);
   const edgeIds = new Set<string>();

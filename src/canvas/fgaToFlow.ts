@@ -164,13 +164,24 @@ export function toFlowElements(graph: AuthorizationGraph): {
     const sourceCard = edge.source.split("#")[0];
     const targetCard = edge.target.split("#")[0];
 
+    // Type-level sources/targets (no "#") connect to header handles,
+    // row-level sources/targets connect to row handles.
+    const sourceIsType = !edge.source.includes("#");
+    const targetIsType = !edge.target.includes("#");
+    const sourceHandle = sourceIsType
+      ? `${sourceCard}__header_source`
+      : `${edge.source}__source`;
+    const targetHandle = targetIsType
+      ? `${targetCard}__header_target`
+      : `${edge.target}__target`;
+
     flowEdges.push({
       id: edge.id,
       source: sourceCard,
       target: targetCard,
       type: "dimension",
-      sourceHandle: `${edge.source}__source`,
-      targetHandle: `${edge.target}__target`,
+      sourceHandle,
+      targetHandle,
       data: edgeData,
     });
   }
