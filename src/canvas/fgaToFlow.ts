@@ -136,6 +136,11 @@ export function toFlowElements(graph: AuthorizationGraph): {
   }
 
   // 5. Build React Flow edges — cross-card only
+  //
+  // React Flow edges must reference node IDs (card type names) as source/target.
+  // The sourceHandle/targetHandle reference the row-level Handle IDs within cards.
+  // AuthorizationNode IDs are "{type}#{relation}" or "{type}" — extract the type
+  // portion for the card node reference.
   const flowEdges: Edge[] = [];
   for (const edge of crossCard) {
     // Determine classification and color
@@ -155,10 +160,14 @@ export function toFlowElements(graph: AuthorizationGraph): {
       dimensionColor,
     };
 
+    // Extract type name from node ID: "document#viewer" -> "document", "user" -> "user"
+    const sourceCard = edge.source.split("#")[0];
+    const targetCard = edge.target.split("#")[0];
+
     flowEdges.push({
       id: edge.id,
-      source: edge.source,
-      target: edge.target,
+      source: sourceCard,
+      target: targetCard,
       type: "dimension",
       sourceHandle: `${edge.source}__source`,
       targetHandle: `${edge.target}__target`,
