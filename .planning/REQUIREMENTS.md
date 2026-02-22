@@ -17,7 +17,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **VIZ-06**: Graph uses 1-pass flat ELK layout with orthogonal edge routing (replaces 3-pass compound system)
 - [x] **VIZ-07**: Layout supports TB and LR direction toggle
 - [x] **VIZ-08**: Cards use dark glass styling (`bg-slate-900/85`, rounded-xl, type-colored accent bar)
-- [ ] **VIZ-09**: Subgraph enter/exit uses animated transitions (non-relevant cards fade, remaining animate to new positions)
+- [x] **VIZ-09**: Subgraph enter/exit uses animated transitions (non-relevant cards fade, remaining animate to new positions)
 
 ### Data Model
 
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INT-04 | Phase 2 | Complete |
 | INT-05 | Phase 2 | Complete |
 | INT-06 | Phase 2 | Complete |
-| VIZ-09 | Phase 2 | Pending |
+| VIZ-09 | Phase 2 | Complete |
 | PATH-01 | Phase 2 | Pending |
 | PATH-02 | Phase 2 | Pending |
 | PATH-03 | Phase 2 | Complete |

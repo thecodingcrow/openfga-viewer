@@ -19,19 +19,19 @@ Progress: [████████████████████] 73%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
+- Total plans completed: 8
 - Average duration: 3min
-- Total execution time: 0.38 hours
+- Total execution time: 0.45 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-core-pipeline | 4 | 16min | 4min |
-| 02-interaction-polish | 3 | 7min | 2.3min |
+| 02-interaction-polish | 4 | 11min | 2.75min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (5min), 01-04 (4min), 02-01 (2min), 02-02 (3min), 02-04 (2min)
+- Last 5 plans: 01-04 (4min), 02-01 (2min), 02-02 (3min), 02-03 (4min), 02-04 (2min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -69,6 +69,10 @@ Recent decisions affecting current work:
 - [02-02]: NavigationFrame stores pre-computed Sets (visibleTypeIds, relevantRowIds) for stable references
 - [02-02]: popSubgraph does NOT manipulate browser history -- called BY the popstate handler
 - [02-02]: Self-referencing dimensions detected via TTU edge self-loops (source type === target type)
+- [02-03]: 250ms click delay to resolve single-click vs double-click conflict on card header
+- [02-03]: Module-level isTransitioning flag (not Zustand state) avoids re-renders on transition start/end
+- [02-03]: Edge transition opacity from FgaGraph style prop overrides DimensionEdge hover opacity
+- [02-03]: Overview return resets layoutDone and rebuilds from full initialNodes/initialEdges
 - [02-04]: Breadcrumb click handlers call jumpToLevel AND window.history.go to keep store and browser history in sync
 - [02-04]: Esc key priority chain: close search > pop subgraph > do nothing
 - [02-04]: Popstate handler uses empty deps array with getState() for stable reference, no circular history manipulation
@@ -84,5 +88,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-04-PLAN.md
+Stopped at: Completed 02-03-PLAN.md and 02-04-PLAN.md
 Resume file: None
