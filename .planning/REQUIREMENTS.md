@@ -37,8 +37,6 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Path Tracing
 
-- [ ] **PATH-01**: In subgraph view, traced paths highlight specific expression terms in accent color (e.g., `admin | director | **MEMBER**`)
-- [ ] **PATH-02**: Binding rows that enable TTU hops show bridge highlight indicator during trace
 - [x] **PATH-03**: Self-referencing dimensions show info icon with tooltip (e.g., "Permission can be inherited from parent categories")
 
 ### Controls
@@ -54,15 +52,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Theme & Design System
 
-- [ ] **THEME-01**: Warm dark palette (Vercel-style off-blacks #111/#1a1a territory) replaces cool blue blueprint palette via CSS custom properties in @theme
-- [ ] **THEME-02**: All per-type color coding removed -- TYPE_PALETTE, getTypeColor, accentColor eliminated entirely
-- [ ] **THEME-03**: Cards use elevated solid surfaces with bottom-border headers, 1px section separators, and section-coded neutral dots
-- [ ] **THEME-04**: Canvas dot grid, MiniMap, and Controls use warm neutral tones (no blue tint)
-- [ ] **THEME-05**: Dimension edges muted by default (~0.35 opacity), vivid on hover/select; edge weight 1.5-2px
-- [ ] **THEME-06**: Editor syntax highlighting uses muted/desaturated colors (GitHub Dark / One Dark Pro direction)
-- [ ] **THEME-07**: Toolbar docked to right side as vertical bar (macOS Dock concept), sharp and professional
-- [ ] **THEME-08**: All monospace typography throughout; Tailwind type scale levels only (no arbitrary text-[Npx])
-- [ ] **THEME-09**: Design tokens enforced -- every color references CSS custom properties via @theme, no hardcoded hex in components
+- [x] **THEME-01**: Warm dark palette (Vercel-style off-blacks #111/#1a1a territory) replaces cool blue blueprint palette via CSS custom properties in @theme
+- [x] **THEME-02**: All per-type color coding removed -- TYPE_PALETTE, getTypeColor, accentColor eliminated entirely
+- [x] **THEME-03**: Cards use elevated solid surfaces with bottom-border headers, 1px section separators, and section-coded neutral dots
+- [x] **THEME-04**: Canvas dot grid, MiniMap, and Controls use warm neutral tones (no blue tint)
+- [x] **THEME-05**: Dimension edges muted by default (~0.35 opacity), vivid on hover/select; edge weight 1.5-2px
+- [x] **THEME-06**: Editor syntax highlighting uses muted/desaturated colors (GitHub Dark / One Dark Pro direction)
+- [x] **THEME-07**: Toolbar docked to right side as vertical bar (macOS Dock concept), sharp and professional
+- [x] **THEME-08**: All monospace typography throughout; Tailwind type scale levels only (no arbitrary text-[Npx])
+- [x] **THEME-09**: Design tokens enforced -- every color references CSS custom properties via @theme, no hardcoded hex in components
 
 ## v2 Requirements
 
@@ -93,6 +91,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | Graph editing (visual authoring) | Conflicts with core "paste and explore" UX |
 | Tuple/data management | Not a visualization concern |
 | Compound expand/collapse | Eliminated by ERD card architecture |
+| PATH-01: Path tracing expression highlight | Dropped per v1.0 audit — store machinery exists but UI not needed for v1 |
+| PATH-02: Binding row bridge highlight | Dropped per v1.0 audit — depends on PATH-01 which was dropped |
 
 ## Traceability
 
@@ -118,11 +118,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-08 | Phase 1 | Complete |
 | INT-03 | Phase 2 | Complete |
 | INT-04 | Phase 2 | Complete |
-| INT-05 | Phase 2 | Complete |
+| INT-05 | Phase 5 | Pending |
 | INT-06 | Phase 2 | Complete |
 | VIZ-09 | Phase 2 | Complete |
-| PATH-01 | Phase 2 | Pending |
-| PATH-02 | Phase 2 | Pending |
 | PATH-03 | Phase 2 | Complete |
 | CTRL-01 | Phase 2 | Complete |
 | CTRL-02 | Phase 2 | Complete |
@@ -131,19 +129,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-05 | Phase 2 | Complete |
 | CTRL-06 | Phase 2 | Complete |
 
-| THEME-01 | Phase 3 | Pending |
-| THEME-02 | Phase 3 | Pending |
-| THEME-03 | Phase 3 | Pending |
-| THEME-04 | Phase 3 | Pending |
-| THEME-05 | Phase 3 | Pending |
-| THEME-06 | Phase 3 | Pending |
-| THEME-07 | Phase 3 | Pending |
-| THEME-08 | Phase 3 | Pending |
-| THEME-09 | Phase 3 | Pending |
+| THEME-01 | Phase 3 | Complete |
+| THEME-02 | Phase 3 | Complete |
+| THEME-03 | Phase 3 | Complete |
+| THEME-04 | Phase 3 | Complete |
+| THEME-05 | Phase 3 | Complete |
+| THEME-06 | Phase 3 | Complete |
+| THEME-07 | Phase 3 | Complete |
+| THEME-08 | Phase 3 | Complete |
+| THEME-09 | Phase 3 | Complete |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 39
+- v1 requirements: 37 total (PATH-01, PATH-02 dropped per v1.0 audit)
+- Mapped to phases: 37
 - Unmapped: 0
 
 ---

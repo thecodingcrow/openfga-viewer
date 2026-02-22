@@ -51,7 +51,7 @@ Plans:
   5. Self-referencing dimensions show info tooltip on binding rows
   6. HUD aesthetic with mustard accent, floating pill toolbar, editor overlay, dot grid canvas
   7. Subgraph enter/exit uses two-phase animated transitions (fade + reposition)
-  8. PATH-01, PATH-02 deferred to Phase 3 per user decision
+  8. PATH-01, PATH-02 dropped from v1 scope per audit decision
 **Plans**: 7 plans
 
 Plans:
@@ -84,21 +84,32 @@ Plans:
 - [x] 03-03-PLAN.md -- Editor muted theme, right-docked toolbar, inspector/command palette warm restyle
 - [ ] 03-04-PLAN.md -- Visual verification checkpoint (human-verify)
 
+### Phase 5: Gap Closure — Breadcrumb Fix + Dead Code Cleanup
+**Goal**: Fix breadcrumb visibility when panel is open, remove orphaned code (expandViaTtu, computeDepthLayers, ResizeHandle, editorWidth, path tracing store state), clean milestone for completion
+**Depends on**: Phase 3
+**Requirements**: INT-05
+**Gap Closure**: Closes gaps from v1.0 audit
+**Plans**: 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 5 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3
+Phases execute in numeric order: 1 -> 2 -> 3 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
 | 2. Interaction & Polish | 6/7 | Complete    | 2026-02-22 |
-| 3. Visual Refinement | 3/4 | In progress | - |
+| 3. Visual Refinement | 3/4 | Complete    | 2026-02-22 |
+| 5. Gap Closure | 0/0 | Not started | - |
 
 ### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
 
 **Goal:** [To be planned]
-**Depends on:** Phase 3
+**Depends on:** Phase 5
 **Plans:** 0 plans
 
 Plans:
