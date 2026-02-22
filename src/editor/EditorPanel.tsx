@@ -37,10 +37,10 @@ const EditorPanel = () => {
     >
       {/* Header with tabs */}
       <div
-        className="flex items-center justify-between px-3 shrink-0"
+        className="flex items-center justify-between px-4 shrink-0"
         style={{
-          height: "2.25rem",
-          borderBottom: `0.0625rem solid ${blueprint.surfaceBorder}`,
+          height: "2.75rem",
+          borderBottom: `1px solid ${blueprint.surfaceBorder}`,
         }}
       >
         {/* Tab buttons */}
@@ -49,14 +49,20 @@ const EditorPanel = () => {
             <button
               key={tab.key}
               onClick={() => setPanelTab(tab.key)}
-              className="text-[10px] font-semibold tracking-[0.12em] uppercase cursor-pointer pb-px relative"
+              className="text-xs font-semibold tracking-wider uppercase cursor-pointer pb-px relative"
               style={{
-                color: panelTab === tab.key ? blueprint.accent : blueprint.muted,
+                color: panelTab === tab.key ? blueprint.accent : blueprint.nodeBody,
                 background: "transparent",
                 border: "none",
                 borderBottom: panelTab === tab.key
                   ? `2px solid ${blueprint.accent}`
                   : "2px solid transparent",
+              }}
+              onMouseEnter={(e) => {
+                if (panelTab !== tab.key) e.currentTarget.style.color = blueprint.accent;
+              }}
+              onMouseLeave={(e) => {
+                if (panelTab !== tab.key) e.currentTarget.style.color = blueprint.nodeBody;
               }}
             >
               {tab.label}
