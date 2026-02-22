@@ -79,3 +79,44 @@ export interface GraphFilters {
 
 /** Dagre layout direction (top-to-bottom or left-to-right) */
 export type LayoutDirection = "TB" | "LR";
+
+// ─── Dimension & Schema Card types ──────────────────────────────────────────
+
+/** A structural dimension detected from TTU tupleset patterns */
+export interface Dimension {
+  /** Dimension name — the tupleset relation name (e.g., "client", "parent") */
+  name: string;
+  /** Assigned color from the dimension palette */
+  color: string;
+  /** AuthorizationNode IDs of bindings that create this dimension */
+  bindingNodeIds: Set<string>;
+  /** AuthorizationEdge IDs of TTU edges belonging to this dimension */
+  edgeIds: Set<string>;
+}
+
+/** Classification of a visual edge */
+export type EdgeClassification = "type-restriction" | "dimension";
+
+/** A row in an ERD schema card */
+export interface CardRow {
+  /** Node ID — e.g., "client#admin" — matches AuthorizationNode.id */
+  id: string;
+  /** Display name — e.g., "admin" */
+  name: string;
+  /** Which section this row belongs to */
+  section: "binding" | "relation" | "permission";
+  /** Transformed expression for display (permissions only) */
+  expression?: string;
+  /** Dimension color for binding dots (bindings only) */
+  dimensionColor?: string;
+}
+
+/** Data for a single ERD schema card (one per FGA type) */
+export interface SchemaCard {
+  /** FGA type name — e.g., "client" */
+  typeName: string;
+  /** Type accent color for the header bar */
+  accentColor: string;
+  /** All rows in display order: bindings, then relations, then permissions */
+  rows: CardRow[];
+}
