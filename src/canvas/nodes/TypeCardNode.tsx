@@ -1,13 +1,19 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useRef } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import type { SchemaCard, CardRow } from "../../types";
+import type {
+  SchemaCard,
+  CardRow,
+  AuthorizationEdge,
+  SelfReferencingDimension,
+} from "../../types";
 import { useHoverStore } from "../../store/hover-store";
 import { useViewerStore } from "../../store/viewer-store";
+import { getIsTransitioning } from "../transition-state";
 
 /** React Flow requires [key: string]: unknown on node data */
 type TypeCardData = SchemaCard & { [key: string]: unknown };
 
-/** Section background colors — banded shades per CONTEXT.md locked decision */
+/** Section background colors -- banded shades per CONTEXT.md locked decision */
 const SECTION_BG: Record<CardRow["section"], string> = {
   binding: "rgba(15, 23, 42, 0.95)",
   relation: "rgba(15, 23, 42, 0.88)",
@@ -17,7 +23,7 @@ const SECTION_BG: Record<CardRow["section"], string> = {
 /** Neutral dot color for relation/permission rows */
 const NEUTRAL_DOT = "#64748b";
 
-/** Hidden handle style — exists for edge attachment only */
+/** Hidden handle style -- exists for edge attachment only */
 const hiddenHandle: React.CSSProperties = {
   opacity: 0,
   width: 6,
@@ -26,6 +32,9 @@ const hiddenHandle: React.CSSProperties = {
 
 /** Subtle background tint for highlighted rows */
 const HIGHLIGHTED_ROW_BG = "rgba(136, 204, 238, 0.08)";
+
+/** Delay (ms) to distinguish single-click from double-click on header */
+const CLICK_DELAY = 250;
 
 function TypeCardNodeComponent({ id, data }: NodeProps) {
   const d = data as TypeCardData;
@@ -38,15 +47,38 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
   const setHoveredCard = useHoverStore((s) => s.setHoveredCard);
   const clearHover = useHoverStore((s) => s.clearHover);
 
-  // Full graph data for BFS (stable references — only change on parse)
+  // Full graph data for BFS (stable references -- only change on parse)
   const fullEdges = useViewerStore((s) => s.edges);
   const fullNodes = useViewerStore((s) => s.nodes);
 
-  // Determine if this card participates in current hover
-  const cardParticipates = isHoverActive && (
-    d.rows.some((r) => highlightedRowIds.has(r.id)) ||
-    highlightedNodeIds.has(d.typeName)
+  // Navigation actions
+  const navigateToSubgraph = useViewerStore((s) => s.navigateToSubgraph);
+  const toggleCardCollapse = useViewerStore((s) => s.toggleCardCollapse);
+
+  // Card collapse state
+  const collapsedCards = useViewerStore((s) => s.collapsedCards);
+  const isCollapsed = collapsedCards.has(d.typeName);
+
+  // Navigation stack for row dimming
+  const navStackLength = useViewerStore((s) => s.navigationStack.length);
+  const currentFrame = useViewerStore(
+    (s) => s.navigationStack[s.navigationStack.length - 1] ?? null,
   );
+  const dimmedRowsHidden = useViewerStore((s) => s.dimmedRowsHidden);
+
+  // Self-referencing dimensions
+  const selfReferencingDimensions = useViewerStore(
+    (s) => s.selfReferencingDimensions,
+  );
+
+  // Click timer for single-click vs double-click conflict resolution
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Determine if this card participates in current hover
+  const cardParticipates =
+    isHoverActive &&
+    (d.rows.some((r) => highlightedRowIds.has(r.id)) ||
+      highlightedNodeIds.has(d.typeName));
 
   // Card opacity: dim non-participating cards during hover
   const cardOpacity = isHoverActive && !cardParticipates ? 0.25 : 1;
@@ -60,6 +92,26 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
   const onCardMouseLeave = useCallback(() => {
     clearHover();
   }, [clearHover]);
+
+  // Header single-click: navigate downstream (with 250ms delay for double-click)
+  const onHeaderClick = useCallback(() => {
+    if (getIsTransitioning()) return;
+    if (clickTimerRef.current !== null) return; // Already pending
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      navigateToSubgraph(d.typeName, "downstream");
+    }, CLICK_DELAY);
+  }, [navigateToSubgraph, d.typeName]);
+
+  // Header double-click: collapse/expand card (cancel pending single-click)
+  const onHeaderDoubleClick = useCallback(() => {
+    if (getIsTransitioning()) return;
+    if (clickTimerRef.current !== null) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+    }
+    toggleCardCollapse(d.typeName);
+  }, [toggleCardCollapse, d.typeName]);
 
   // Group rows by section for conditional rendering with section-level backgrounds
   const bindings = d.rows.filter((r) => r.section === "binding");
@@ -88,15 +140,17 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
       }}
       onMouseLeave={onCardMouseLeave}
     >
-      {/* Header — type name with accent bar */}
+      {/* Header -- type name with accent bar */}
       <div
-        className="px-3 py-1.5 text-sm font-semibold text-slate-100"
+        className="px-3 py-1.5 text-sm font-semibold text-slate-100 cursor-pointer select-none"
         style={{
           borderTop: `3px solid ${d.accentColor}`,
           background: "rgba(15, 23, 42, 0.98)",
         }}
         data-header="true"
         onMouseEnter={onHeaderMouseEnter}
+        onClick={onHeaderClick}
+        onDoubleClick={onHeaderDoubleClick}
       >
         <Handle
           type="target"
@@ -105,6 +159,11 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
           style={hiddenHandle}
         />
         {d.typeName}
+        {isCollapsed && (
+          <span className="ml-1.5 text-xs text-slate-500 font-normal">
+            ({d.rows.length})
+          </span>
+        )}
         <Handle
           type="source"
           position={Position.Bottom}
@@ -113,24 +172,39 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
         />
       </div>
 
-      {/* Section bands */}
-      {sections.map((section) => (
-        <div
-          key={section.key}
-          style={{ background: SECTION_BG[section.key] }}
-        >
-          {section.rows.map((row) => (
-            <RowItem
-              key={row.id}
-              row={row}
-              isHoverActive={isHoverActive}
-              isHighlighted={highlightedRowIds.has(row.id)}
-              setHoveredRow={setHoveredRow}
-              fullEdges={fullEdges}
-            />
-          ))}
-        </div>
-      ))}
+      {/* Section bands -- hidden when collapsed */}
+      {!isCollapsed &&
+        sections.map((section) => (
+          <div
+            key={section.key}
+            style={{ background: SECTION_BG[section.key] }}
+          >
+            {section.rows.map((row) => {
+              const isRelevant = currentFrame
+                ? currentFrame.relevantRowIds.has(row.id)
+                : true;
+              // If dimmed rows should be hidden and this row is not relevant, skip
+              if (navStackLength > 0 && dimmedRowsHidden && !isRelevant)
+                return null;
+
+              return (
+                <RowItem
+                  key={row.id}
+                  row={row}
+                  typeName={d.typeName}
+                  isHoverActive={isHoverActive}
+                  isHighlighted={highlightedRowIds.has(row.id)}
+                  isRelevant={isRelevant}
+                  inSubgraph={navStackLength > 0}
+                  setHoveredRow={setHoveredRow}
+                  navigateToSubgraph={navigateToSubgraph}
+                  fullEdges={fullEdges}
+                  selfReferencingDimensions={selfReferencingDimensions}
+                />
+              );
+            })}
+          </div>
+        ))}
     </div>
   );
 }
@@ -138,28 +212,73 @@ function TypeCardNodeComponent({ id, data }: NodeProps) {
 /** Individual row component to avoid inline closures in the main loop */
 function RowItemComponent({
   row,
+  typeName,
   isHoverActive,
   isHighlighted,
+  isRelevant,
+  inSubgraph,
   setHoveredRow,
+  navigateToSubgraph,
   fullEdges,
+  selfReferencingDimensions,
 }: {
   row: CardRow;
+  typeName: string;
   isHoverActive: boolean;
   isHighlighted: boolean;
-  setHoveredRow: (rowId: string | null, edges: import("../../types").AuthorizationEdge[]) => void;
-  fullEdges: import("../../types").AuthorizationEdge[];
+  isRelevant: boolean;
+  inSubgraph: boolean;
+  setHoveredRow: (
+    rowId: string | null,
+    edges: AuthorizationEdge[],
+  ) => void;
+  navigateToSubgraph: (
+    nodeId: string,
+    direction: "upstream" | "downstream",
+  ) => void;
+  fullEdges: AuthorizationEdge[];
+  selfReferencingDimensions: SelfReferencingDimension[];
 }) {
   const onMouseEnter = useCallback(() => {
     setHoveredRow(row.id, fullEdges);
   }, [setHoveredRow, row.id, fullEdges]);
 
-  const rowBg = isHoverActive && isHighlighted ? HIGHLIGHTED_ROW_BG : undefined;
+  // Permission row click: navigate upstream
+  const onRowClick = useCallback(() => {
+    if (getIsTransitioning()) return;
+    if (row.section === "permission") {
+      navigateToSubgraph(row.id, "upstream");
+    }
+  }, [navigateToSubgraph, row.id, row.section]);
+
+  const rowBg =
+    isHoverActive && isHighlighted ? HIGHLIGHTED_ROW_BG : undefined;
+
+  // Row opacity: dim irrelevant rows in subgraph view
+  const rowOpacity = inSubgraph && !isRelevant ? 0.4 : 1;
+
+  // Check for self-referencing dimension on binding rows
+  const selfRefDim =
+    row.section === "binding"
+      ? selfReferencingDimensions.find(
+          (srd) =>
+            srd.typeName === typeName && srd.dimensionName === row.name,
+        )
+      : undefined;
+
+  const isPermission = row.section === "permission";
 
   return (
     <div
       className="px-3 py-0.5 font-mono text-xs flex items-center gap-1.5 text-slate-300"
-      style={{ background: rowBg }}
+      style={{
+        background: rowBg,
+        opacity: rowOpacity,
+        cursor: isPermission ? "pointer" : undefined,
+        transition: "opacity 120ms ease-out",
+      }}
       onMouseEnter={onMouseEnter}
+      onClick={isPermission ? onRowClick : undefined}
     >
       <Handle
         type="target"
@@ -182,6 +301,28 @@ function RowItemComponent({
         }}
       />
       <span className="whitespace-nowrap">{row.name}</span>
+      {/* Self-referencing dimension info icon */}
+      {selfRefDim != null && (
+        <span
+          title={selfRefDim.tooltip}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 12,
+            height: 12,
+            borderRadius: "50%",
+            border: "1px solid #64748b",
+            fontSize: 8,
+            lineHeight: 1,
+            color: "#94a3b8",
+            flexShrink: 0,
+            cursor: "help",
+          }}
+        >
+          i
+        </span>
+      )}
       {row.expression != null && (
         <span className="text-slate-500 ml-auto whitespace-nowrap">
           {row.expression}
