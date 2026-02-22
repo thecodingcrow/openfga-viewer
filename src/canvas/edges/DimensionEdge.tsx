@@ -20,10 +20,10 @@ interface DimensionEdgeData {
   [key: string]: unknown;
 }
 
-/** Base stroke opacity — subtle, cards dominate (locked decision) */
+/** Base stroke opacity -- subtle, cards dominate (locked decision) */
 const BASE_OPACITY = 0.6;
 
-/** Stroke width — thin per locked decision ~1-1.5px */
+/** Stroke width -- thin per locked decision ~1-1.5px */
 const STROKE_WIDTH = 1.25;
 
 function DimensionEdgeComponent(props: EdgeProps) {
@@ -36,6 +36,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
     sourcePosition,
     targetPosition,
     data,
+    style: edgeStyle,
   } = props;
 
   const d = data as DimensionEdgeData | undefined;
@@ -50,10 +51,14 @@ function DimensionEdgeComponent(props: EdgeProps) {
       ? (d.dimensionColor ?? TYPE_RESTRICTION_COLOR)
       : TYPE_RESTRICTION_COLOR;
 
-  // Determine opacity: dim non-highlighted edges when hover is active
-  const opacity = isHoverActive
+  // Determine opacity: transition opacity (from FgaGraph) takes precedence,
+  // otherwise use hover-based dimming
+  const transitionOpacity = edgeStyle?.opacity;
+  const hoverOpacity = isHoverActive
     ? highlightedEdgeIds.has(id) ? BASE_OPACITY : 0.08
     : BASE_OPACITY;
+
+  const opacity = transitionOpacity != null ? transitionOpacity : hoverOpacity;
 
   // Build path: prefer ELK route when available, else fallback to smooth step
   let path: string;
@@ -78,6 +83,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
         stroke: strokeColor,
         strokeWidth: STROKE_WIDTH,
         opacity,
+        transition: edgeStyle?.transition as string | undefined,
       }}
       markerEnd={`url(#marker-${id})`}
       interactionWidth={10}
