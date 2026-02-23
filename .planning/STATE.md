@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 Phase: —
 Plan: —
 Status: Milestone v1.0 complete
-Last activity: 2026-02-23 - Completed v1.0 Visual Overhaul milestone
+Last activity: 2026-02-23 - Completed quick task 6: improve readme layout
 
 Progress: [████████████████████████████] 100%
 
