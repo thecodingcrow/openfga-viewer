@@ -28,6 +28,7 @@ const hiddenHandle: React.CSSProperties = {
   height: 6,
 };
 
+
 /** Subtle background tint for highlighted rows */
 const HIGHLIGHTED_ROW_BG = "rgba(212, 160, 23, 0.08)";
 

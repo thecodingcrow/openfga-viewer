@@ -70,21 +70,51 @@ export async function getLayoutedElements(
 
   const isTB = direction === 'TB';
 
+  // Constants matching TypeCardNode CSS (Tailwind v4 defaults)
+  // Header: py-1.5 (12px) + text-sm leading (20px) + 1px border-bottom = 33px
+  // Row: py-0.5 (4px) + text-xs leading (16px) = 20px
+  const HEADER_H = 33;
+  const ROW_H = 20;
+  const SECTION_ORDER: Record<string, number> = { binding: 0, relation: 1, permission: 2 };
+
   const elkChildren: ElkNode[] = nodes.map((node) => {
     const w = node.measured?.width ?? 280;
     const h = node.measured?.height ?? 100;
     const card = node.data as SchemaCard & { [key: string]: unknown };
     const rows: CardRow[] = (card.rows as CardRow[]) ?? [];
 
-    // Build ports from card rows
+    // Sort rows to match render order (binding → relation → permission)
+    const sortedRows = [...rows].sort((a, b) =>
+      (SECTION_ORDER[a.section] ?? 0) - (SECTION_ORDER[b.section] ?? 0),
+    );
+
+    // Compute estimated Y center for each row
+    let yOffset = HEADER_H;
+    let prevSection = '';
+    const rowCenterY = new Map<string, number>();
+    for (const row of sortedRows) {
+      if (prevSection && row.section !== prevSection) {
+        yOffset += 1; // 1px section border
+      }
+      rowCenterY.set(row.id, yOffset + ROW_H / 2);
+      yOffset += ROW_H;
+      prevSection = row.section;
+    }
+
+    // Scale estimated positions to match actual measured height
+    const scale = h / Math.max(yOffset, 1);
+    const headerCenterY = ((HEADER_H - 1) / 2) * scale;
+
+    // Build ports with explicit positions
+    const ports: { id: string; x?: number; y?: number; properties: Record<string, string> }[] = [];
     let targetIndex = 0;
     let sourceIndex = 0;
-
-    const ports: { id: string; properties: Record<string, string> }[] = [];
 
     // Header ports
     ports.push({
       id: `${node.id}__header_target`,
+      x: isTB ? 0 : headerCenterY,
+      y: isTB ? headerCenterY : 0,
       properties: {
         'port.side': isTB ? 'WEST' : 'NORTH',
         'port.index': String(targetIndex++),
@@ -92,16 +122,21 @@ export async function getLayoutedElements(
     });
     ports.push({
       id: `${node.id}__header_source`,
+      x: isTB ? w : headerCenterY,
+      y: isTB ? headerCenterY : h,
       properties: {
         'port.side': isTB ? 'EAST' : 'SOUTH',
         'port.index': String(sourceIndex++),
       },
     });
 
-    // Row ports
-    for (const row of rows) {
+    // Row ports (in render order)
+    for (const row of sortedRows) {
+      const cy = (rowCenterY.get(row.id) ?? 0) * scale;
       ports.push({
         id: `${row.id}__target`,
+        x: isTB ? 0 : cy,
+        y: isTB ? cy : 0,
         properties: {
           'port.side': isTB ? 'WEST' : 'NORTH',
           'port.index': String(targetIndex++),
@@ -109,6 +144,8 @@ export async function getLayoutedElements(
       });
       ports.push({
         id: `${row.id}__source`,
+        x: isTB ? w : cy,
+        y: isTB ? cy : h,
         properties: {
           'port.side': isTB ? 'EAST' : 'SOUTH',
           'port.index': String(sourceIndex++),
@@ -121,7 +158,7 @@ export async function getLayoutedElements(
       width: w,
       height: h,
       properties: {
-        'org.eclipse.elk.portConstraints': 'FIXED_ORDER',
+        'org.eclipse.elk.portConstraints': 'FIXED_POS',
       },
       ports,
     };
