@@ -8,26 +8,32 @@ Visual graph explorer for [OpenFGA](https://openfga.dev) authorization models.
 
 **Live demo:** [openfga-viewer.vercel.app](https://openfga-viewer.vercel.app)
 
+[![OpenFGA Viewer screenshot](docs/screenshot.png)](https://openfga-viewer.vercel.app)
+
+---
+
 ## Features
 
-- Inline FGA DSL editor with syntax highlighting and autocomplete
-- Interactive graph visualization powered by React Flow and ELK layout
-- Three focus modes: full graph, type neighborhood, and relation path tracing
-- Filter by node type (types, relations, permissions)
-- Drag-and-drop `.fga` file import
-- Keyboard shortcuts (`Ctrl/Cmd+E` to toggle editor)
+- **DSL Editor** — Inline FGA editor with syntax highlighting and autocomplete
+- **Graph Visualization** — Interactive dependency graph powered by React Flow and ELK layout
+- **Focus Modes** — Full graph, type neighborhood, and relation path tracing
+- **Node Filters** — Filter by node type (types, relations, permissions)
+- **File Import** — Drag-and-drop `.fga` file loading
+- **Keyboard Shortcuts** — Quick access via `Ctrl/Cmd+E` to toggle the editor
 
-## Building from Source
+---
+
+## Getting Started
 
 **Prerequisites:** Node.js 18+
 
 ```sh
+# Clone and install
 git clone https://github.com/thecodingcrow/openfga-viewer.git
 cd openfga-viewer
 npm install
-```
 
-```sh
+# Development
 npm run dev       # Start dev server
 npm run build     # Type-check and build for production
 npm run lint      # Run ESLint
@@ -36,7 +42,20 @@ npm run preview   # Preview production build
 
 ## Tech Stack
 
-React 19, TypeScript 5.9, Vite 7, React Flow v12, elkjs, Zustand 5, CodeMirror 6, Tailwind CSS v4
+| Category  | Technology                    |
+|-----------|-------------------------------|
+| Framework | React 19 + TypeScript 5.9     |
+| Build     | Vite 7                        |
+| Graph     | React Flow v12 + elkjs        |
+| State     | Zustand 5                     |
+| Editor    | CodeMirror 6                  |
+| Styling   | Tailwind CSS v4               |
+
+## Contributing
+
+Contributions welcome! Open an issue or submit a PR.
+
+---
 
 ## Author
 
