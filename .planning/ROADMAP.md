@@ -92,8 +92,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md -- Edge arrow alignment fix, breadcrumb hide from UI
-- [ ] 05-02-PLAN.md -- Dead code removal (traversal, elk-path, store state, ResizeHandle, console.log, FocusMode)
+- [x] 05-01-PLAN.md -- Edge arrow alignment fix, breadcrumb hide from UI
+- [x] 05-02-PLAN.md -- Dead code removal (traversal, elk-path, store state, ResizeHandle, console.log, FocusMode)
 
 ## Progress
 
@@ -105,7 +105,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 5
 | 1. Core Pipeline | 4/4 | Complete    | 2026-02-22 |
 | 2. Interaction & Polish | 6/7 | Complete    | 2026-02-22 |
 | 3. Visual Refinement | 3/4 | Complete    | 2026-02-22 |
-| 5. Gap Closure | 0/2 | Not started | - |
+| 5. Gap Closure | 2/2 | Complete    | 2026-02-23 |
 
 ### Phase 4: when hovering permissions or nodes, the highlighted nodes should be moved closer together, the dimmed nodes stay semi transparent in the background
 

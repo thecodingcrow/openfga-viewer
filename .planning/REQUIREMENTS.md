@@ -118,7 +118,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CTRL-08 | Phase 1 | Complete |
 | INT-03 | Phase 2 | Complete |
 | INT-04 | Phase 2 | Complete |
-| INT-05 | Phase 5 | Pending |
+| INT-05 | Phase 5 | Complete |
 | INT-06 | Phase 2 | Complete |
 | VIZ-09 | Phase 2 | Complete |
 | PATH-03 | Phase 2 | Complete |
