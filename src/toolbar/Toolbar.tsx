@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import { useViewerStore } from "../store/viewer-store";
 import CommandPalette from "./CommandPalette";
 
-const REPO_URL = "https://github.com/evansims/openfga-viewer";
+const REPO_URL = "https://github.com/thecodingcrow/openfga-viewer";
 
 // ─── Icon-only button ────────────────────────────────────────────────────────
 

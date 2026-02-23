@@ -1,3 +1,5 @@
+<div align="center">
+
 # OpenFGA Viewer
 
 Visual graph explorer for [OpenFGA](https://openfga.dev) authorization models.
@@ -9,6 +11,8 @@ Visual graph explorer for [OpenFGA](https://openfga.dev) authorization models.
 **Live demo:** [openfga-viewer.vercel.app](https://openfga-viewer.vercel.app)
 
 [![OpenFGA Viewer screenshot](docs/screenshot.png)](https://openfga-viewer.vercel.app)
+
+</div>
 
 ---
 
