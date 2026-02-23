@@ -60,9 +60,10 @@ None.
 | 3 | Fix toolbar sizing/borders and EditorPanel tab visibility | 2026-02-22 | 81d2a1a | [3-fix-toolbar-sizing-borders-and-merge-edi](./quick/3-fix-toolbar-sizing-borders-and-merge-edi/) |
 | 4 | Fix inspector scrollbar styling and expression overflow | 2026-02-22 | feb4903 | [4-fix-inspector-scrollbar-styling-and-expr](./quick/4-fix-inspector-scrollbar-styling-and-expr/) |
 | 5 | Add styled hover tooltips to truncated expressions | 2026-02-22 | 9f058e1 | [5-add-styled-hover-tooltips-to-truncated-e](./quick/5-add-styled-hover-tooltips-to-truncated-e/) |
+| 6 | Improve README layout with hero screenshot and visual polish | 2026-02-23 | 7b740a1 | [6-improve-readme-layout](./quick/6-improve-readme-layout/) |
 
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: v1.0 milestone complete
+Stopped at: Completed quick task 6 (improve README layout)
 Resume file: None
