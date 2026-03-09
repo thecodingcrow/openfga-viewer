@@ -38,11 +38,11 @@ const FgaGraphInner = () => {
   const dimensions = useViewerStore((s) => s.dimensions);
 
   const visibleTypeNames = useViewerStore(
-    useShallow((s) => s.getVisibleTypeNames()),
+    useShallow((s) => s.visibleTypeNames),
   );
 
   const visibleEdges = useViewerStore(
-    useShallow((s) => s.getVisibleGraph().edges),
+    useShallow((s) => s.visibleEdges),
   );
 
   const { nodes: flowNodes, edges: flowEdges } = useMemo(
