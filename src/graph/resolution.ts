@@ -169,7 +169,9 @@ export function auditRole(
       if (targetNode?.isPermission && targetNode.relation) {
         const existing = permissions.get(targetNode.type);
         if (existing) {
-          existing.push(targetNode.relation);
+          if (!existing.includes(targetNode.relation)) {
+            existing.push(targetNode.relation);
+          }
         } else {
           permissions.set(targetNode.type, [targetNode.relation]);
         }
