@@ -1,3 +1,4 @@
+// V1 — remove in Phase 6
 import { memo, useCallback, useRef } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import type {

@@ -52,6 +52,7 @@ function putCache(entry: CacheEntry): void {
 
 // -- Public API ---------------------------------------------------------------
 
+// V1 — remove in Phase 6
 export async function getLayoutedElements(
   nodes: Node[],
   edges: Edge[],

@@ -19,51 +19,39 @@ import '@xyflow/react/dist/style.css';
 import { useShallow } from 'zustand/react/shallow';
 import { useViewerStore } from '../store/viewer-store';
 import { useHoverStore } from '../store/hover-store';
-import { getLayoutedElements } from '../layout/elk-layout';
-import { toFlowElements } from './fgaToFlow';
-import { setIsTransitioning } from './transition-state';
+import { getLayoutedElementsV2 } from '../layout/elk-layout';
+import { toFlowElementsV2 } from './fgaToFlowV2';
 
-import { TypeCardNode } from './nodes/TypeCardNode';
+import { CompactTypeNode } from './nodes/CompactTypeNode';
 import { DimensionEdge } from './edges/DimensionEdge';
 
-const nodeTypes = { typeCard: TypeCardNode };
+const nodeTypes = { compactType: CompactTypeNode };
 const edgeTypes = { dimension: DimensionEdge };
-
-/** Phase 1 fade-out duration (ms) */
-const FADE_OUT_MS = 150;
-/** Extra buffer after fade-out before Phase 2 starts */
-const PHASE2_DELAY_MS = 180;
-/** Time to wait for CSS transform animation before fitView */
-const POSITION_ANIM_MS = 350;
 
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
   const parseVersion = useViewerStore((s) => s.parseVersion);
-  const selectNode = useViewerStore((s) => s.selectNode);
-  const selectEdge = useViewerStore((s) => s.selectEdge);
   const clearHover = useHoverStore((s) => s.clearHover);
-  const focusMode = useViewerStore((s) => s.focusMode);
-  const setFocusMode = useViewerStore((s) => s.setFocusMode);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
+  const setAnchorType = useViewerStore((s) => s.setAnchorType);
+  const anchorType = useViewerStore((s) => s.anchorType);
+  const dimensions = useViewerStore((s) => s.dimensions);
 
-  // Navigation state
-  const navStackLength = useViewerStore((s) => s.navigationStack.length);
-  const collapsedCards = useViewerStore((s) => s.collapsedCards);
+  const visibleTypeNames = useViewerStore(
+    useShallow((s) => s.getVisibleTypeNames()),
+  );
 
-  const { nodes: visibleNodes, edges: visibleEdges } = useViewerStore(
-    useShallow((s) => s.getVisibleGraph()),
+  const visibleEdges = useViewerStore(
+    useShallow((s) => s.getVisibleGraph().edges),
   );
 
   const { nodes: flowNodes, edges: flowEdges } = useMemo(
-    () => toFlowElements({ nodes: visibleNodes, edges: visibleEdges }),
-    [visibleNodes, visibleEdges],
+    () => toFlowElementsV2(visibleTypeNames, visibleEdges, anchorType, dimensions),
+    [visibleTypeNames, visibleEdges, anchorType, dimensions],
   );
 
-  const initialNodes = useMemo((): Node[] => flowNodes, [flowNodes]);
-  const initialEdges = useMemo((): Edge[] => flowEdges, [flowEdges]);
-
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(flowNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(flowEdges);
   const nodesInitialized = useNodesInitialized();
   const reactFlow = useReactFlow();
   const layoutDone = useRef(false);
@@ -71,13 +59,6 @@ const FgaGraphInner = () => {
   const prevParseVersion = useRef(parseVersion);
   const nodesRef = useRef(nodes);
   const edgesRef = useRef(edges);
-
-  // Transition guard: incremented on each navigation to abort stale transitions
-  const transitionIdRef = useRef(0);
-  // Previous navStackLength to detect changes
-  const prevNavStackLengthRef = useRef(navStackLength);
-  // Previous collapsedCards size to detect collapse changes
-  const prevCollapsedSizeRef = useRef(collapsedCards.size);
 
   useEffect(() => {
     nodesRef.current = nodes;
@@ -87,17 +68,19 @@ const FgaGraphInner = () => {
     edgesRef.current = edges;
   }, [edges]);
 
+  // Sync flow elements when inputs change
   useEffect(() => {
-    setNodes(initialNodes);
-    setEdges(initialEdges);
+    setNodes(flowNodes);
+    setEdges(flowEdges);
     layoutDone.current = false;
-    setLayoutReady(false);
-  }, [initialNodes, initialEdges, setNodes, setEdges]);
+    setLayoutReady(false); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [flowNodes, flowEdges, setNodes, setEdges]);
 
+  // Run ELK layout once nodes are initialized
   useEffect(() => {
     if (!nodesInitialized || nodesRef.current.length === 0 || layoutDone.current) return;
     let cancelled = false;
-    getLayoutedElements(
+    getLayoutedElementsV2(
       nodesRef.current,
       edgesRef.current,
       layoutDirection,
@@ -118,6 +101,7 @@ const FgaGraphInner = () => {
     };
   }, [nodesInitialized, layoutDirection, setNodes, setEdges, reactFlow]);
 
+  // Reset layout when parseVersion changes
   useEffect(() => {
     if (parseVersion !== prevParseVersion.current) {
       prevParseVersion.current = parseVersion;
@@ -125,165 +109,10 @@ const FgaGraphInner = () => {
     }
   }, [parseVersion]);
 
+  // Reset layout when direction changes
   useEffect(() => {
     layoutDone.current = false;
   }, [layoutDirection]);
-
-  // ── Two-phase subgraph transition ──────────────────────────────────────────
-
-  useEffect(() => {
-    // Only run when navStackLength actually changes
-    if (navStackLength === prevNavStackLengthRef.current) return;
-    const wasInSubgraph = prevNavStackLengthRef.current > 0;
-    prevNavStackLengthRef.current = navStackLength;
-
-    // Increment transition ID to guard against rapid navigation
-    transitionIdRef.current += 1;
-    const transitionId = transitionIdRef.current;
-    setIsTransitioning(true);
-
-    if (navStackLength === 0) {
-      // ── Returning to overview ─────────────────────────────────────────────
-      // Only animate if we were previously in a subgraph
-      if (wasInSubgraph) {
-        // Reset layout to rebuild full graph from scratch
-        layoutDone.current = false;
-        setLayoutReady(false);
-
-        // Restore all nodes from flow data (the initialNodes/initialEdges
-        // effect will trigger with the full set from getVisibleGraph)
-        setNodes(initialNodes);
-        setEdges(initialEdges);
-
-        // The existing layout effect will pick up layoutDone.current = false
-        // and re-layout. After that, fitView runs.
-        setTimeout(() => {
-          if (transitionIdRef.current !== transitionId) return;
-          setIsTransitioning(false);
-        }, PHASE2_DELAY_MS + POSITION_ANIM_MS + 200);
-      } else {
-        setIsTransitioning(false);
-      }
-      return;
-    }
-
-    // ── Navigating into subgraph ──────────────────────────────────────────
-    const state = useViewerStore.getState();
-    const currentFrame = state.navigationStack[state.navigationStack.length - 1];
-    if (!currentFrame) {
-      setIsTransitioning(false);
-      return;
-    }
-    const visibleTypeIds = currentFrame.visibleTypeIds;
-
-    // Phase 1: Fade out non-visible nodes and their edges
-    setNodes((prevNodes) =>
-      prevNodes.map((n) => ({
-        ...n,
-        style: {
-          ...n.style,
-          opacity: visibleTypeIds.has(n.id) ? 1 : 0,
-          transition: `opacity ${FADE_OUT_MS}ms ease-out`,
-        },
-      })),
-    );
-
-    setEdges((prevEdges) =>
-      prevEdges.map((e) => ({
-        ...e,
-        style: {
-          ...e.style,
-          opacity:
-            visibleTypeIds.has(e.source) && visibleTypeIds.has(e.target) ? 1 : 0,
-          transition: `opacity ${FADE_OUT_MS}ms ease-out`,
-        },
-      })),
-    );
-
-    // Phase 2: After fade-out completes, filter and re-layout
-    const phase2Timer = setTimeout(() => {
-      if (transitionIdRef.current !== transitionId) return;
-
-      // Filter to only visible nodes/edges
-      const filteredNodes = nodesRef.current
-        .filter((n) => visibleTypeIds.has(n.id))
-        .map((n) => ({
-          ...n,
-          style: { ...n.style, opacity: 1, transition: undefined },
-        }));
-
-      const filteredEdges = edgesRef.current
-        .filter(
-          (e) => visibleTypeIds.has(e.source) && visibleTypeIds.has(e.target),
-        )
-        .map((e) => ({
-          ...e,
-          style: { ...e.style, opacity: 1, transition: undefined },
-          // Clear elkRoute so layout computes fresh routes
-          data: { ...e.data, elkRoute: undefined },
-        }));
-
-      // Run ELK layout on the subset
-      getLayoutedElements(filteredNodes, filteredEdges, layoutDirection).then(
-        ({ nodes: laid, edges: laidEdges }) => {
-          if (transitionIdRef.current !== transitionId) return;
-          setNodes(laid);
-          setEdges(laidEdges);
-
-          // After CSS transform animation completes, fitView
-          setTimeout(() => {
-            if (transitionIdRef.current !== transitionId) return;
-            reactFlow.fitView({ duration: 200, padding: 0.08 });
-            setTimeout(() => {
-              if (transitionIdRef.current !== transitionId) return;
-              setIsTransitioning(false);
-            }, 220);
-          }, POSITION_ANIM_MS);
-        },
-      );
-    }, PHASE2_DELAY_MS);
-
-    return () => {
-      clearTimeout(phase2Timer);
-    };
-    // navStackLength is the key trigger; layoutDirection for re-layout params
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navStackLength]);
-
-  // ── Card collapse re-layout ────────────────────────────────────────────────
-
-  useEffect(() => {
-    const currentSize = collapsedCards.size;
-    if (currentSize === prevCollapsedSizeRef.current) return;
-    prevCollapsedSizeRef.current = currentSize;
-
-    // Wait one rAF for React to render the collapsed/expanded card,
-    // then trigger ELK re-layout with updated dimensions
-    const rafId = requestAnimationFrame(() => {
-      layoutDone.current = false;
-      // Force re-layout by resetting the flag; the existing layout effect
-      // won't run because nodesInitialized is already true and nodes haven't
-      // changed. We need to trigger layout directly.
-      const currentNodes = nodesRef.current;
-      const currentEdges = edgesRef.current;
-
-      getLayoutedElements(currentNodes, currentEdges, layoutDirection).then(
-        ({ nodes: laid, edges: laidEdges }) => {
-          setNodes(laid);
-          setEdges(laidEdges);
-          layoutDone.current = true;
-          setTimeout(() => {
-            reactFlow.fitView({ duration: 200, padding: 0.08 });
-          }, POSITION_ANIM_MS);
-        },
-      );
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collapsedCards]);
 
   // ─── Callbacks ─────────────────────────────────────────────────────────────
 
@@ -294,23 +123,14 @@ const FgaGraphInner = () => {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      selectNode(node.id);
+      setAnchorType(node.id);
     },
-    [selectNode],
-  );
-
-  const onEdgeClick = useCallback(
-    (_: React.MouseEvent, edge: Edge) => {
-      selectEdge(edge.id);
-    },
-    [selectEdge],
+    [setAnchorType],
   );
 
   const onPaneClick = useCallback(() => {
-    selectEdge(null);
     clearHover();
-    if (focusMode === 'neighborhood') setFocusMode('overview');
-  }, [selectEdge, clearHover, focusMode, setFocusMode]);
+  }, [clearHover]);
 
   const onNodeDragStart = useCallback(
     (_event: React.MouseEvent, _node: Node, draggedNodes: Node[]) => {
@@ -346,7 +166,6 @@ const FgaGraphInner = () => {
         edgeTypes={edgeTypes}
         onInit={onInit}
         onNodeClick={onNodeClick}
-        onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         onNodeDragStart={onNodeDragStart}
         fitView

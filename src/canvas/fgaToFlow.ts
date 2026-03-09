@@ -1,3 +1,4 @@
+// V1 — remove in Phase 6
 /**
  * Converts an AuthorizationGraph into React Flow elements using the ERD-card pipeline.
  *

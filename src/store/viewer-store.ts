@@ -200,6 +200,8 @@ interface ViewerStore {
   showAllTypes: boolean;
   visibleTypeNames: string[];
   visibleEdges: AuthorizationEdge[];
+  /** V2: the type name containing the currently selected anchor */
+  anchorType: string | null;
 
   // UI
   panelOpen: boolean;
@@ -227,6 +229,7 @@ interface ViewerStore {
   resetFilters: () => void;
 
   // ── Anchor actions (v2) ──
+  setAnchorType: (typeName: string | null) => void;
   setPermissionAnchor: (nodeId: string) => void;
   setRoleAnchor: (nodeId: string) => void;
   setCheckerAnchor: (subjectId: string, targetId: string) => void;
@@ -239,6 +242,9 @@ interface ViewerStore {
   setPanelTab: (tab: 'editor' | 'inspector') => void;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
+
+  /** V2: unique type names from the visible graph */
+  getVisibleTypeNames: () => string[];
 
   /** Derived: filtered + focus-mode-scoped graph for rendering */
   getVisibleGraph: () => AuthorizationGraph;
@@ -269,6 +275,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   showAllTypes: false,
   visibleTypeNames: [],
   visibleEdges: [],
+  anchorType: null,
   panelOpen: true,
   panelTab: 'editor' as const,
   searchOpen: false,
@@ -504,6 +511,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
 
   // ── Anchor actions (v2) ──────────────────────────────────────────────────
 
+  setAnchorType: (anchorType) => set({ anchorType }),
+
   setPermissionAnchor: (nodeId) => {
     const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
     const result = resolvePermission(nodeId, nodes, edges);
@@ -560,6 +569,15 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     const newShowAllTypes = !showAllTypes;
     const visibility = computeVisibility(anchor, newShowAllTypes, availableTypes, nodes, edges);
     set({ showAllTypes: newShowAllTypes, ...visibility });
+  },
+
+  getVisibleTypeNames: () => {
+    const { nodes: visibleNodes } = get().getVisibleGraph();
+    const typeSet = new Set<string>();
+    for (const node of visibleNodes) {
+      typeSet.add(node.type);
+    }
+    return [...typeSet];
   },
 
   getVisibleGraph: () => {
