@@ -14,6 +14,7 @@ import type {
 } from "../types";
 import { buildAuthorizationGraph } from "../parser/parse-model";
 import { SAMPLE_FGA_MODEL } from "../parser/sample-model";
+import { resolvePermission, auditRole, checkPermission } from "../graph/resolution";
 import { detectDimensions } from "../dimensions/detect";
 import { assignDimensionColors } from "../theme/dimensions";
 import {
@@ -54,6 +55,39 @@ function visibleGraphCacheKey(
     return `${parseVersion}|${nodes.length}|${edges.length}|${filtersStr}|overview`;
   }
   return `${parseVersion}|${nodes.length}|${edges.length}|${filtersStr}|${focusMode}|${selectedNodeId}|${neighborhoodHops}`;
+}
+
+// ─── Anchor persistence ─────────────────────────────────────────────────────
+
+const ANCHOR_STORAGE_KEY = "openfga-viewer-anchor";
+
+interface PersistedAnchor {
+  kind: 'permission' | 'role' | 'checker';
+  nodeId?: string;
+  subjectNodeId?: string;
+  targetNodeId?: string;
+}
+
+function persistAnchor(anchor: PersistedAnchor): void {
+  try {
+    localStorage.setItem(ANCHOR_STORAGE_KEY, JSON.stringify(anchor));
+  } catch {
+    // localStorage full or unavailable
+  }
+}
+
+function clearPersistedAnchor(): void {
+  localStorage.removeItem(ANCHOR_STORAGE_KEY);
+}
+
+function loadPersistedAnchor(): PersistedAnchor | null {
+  try {
+    const raw = localStorage.getItem(ANCHOR_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedAnchor;
+  } catch {
+    return null;
+  }
 }
 
 // ─── Store shape ────────────────────────────────────────────────────────────
@@ -192,7 +226,42 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         focusMode: "overview",
         navigationStack: [],
         collapsedCards: new Set(),
+        anchor: null,
       });
+
+      // Recompute persisted anchor (v2)
+      const persisted = loadPersistedAnchor();
+      if (persisted) {
+        const freshNodes = get().nodes;
+        const freshEdges = get().edges;
+        if (persisted.kind === 'permission' && persisted.nodeId) {
+          const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
+          if (nodeExists) {
+            const result = resolvePermission(persisted.nodeId, freshNodes, freshEdges);
+            set({ anchor: { kind: 'permission', nodeId: persisted.nodeId, result } });
+          }
+        } else if (persisted.kind === 'role' && persisted.nodeId) {
+          const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
+          if (nodeExists) {
+            const result = auditRole(persisted.nodeId, freshNodes, freshEdges);
+            set({ anchor: { kind: 'role', nodeId: persisted.nodeId, result } });
+          }
+        } else if (persisted.kind === 'checker' && persisted.subjectNodeId && persisted.targetNodeId) {
+          const subjectExists = freshNodes.some((n) => n.id === persisted.subjectNodeId);
+          const targetExists = freshNodes.some((n) => n.id === persisted.targetNodeId);
+          if (subjectExists && targetExists) {
+            const result = checkPermission(persisted.subjectNodeId, persisted.targetNodeId, freshNodes, freshEdges);
+            set({
+              anchor: {
+                kind: 'checker',
+                subjectNodeId: persisted.subjectNodeId,
+                targetNodeId: persisted.targetNodeId,
+                result,
+              },
+            });
+          }
+        }
+      }
     } catch (e) {
       set({
         parseError: e instanceof Error ? e.message : String(e),
@@ -207,6 +276,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         focusMode: "overview",
         navigationStack: [],
         collapsedCards: new Set(),
+        anchor: null,
       });
     }
   },
@@ -348,25 +418,45 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
 
   // ── Anchor actions (v2) ──────────────────────────────────────────────────
 
-  setPermissionAnchor: (_nodeId) => {
-    // TODO: Batch 2 — call resolvePermission() and set anchor
-    void _nodeId;
+  setPermissionAnchor: (nodeId) => {
+    const { nodes, edges, recentlyVisited } = get();
+    const result = resolvePermission(nodeId, nodes, edges);
+    const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
+    set({
+      anchor: { kind: 'permission', nodeId, result },
+      recentlyVisited: updatedRecent,
+    });
+    persistAnchor({ kind: 'permission', nodeId });
   },
 
-  setRoleAnchor: (_nodeId) => {
-    // TODO: Batch 2 — call auditRole() and set anchor
-    void _nodeId;
+  setRoleAnchor: (nodeId) => {
+    const { nodes, edges, recentlyVisited } = get();
+    const result = auditRole(nodeId, nodes, edges);
+    const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
+    set({
+      anchor: { kind: 'role', nodeId, result },
+      recentlyVisited: updatedRecent,
+    });
+    persistAnchor({ kind: 'role', nodeId });
   },
 
-  setCheckerAnchor: (_subjectId, _targetId) => {
-    // TODO: Batch 2 — call checkPermission() and set anchor
-    void _subjectId;
-    void _targetId;
+  setCheckerAnchor: (subjectId, targetId) => {
+    const { nodes, edges } = get();
+    const result = checkPermission(subjectId, targetId, nodes, edges);
+    set({
+      anchor: { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId, result },
+    });
+    persistAnchor({ kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId });
   },
 
-  clearAnchor: () => set({ anchor: null }),
+  clearAnchor: () => {
+    set({ anchor: null });
+    clearPersistedAnchor();
+  },
 
-  toggleShowAllTypes: () => set((s) => ({ showAllTypes: !s.showAllTypes })),
+  toggleShowAllTypes: () => {
+    set((s) => ({ showAllTypes: !s.showAllTypes }));
+  },
 
   getVisibleTypeNames: () => {
     // TODO: Batch 2 — derive from anchor result
