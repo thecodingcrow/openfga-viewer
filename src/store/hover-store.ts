@@ -27,6 +27,7 @@ interface HoverStore {
     nodes: AuthorizationNode[],
     edges: AuthorizationEdge[],
   ) => void;
+  setHighlightedEdges: (edgeIds: string[]) => void;
   clearHover: () => void;
 }
 
@@ -70,6 +71,21 @@ export const useHoverStore = create<HoverStore>((set) => ({
       highlightedNodeIds: nodeIds,
       highlightedEdgeIds: edgeIds,
       highlightedRowIds: rowIds,
+      isHoverActive: true,
+    });
+  },
+
+  setHighlightedEdges: (edgeIds) => {
+    if (edgeIds.length === 0) {
+      set(CLEAR_STATE);
+      return;
+    }
+    set({
+      hoveredRowId: null,
+      hoveredCardTypeId: null,
+      highlightedNodeIds: EMPTY_SET,
+      highlightedEdgeIds: new Set(edgeIds),
+      highlightedRowIds: EMPTY_SET,
       isHoverActive: true,
     });
   },
