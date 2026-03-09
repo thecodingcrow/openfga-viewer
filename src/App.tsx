@@ -2,6 +2,7 @@ import { useEffect, useCallback } from "react";
 import Canvas from "./canvas/Canvas";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
+import Sidebar from "./sidebar/Sidebar";
 import { useViewerStore } from "./store/viewer-store";
 
 const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
@@ -104,10 +105,13 @@ const App = () => {
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <div className="relative flex-1 min-h-0">
-        <Canvas />
-        <EditorPanel />
-        <Toolbar />
+      <div className="relative flex-1 min-h-0 flex">
+        <div className="relative flex-1 min-w-0">
+          <Canvas />
+          <EditorPanel />
+          <Toolbar />
+        </div>
+        <Sidebar />
       </div>
     </div>
   );
