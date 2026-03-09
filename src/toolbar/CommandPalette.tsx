@@ -1,3 +1,4 @@
+// V1 — remove in Phase 6
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import Fuse from "fuse.js";
 import { useViewerStore } from "../store/viewer-store";
