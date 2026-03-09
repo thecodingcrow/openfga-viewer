@@ -1,19 +1,11 @@
 import { useViewerStore } from "../store/viewer-store";
 import FgaEditor from "./FgaEditor";
-import InspectContent from "../inspect/InspectPanel";
 
 const PANEL_WIDTH = 480;
 
-const TAB_ITEMS: { key: 'editor' | 'inspector'; label: string }[] = [
-  { key: 'editor', label: 'Editor' },
-  { key: 'inspector', label: 'Inspector' },
-];
-
 const EditorPanel = () => {
   const panelOpen = useViewerStore((s) => s.panelOpen);
-  const panelTab = useViewerStore((s) => s.panelTab);
   const togglePanel = useViewerStore((s) => s.togglePanel);
-  const setPanelTab = useViewerStore((s) => s.setPanelTab);
   const parseError = useViewerStore((s) => s.parseError);
 
   return (
@@ -34,7 +26,7 @@ const EditorPanel = () => {
           : "none",
       }}
     >
-      {/* Header with tabs */}
+      {/* Header */}
       <div
         className="flex items-center justify-between px-4 shrink-0"
         style={{
@@ -42,32 +34,12 @@ const EditorPanel = () => {
           borderBottom: "1px solid var(--color-border-subtle)",
         }}
       >
-        {/* Tab buttons */}
-        <div className="flex items-center gap-3">
-          {TAB_ITEMS.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setPanelTab(tab.key)}
-              className="text-xs font-semibold tracking-wider uppercase cursor-pointer pb-px relative"
-              style={{
-                color: panelTab === tab.key ? "var(--color-accent)" : "var(--color-text-secondary)",
-                background: "transparent",
-                border: "none",
-                borderBottom: panelTab === tab.key
-                  ? "2px solid var(--color-accent)"
-                  : "2px solid transparent",
-              }}
-              onMouseEnter={(e) => {
-                if (panelTab !== tab.key) e.currentTarget.style.color = "var(--color-accent)";
-              }}
-              onMouseLeave={(e) => {
-                if (panelTab !== tab.key) e.currentTarget.style.color = "var(--color-text-secondary)";
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <span
+          className="text-xs font-semibold tracking-wider uppercase"
+          style={{ color: "var(--color-accent)" }}
+        >
+          Editor
+        </span>
 
         {/* Right side: shortcut badge + close */}
         <div className="flex items-center gap-1.5">
@@ -99,28 +71,22 @@ const EditorPanel = () => {
         </div>
       </div>
 
-      {/* Tab content */}
-      {panelTab === 'editor' ? (
-        <>
-          <div className="flex-1 min-h-0">
-            <FgaEditor />
-          </div>
+      {/* Editor content */}
+      <div className="flex-1 min-h-0">
+        <FgaEditor />
+      </div>
 
-          {parseError && (
-            <div
-              className="px-3 py-1.5 text-xs shrink-0"
-              style={{
-                color: "var(--color-danger)",
-                background: "rgba(239, 68, 68, 0.05)",
-                borderTop: "1px solid rgba(239, 68, 68, 0.12)",
-              }}
-            >
-              {parseError}
-            </div>
-          )}
-        </>
-      ) : (
-        <InspectContent />
+      {parseError && (
+        <div
+          className="px-3 py-1.5 text-xs shrink-0"
+          style={{
+            color: "var(--color-danger)",
+            background: "rgba(239, 68, 68, 0.05)",
+            borderTop: "1px solid rgba(239, 68, 68, 0.12)",
+          }}
+        >
+          {parseError}
+        </div>
       )}
     </div>
   );

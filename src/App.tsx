@@ -16,8 +16,6 @@ const App = () => {
   const setSource = useViewerStore((s) => s.setSource);
   const nodes = useViewerStore((s) => s.nodes);
   const fgaSource = useViewerStore((s) => s.fgaSource);
-  const popSubgraph = useViewerStore((s) => s.popSubgraph);
-  const navDepth = useViewerStore((s) => s.navigationStack.length);
 
   const hasModel = nodes.length > 0;
 
@@ -44,14 +42,8 @@ const App = () => {
         e.preventDefault();
         document.querySelector<HTMLInputElement>(".search-bar-input")?.focus();
       }
-      if (e.key === "Escape") {
-        if (navDepth > 0) {
-          popSubgraph();
-          window.history.back();
-        }
-      }
     },
-    [togglePanel, navDepth, popSubgraph],
+    [togglePanel],
   );
 
   useEffect(() => {
@@ -73,18 +65,6 @@ const App = () => {
 
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
-  }, []);
-
-  useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      const targetDepth = (e.state as { stackDepth?: number })?.stackDepth ?? 0;
-      const currentDepth = useViewerStore.getState().navigationStack.length;
-      if (targetDepth < currentDepth) {
-        useViewerStore.getState().jumpToLevel(targetDepth);
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
   useEffect(() => {
