@@ -68,45 +68,10 @@ export interface AuthorizationGraph {
   edges: AuthorizationEdge[];
 }
 
-/** Exploration focus mode */
-export type FocusMode = "overview" | "neighborhood";
-
-/** Graph filter state */
-export interface GraphFilters {
-  /** Show only these types (empty array = show all) */
-  types: string[];
-}
-
 /** Dagre layout direction (top-to-bottom or left-to-right) */
 export type LayoutDirection = "TB" | "LR";
 
-// ─── Navigation types ────────────────────────────────────────────────────────
-
-/** A single frame in the subgraph navigation stack */
-export interface NavigationFrame {
-  /** The node ID that was clicked to enter this subgraph */
-  entryNodeId: string;
-  /** Direction of traversal */
-  direction: "upstream" | "downstream";
-  /** Display label for breadcrumb (e.g., "document#can_view" or "user") */
-  label: string;
-  /** Type names of cards visible in this subgraph */
-  visibleTypeIds: Set<string>;
-  /** Row IDs (AuthorizationNode IDs) that are "relevant" (non-dimmed) */
-  relevantRowIds: Set<string>;
-}
-
-/** A dimension that references itself (e.g., parent category hierarchy) */
-export interface SelfReferencingDimension {
-  /** Dimension name */
-  dimensionName: string;
-  /** The type that self-references */
-  typeName: string;
-  /** Tooltip text explaining the self-reference */
-  tooltip: string;
-}
-
-// ─── Dimension & Schema Card types ──────────────────────────────────────────
+// ─── Dimension types ────────────────────────────────────────────────────────
 
 /** A structural dimension detected from TTU tupleset patterns */
 export interface Dimension {
@@ -122,30 +87,6 @@ export interface Dimension {
 
 /** Classification of a visual edge */
 export type EdgeClassification = "type-restriction" | "dimension";
-
-/** A row in an ERD schema card */
-export interface CardRow {
-  /** Node ID — e.g., "client#admin" — matches AuthorizationNode.id */
-  id: string;
-  /** Display name — e.g., "admin" */
-  name: string;
-  /** Which section this row belongs to */
-  section: "binding" | "relation" | "permission";
-  /** Transformed expression for display (permissions only) */
-  expression?: string;
-  /** Dimension color for binding dots (bindings only) */
-  dimensionColor?: string;
-  /** Dimension color if this row has an incoming TTU edge (inherited permission) */
-  ttuDimensionColor?: string;
-}
-
-/** Data for a single ERD schema card (one per FGA type) */
-export interface SchemaCard {
-  /** FGA type name — e.g., "client" */
-  typeName: string;
-  /** All rows in display order: bindings, then relations, then permissions */
-  rows: CardRow[];
-}
 
 // ─── Anchor types (v2) ──────────────────────────────────────────────────────
 
