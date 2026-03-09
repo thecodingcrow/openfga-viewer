@@ -85,10 +85,7 @@ export interface Dimension {
   edgeIds: Set<string>;
 }
 
-/** Classification of a visual edge */
-export type EdgeClassification = "type-restriction" | "dimension";
-
-// ─── Anchor types (v2) ──────────────────────────────────────────────────────
+// ─── Anchor types ───────────────────────────────────────────────────────────
 
 export type AnchorKind = 'permission' | 'role' | 'checker';
 

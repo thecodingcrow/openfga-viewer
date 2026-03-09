@@ -141,7 +141,7 @@ interface ViewerStore {
   // Layout
   layoutDirection: LayoutDirection;
 
-  // ── Anchor (v2) ──
+  // ── Anchor ──
   anchor: Anchor | null;
   showAllTypes: boolean;
   visibleTypeNames: string[];
@@ -161,7 +161,7 @@ interface ViewerStore {
   parse: (src?: string) => void;
   setLayoutDirection: (dir: LayoutDirection) => void;
 
-  // ── Anchor actions (v2) ──
+  // ── Anchor actions ──
   setAnchorType: (typeName: string | null) => void;
   setPermissionAnchor: (nodeId: string) => void;
   setRoleAnchor: (nodeId: string) => void;
@@ -219,7 +219,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         visibleEdges: [],
       });
 
-      // Recompute persisted anchor (v2)
+      // Recompute persisted anchor
       const persisted = loadPersistedAnchor();
       if (persisted) {
         const freshNodes = get().nodes;
@@ -280,7 +280,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
   setPanelOpen: (open) => set({ panelOpen: open }),
 
-  // ── Anchor actions (v2) ──────────────────────────────────────────────────
+  // ── Anchor actions ──────────────────────────────────────────────────────
 
   setAnchorType: (anchorType) => set({ anchorType }),
 

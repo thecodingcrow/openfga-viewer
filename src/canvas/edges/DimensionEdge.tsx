@@ -4,7 +4,6 @@ import {
   getSmoothStepPath,
   type EdgeProps,
 } from "@xyflow/react";
-import type { EdgeClassification } from "../../types";
 import type { Point } from "../../layout/elk-path";
 import { elkPointsToPath } from "../../layout/elk-path";
 import { TYPE_RESTRICTION_COLOR } from "../../theme/dimensions";
@@ -12,11 +11,9 @@ import { useHoverStore } from "../../store/hover-store";
 
 /** Edge data passed via React Flow edge.data */
 interface DimensionEdgeData {
-  classification: EdgeClassification;
+  color?: string;
   dimensionColor?: string;
   elkRoute?: { points: Point[] };
-  /** Opacity override for hover dimming (Plan 04) */
-  opacity?: number;
   [key: string]: unknown;
 }
 
@@ -45,14 +42,10 @@ function DimensionEdgeComponent(props: EdgeProps) {
   const isHoverActive = useHoverStore((s) => s.isHoverActive);
   const highlightedEdgeIds = useHoverStore((s) => s.highlightedEdgeIds);
 
-  // Determine stroke color based on edge classification
-  const strokeColor =
-    d?.classification === "dimension"
-      ? (d.dimensionColor ?? TYPE_RESTRICTION_COLOR)
-      : TYPE_RESTRICTION_COLOR;
+  // Determine stroke color from edge data
+  const strokeColor = d?.color ?? d?.dimensionColor ?? TYPE_RESTRICTION_COLOR;
 
-  // Determine opacity: transition opacity (from FgaGraph) takes precedence,
-  // otherwise use hover-based dimming
+  // Determine opacity: style opacity takes precedence, otherwise use hover-based dimming
   const transitionOpacity = edgeStyle?.opacity;
   const hoverOpacity = isHoverActive
     ? highlightedEdgeIds.has(id) ? 1.0 : 0.08
@@ -97,10 +90,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
  */
 function DimensionEdgeWithMarker(props: EdgeProps) {
   const d = props.data as DimensionEdgeData | undefined;
-  const strokeColor =
-    d?.classification === "dimension"
-      ? (d.dimensionColor ?? TYPE_RESTRICTION_COLOR)
-      : TYPE_RESTRICTION_COLOR;
+  const strokeColor = d?.color ?? d?.dimensionColor ?? TYPE_RESTRICTION_COLOR;
 
   return (
     <>

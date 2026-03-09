@@ -15,7 +15,7 @@ const MAX_TOOLTIP_WIDTH = 400;
  * but ONLY when the text is truncated (scrollWidth > clientWidth).
  *
  * Uses createPortal to render the tooltip into document.body so it is
- * never clipped by parent overflow:hidden containers (e.g. TypeCardNode).
+ * never clipped by parent overflow:hidden containers.
  *
  * Mouse handlers are scoped to the span element only. They do NOT
  * call stopPropagation, so parent row hover handlers still fire normally.

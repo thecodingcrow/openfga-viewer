@@ -70,7 +70,7 @@ const COMPACT_NODE_W = 120;
 const COMPACT_NODE_H = 40;
 
 /**
- * V2 layout for compact type nodes — no ports, fixed dimensions.
+ * Layout for compact type nodes — no ports, fixed dimensions.
  * Uses the same ELK layered algorithm and LRU cache.
  */
 export async function getLayoutedElementsV2(

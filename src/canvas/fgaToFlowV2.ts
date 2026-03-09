@@ -3,7 +3,7 @@ import type { AuthorizationEdge, Dimension } from "../types";
 import type { CompactTypeData } from "./nodes/CompactTypeNode";
 import { TYPE_RESTRICTION_COLOR } from "../theme/dimensions";
 
-/** Edge data for v2 type-level edges */
+/** Edge data for type-level edges */
 interface TypeLevelEdgeData {
   /** Aggregated relation labels */
   label: string;
@@ -14,7 +14,7 @@ interface TypeLevelEdgeData {
 
 /**
  * Convert visible type names and authorization edges into React Flow elements
- * for the compact v2 graph.
+ * for the compact graph.
  *
  * - One React Flow node per type name (CompactTypeNode)
  * - Edges deduplicated to type-level: multiple relation edges between the same
