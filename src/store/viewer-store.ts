@@ -25,6 +25,7 @@ import {
   detectSelfReferencingDimensions,
 } from "../graph/traversal";
 import type { ReactFlowInstance } from "@xyflow/react";
+import type { ResolutionBranch } from "../graph/resolution-types";
 
 const STORAGE_KEY = "openfga-viewer-source";
 
@@ -87,6 +88,18 @@ function loadPersistedAnchor(): PersistedAnchor | null {
     return JSON.parse(raw) as PersistedAnchor;
   } catch {
     return null;
+  }
+}
+
+// ─── Anchor → visible types extraction ──────────────────────────────────────
+
+function collectTypesFromResolutionTree(
+  branches: ResolutionBranch[],
+  types: Set<string>,
+): void {
+  for (const branch of branches) {
+    types.add(branch.type);
+    collectTypesFromResolutionTree(branch.children, types);
   }
 }
 
@@ -459,13 +472,73 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   },
 
   getVisibleTypeNames: () => {
-    // TODO: Batch 2 — derive from anchor result
-    return get().availableTypes;
+    const { anchor, showAllTypes, availableTypes, nodes } = get();
+
+    if (showAllTypes) {
+      return availableTypes;
+    }
+
+    if (!anchor) {
+      return [];
+    }
+
+    const types = new Set<string>();
+
+    switch (anchor.kind) {
+      case 'permission': {
+        // The permission's own type
+        const permNode = nodes.find((n) => n.id === anchor.nodeId);
+        if (permNode) types.add(permNode.type);
+        // All types in the resolution tree
+        collectTypesFromResolutionTree(anchor.result.tree, types);
+        break;
+      }
+      case 'role': {
+        // The role's own type
+        const roleNode = nodes.find((n) => n.id === anchor.nodeId);
+        if (roleNode) types.add(roleNode.type);
+        // All types that have reachable permissions
+        for (const typeName of anchor.result.permissions.keys()) {
+          types.add(typeName);
+        }
+        break;
+      }
+      case 'checker': {
+        const subjectNode = nodes.find((n) => n.id === anchor.subjectNodeId);
+        const targetNode = nodes.find((n) => n.id === anchor.targetNodeId);
+        if (subjectNode) types.add(subjectNode.type);
+        if (targetNode) types.add(targetNode.type);
+        // If reachable, add types along the path
+        if (anchor.result.path) {
+          for (const nodeId of anchor.result.path) {
+            types.add(nodeId.split('#')[0]);
+          }
+        }
+        break;
+      }
+    }
+
+    return [...types].sort();
   },
 
   getVisibleEdges: () => {
-    // TODO: Batch 2 — derive from anchor result
-    return get().edges;
+    const { anchor, showAllTypes, edges } = get();
+
+    if (showAllTypes) {
+      return edges;
+    }
+
+    if (!anchor) {
+      return [];
+    }
+
+    const visibleTypes = new Set(get().getVisibleTypeNames());
+
+    return edges.filter((e) => {
+      const sourceType = e.source.split('#')[0];
+      const targetType = e.target.split('#')[0];
+      return visibleTypes.has(sourceType) && visibleTypes.has(targetType);
+    });
   },
 
   getVisibleGraph: () => {
