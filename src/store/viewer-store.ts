@@ -10,6 +10,7 @@ import type {
   GraphFilters,
   NavigationFrame,
   SelfReferencingDimension,
+  Anchor,
 } from "../types";
 import { buildAuthorizationGraph } from "../parser/parse-model";
 import { SAMPLE_FGA_MODEL } from "../parser/sample-model";
@@ -72,7 +73,7 @@ interface ViewerStore {
   // Layout
   layoutDirection: LayoutDirection;
 
-  // Exploration
+  // ── V1 — remove in Phase 6 ───────────────────────────────────────────────
   focusMode: FocusMode;
   selectedNodeId: string | null;
   selectedEdgeId: string | null;
@@ -88,6 +89,10 @@ interface ViewerStore {
   recentlyVisited: string[];
   selfReferencingDimensions: SelfReferencingDimension[];
 
+  // ── Anchor (v2) ──
+  anchor: Anchor | null;
+  showAllTypes: boolean;
+
   // UI
   panelOpen: boolean;
   panelTab: 'editor' | 'inspector';
@@ -99,25 +104,28 @@ interface ViewerStore {
   parse: (src?: string) => void;
   setLayoutDirection: (dir: LayoutDirection) => void;
 
+  // ── V1 — remove in Phase 6 ───────────────────────────────────────────────
   selectNode: (id: string | null) => void;
   selectEdge: (id: string | null) => void;
-
   setFocusMode: (mode: FocusMode) => void;
   setNeighborhoodHops: (hops: number) => void;
+  navigateToSubgraph: (nodeId: string, direction: 'upstream' | 'downstream') => void;
+  popSubgraph: () => void;
+  jumpToLevel: (index: number) => void;
+  toggleCardCollapse: (typeName: string) => void;
+  toggleDimmedRowsHidden: () => void;
 
   setFilter: (partial: Partial<GraphFilters>) => void;
   resetFilters: () => void;
 
-  // Navigation actions
-  navigateToSubgraph: (nodeId: string, direction: 'upstream' | 'downstream') => void;
-  popSubgraph: () => void;
-  jumpToLevel: (index: number) => void;
-
-  // Card collapse
-  toggleCardCollapse: (typeName: string) => void;
-
-  // Dimmed rows toggle
-  toggleDimmedRowsHidden: () => void;
+  // ── Anchor actions (v2) ──
+  setPermissionAnchor: (nodeId: string) => void;
+  setRoleAnchor: (nodeId: string) => void;
+  setCheckerAnchor: (subjectId: string, targetId: string) => void;
+  clearAnchor: () => void;
+  toggleShowAllTypes: () => void;
+  getVisibleTypeNames: () => string[];
+  getVisibleEdges: () => AuthorizationEdge[];
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
   togglePanel: () => void;
@@ -151,6 +159,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   dimmedRowsHidden: false,
   recentlyVisited: [],
   selfReferencingDimensions: [],
+  anchor: null,
+  showAllTypes: false,
   panelOpen: true,
   panelTab: 'editor' as const,
   searchOpen: false,
@@ -335,6 +345,38 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   setPanelTab: (tab) => set({ panelTab: tab, panelOpen: true }),
   toggleSearch: () => set((s) => ({ searchOpen: !s.searchOpen })),
   setSearchOpen: (open) => set({ searchOpen: open }),
+
+  // ── Anchor actions (v2) ──────────────────────────────────────────────────
+
+  setPermissionAnchor: (_nodeId) => {
+    // TODO: Batch 2 — call resolvePermission() and set anchor
+    void _nodeId;
+  },
+
+  setRoleAnchor: (_nodeId) => {
+    // TODO: Batch 2 — call auditRole() and set anchor
+    void _nodeId;
+  },
+
+  setCheckerAnchor: (_subjectId, _targetId) => {
+    // TODO: Batch 2 — call checkPermission() and set anchor
+    void _subjectId;
+    void _targetId;
+  },
+
+  clearAnchor: () => set({ anchor: null }),
+
+  toggleShowAllTypes: () => set((s) => ({ showAllTypes: !s.showAllTypes })),
+
+  getVisibleTypeNames: () => {
+    // TODO: Batch 2 — derive from anchor result
+    return get().availableTypes;
+  },
+
+  getVisibleEdges: () => {
+    // TODO: Batch 2 — derive from anchor result
+    return get().edges;
+  },
 
   getVisibleGraph: () => {
     const {

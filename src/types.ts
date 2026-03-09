@@ -1,3 +1,5 @@
+import type { ResolutionResult, RoleAuditResult, CheckResult } from "./graph/resolution-types";
+
 /**
  * Authorization model graph types — aligned with the OpenFGA specification.
  *
@@ -144,3 +146,28 @@ export interface SchemaCard {
   /** All rows in display order: bindings, then relations, then permissions */
   rows: CardRow[];
 }
+
+// ─── Anchor types (v2) ──────────────────────────────────────────────────────
+
+export type AnchorKind = 'permission' | 'role' | 'checker';
+
+export interface PermissionAnchor {
+  kind: 'permission';
+  nodeId: string;
+  result: ResolutionResult;
+}
+
+export interface RoleAnchor {
+  kind: 'role';
+  nodeId: string;
+  result: RoleAuditResult;
+}
+
+export interface CheckerAnchor {
+  kind: 'checker';
+  subjectNodeId: string;
+  targetNodeId: string;
+  result: CheckResult;
+}
+
+export type Anchor = PermissionAnchor | RoleAnchor | CheckerAnchor;
