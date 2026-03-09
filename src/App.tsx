@@ -3,23 +3,29 @@ import Canvas from "./canvas/Canvas";
 import EditorPanel from "./editor/EditorPanel";
 import Toolbar from "./toolbar/Toolbar";
 import Sidebar from "./sidebar/Sidebar";
+import SearchBar from "./search/SearchBar";
+import ModelInput from "./onboarding/ModelInput";
 import { useViewerStore } from "./store/viewer-store";
+import { readFgaFile } from "./utils/read-fga-file";
 
 const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
 
 const App = () => {
   const parse = useViewerStore((s) => s.parse);
   const togglePanel = useViewerStore((s) => s.togglePanel);
-  const toggleSearch = useViewerStore((s) => s.toggleSearch);
-  const searchOpen = useViewerStore((s) => s.searchOpen);
-  const setSearchOpen = useViewerStore((s) => s.setSearchOpen);
   const setSource = useViewerStore((s) => s.setSource);
+  const nodes = useViewerStore((s) => s.nodes);
+  const fgaSource = useViewerStore((s) => s.fgaSource);
   const popSubgraph = useViewerStore((s) => s.popSubgraph);
   const navDepth = useViewerStore((s) => s.navigationStack.length);
 
+  const hasModel = nodes.length > 0;
+
   useEffect(() => {
-    parse();
-  }, [parse]);
+    if (fgaSource.trim()) {
+      parse();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- parse persisted source once on mount
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -27,20 +33,25 @@ const App = () => {
         e.preventDefault();
         togglePanel();
       }
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      // "/" focuses search bar (only when not in input/textarea)
+      if (
+        e.key === "/" &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement)
+      ) {
         e.preventDefault();
-        toggleSearch();
+        document.querySelector<HTMLInputElement>(".search-bar-input")?.focus();
       }
       if (e.key === "Escape") {
-        if (searchOpen) {
-          setSearchOpen(false);
-        } else if (navDepth > 0) {
+        if (navDepth > 0) {
           popSubgraph();
           window.history.back();
         }
       }
     },
-    [togglePanel, toggleSearch, searchOpen, setSearchOpen, navDepth, popSubgraph],
+    [togglePanel, navDepth, popSubgraph],
   );
 
   useEffect(() => {
@@ -49,17 +60,13 @@ const App = () => {
   }, [handleKeyDown]);
 
   const handleDrop = useCallback(
-    (e: DragEvent) => {
+    async (e: DragEvent) => {
       e.preventDefault();
       const file = e.dataTransfer?.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const text = reader.result as string;
-        setSource(text);
-        parse(text);
-      };
-      reader.readAsText(file);
+      const text = await readFgaFile(file);
+      setSource(text);
+      parse(text);
     },
     [setSource, parse],
   );
@@ -89,6 +96,11 @@ const App = () => {
     };
   }, [handleDrop, handleDragOver]);
 
+  // Show model input when no model is loaded
+  if (!hasModel) {
+    return <ModelInput />;
+  }
+
   return (
     <div className="relative w-screen h-screen overflow-hidden flex flex-col">
       {SHOW_ALPHA_BANNER && (
@@ -105,11 +117,14 @@ const App = () => {
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <div className="relative flex-1 min-h-0 flex">
-        <div className="relative flex-1 min-w-0">
-          <Canvas />
-          <EditorPanel />
-          <Toolbar />
+      <div className="flex-1 min-h-0 flex">
+        <div className="flex-1 min-w-0 flex flex-col">
+          <SearchBar />
+          <div className="relative flex-1 min-h-0">
+            <Canvas />
+            <EditorPanel />
+            <Toolbar />
+          </div>
         </div>
         <Sidebar />
       </div>

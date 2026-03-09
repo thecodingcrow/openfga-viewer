@@ -24,7 +24,7 @@ const EditorPanel = () => {
         left: 0,
         top: 0,
         bottom: 0,
-        zIndex: 40,
+        zIndex: 50,
         width: PANEL_WIDTH,
         transform: panelOpen ? "translateX(0)" : "translateX(-100%)",
         transition: "transform 250ms ease-out",
