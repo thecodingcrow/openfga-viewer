@@ -103,6 +103,65 @@ function collectTypesFromResolutionTree(
   }
 }
 
+// ─── Anchor → visibility computation ─────────────────────────────────────────
+
+function computeVisibility(
+  anchor: Anchor | null,
+  showAllTypes: boolean,
+  availableTypes: string[],
+  nodes: AuthorizationNode[],
+  edges: AuthorizationEdge[],
+): { visibleTypeNames: string[]; visibleEdges: AuthorizationEdge[] } {
+  if (showAllTypes) {
+    return { visibleTypeNames: availableTypes, visibleEdges: edges };
+  }
+
+  if (!anchor) {
+    return { visibleTypeNames: [], visibleEdges: [] };
+  }
+
+  const types = new Set<string>();
+
+  switch (anchor.kind) {
+    case 'permission': {
+      const permNode = nodes.find((n) => n.id === anchor.nodeId);
+      if (permNode) types.add(permNode.type);
+      collectTypesFromResolutionTree(anchor.result.tree, types);
+      break;
+    }
+    case 'role': {
+      const roleNode = nodes.find((n) => n.id === anchor.nodeId);
+      if (roleNode) types.add(roleNode.type);
+      for (const typeName of anchor.result.permissions.keys()) {
+        types.add(typeName);
+      }
+      break;
+    }
+    case 'checker': {
+      const subjectNode = nodes.find((n) => n.id === anchor.subjectNodeId);
+      const targetNode = nodes.find((n) => n.id === anchor.targetNodeId);
+      if (subjectNode) types.add(subjectNode.type);
+      if (targetNode) types.add(targetNode.type);
+      if (anchor.result.path) {
+        for (const nodeId of anchor.result.path) {
+          types.add(nodeId.split('#')[0]);
+        }
+      }
+      break;
+    }
+  }
+
+  const visibleTypeNames = [...types].sort();
+  const visibleTypesSet = new Set(visibleTypeNames);
+  const visibleEdges = edges.filter((e) => {
+    const sourceType = e.source.split('#')[0];
+    const targetType = e.target.split('#')[0];
+    return visibleTypesSet.has(sourceType) && visibleTypesSet.has(targetType);
+  });
+
+  return { visibleTypeNames, visibleEdges };
+}
+
 // ─── Store shape ────────────────────────────────────────────────────────────
 
 interface ViewerStore {
@@ -139,6 +198,8 @@ interface ViewerStore {
   // ── Anchor (v2) ──
   anchor: Anchor | null;
   showAllTypes: boolean;
+  visibleTypeNames: string[];
+  visibleEdges: AuthorizationEdge[];
 
   // UI
   panelOpen: boolean;
@@ -171,8 +232,6 @@ interface ViewerStore {
   setCheckerAnchor: (subjectId: string, targetId: string) => void;
   clearAnchor: () => void;
   toggleShowAllTypes: () => void;
-  getVisibleTypeNames: () => string[];
-  getVisibleEdges: () => AuthorizationEdge[];
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
   togglePanel: () => void;
@@ -208,6 +267,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   selfReferencingDimensions: [],
   anchor: null,
   showAllTypes: false,
+  visibleTypeNames: [],
+  visibleEdges: [],
   panelOpen: true,
   panelTab: 'editor' as const,
   searchOpen: false,
@@ -226,10 +287,11 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
       const rawDimensions = detectDimensions({ nodes, edges });
       const dimensions = assignDimensionColors(rawDimensions);
       const selfReferencingDimensions = detectSelfReferencingDimensions(edges);
+      const availableTypes = extractTypeNames(nodes);
       set({
         nodes,
         edges,
-        availableTypes: extractTypeNames(nodes),
+        availableTypes,
         dimensions,
         selfReferencingDimensions,
         parseVersion,
@@ -240,6 +302,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         navigationStack: [],
         collapsedCards: new Set(),
         anchor: null,
+        visibleTypeNames: [],
+        visibleEdges: [],
       });
 
       // Recompute persisted anchor (v2)
@@ -247,32 +311,39 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
       if (persisted) {
         const freshNodes = get().nodes;
         const freshEdges = get().edges;
+        const { showAllTypes } = get();
+        const freshAvailableTypes = get().availableTypes;
+        let newAnchor: Anchor | null = null;
+
         if (persisted.kind === 'permission' && persisted.nodeId) {
           const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
           if (nodeExists) {
             const result = resolvePermission(persisted.nodeId, freshNodes, freshEdges);
-            set({ anchor: { kind: 'permission', nodeId: persisted.nodeId, result } });
+            newAnchor = { kind: 'permission', nodeId: persisted.nodeId, result };
           }
         } else if (persisted.kind === 'role' && persisted.nodeId) {
           const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
           if (nodeExists) {
             const result = auditRole(persisted.nodeId, freshNodes, freshEdges);
-            set({ anchor: { kind: 'role', nodeId: persisted.nodeId, result } });
+            newAnchor = { kind: 'role', nodeId: persisted.nodeId, result };
           }
         } else if (persisted.kind === 'checker' && persisted.subjectNodeId && persisted.targetNodeId) {
           const subjectExists = freshNodes.some((n) => n.id === persisted.subjectNodeId);
           const targetExists = freshNodes.some((n) => n.id === persisted.targetNodeId);
           if (subjectExists && targetExists) {
             const result = checkPermission(persisted.subjectNodeId, persisted.targetNodeId, freshNodes, freshEdges);
-            set({
-              anchor: {
-                kind: 'checker',
-                subjectNodeId: persisted.subjectNodeId,
-                targetNodeId: persisted.targetNodeId,
-                result,
-              },
-            });
+            newAnchor = {
+              kind: 'checker',
+              subjectNodeId: persisted.subjectNodeId,
+              targetNodeId: persisted.targetNodeId,
+              result,
+            };
           }
+        }
+
+        if (newAnchor) {
+          const visibility = computeVisibility(newAnchor, showAllTypes, freshAvailableTypes, freshNodes, freshEdges);
+          set({ anchor: newAnchor, ...visibility });
         }
       }
     } catch (e) {
@@ -290,6 +361,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         navigationStack: [],
         collapsedCards: new Set(),
         anchor: null,
+        visibleTypeNames: [],
+        visibleEdges: [],
       });
     }
   },
@@ -364,8 +437,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
         relevantRowIds,
       };
 
-      // Update recently visited: prepend, deduplicate, keep last 5
-      const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 5);
+      // Update recently visited: prepend, deduplicate, keep last 10
+      const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
 
       const newStack = [...navigationStack, frame];
 
@@ -432,113 +505,61 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   // ── Anchor actions (v2) ──────────────────────────────────────────────────
 
   setPermissionAnchor: (nodeId) => {
-    const { nodes, edges, recentlyVisited } = get();
+    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
     const result = resolvePermission(nodeId, nodes, edges);
+    const anchor: Anchor = { kind: 'permission', nodeId, result };
     const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
+    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
     set({
-      anchor: { kind: 'permission', nodeId, result },
+      anchor,
       recentlyVisited: updatedRecent,
+      ...visibility,
     });
     persistAnchor({ kind: 'permission', nodeId });
   },
 
   setRoleAnchor: (nodeId) => {
-    const { nodes, edges, recentlyVisited } = get();
+    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
     const result = auditRole(nodeId, nodes, edges);
+    const anchor: Anchor = { kind: 'role', nodeId, result };
     const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
+    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
     set({
-      anchor: { kind: 'role', nodeId, result },
+      anchor,
       recentlyVisited: updatedRecent,
+      ...visibility,
     });
     persistAnchor({ kind: 'role', nodeId });
   },
 
   setCheckerAnchor: (subjectId, targetId) => {
-    const { nodes, edges } = get();
+    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
     const result = checkPermission(subjectId, targetId, nodes, edges);
+    const anchor: Anchor = { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId, result };
+    const updatedRecent = [
+      targetId,
+      subjectId,
+      ...recentlyVisited.filter((id) => id !== subjectId && id !== targetId),
+    ].slice(0, 10);
+    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
     set({
-      anchor: { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId, result },
+      anchor,
+      recentlyVisited: updatedRecent,
+      ...visibility,
     });
     persistAnchor({ kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId });
   },
 
   clearAnchor: () => {
-    set({ anchor: null });
+    set({ anchor: null, visibleTypeNames: [], visibleEdges: [] });
     clearPersistedAnchor();
   },
 
   toggleShowAllTypes: () => {
-    set((s) => ({ showAllTypes: !s.showAllTypes }));
-  },
-
-  getVisibleTypeNames: () => {
-    const { anchor, showAllTypes, availableTypes, nodes } = get();
-
-    if (showAllTypes) {
-      return availableTypes;
-    }
-
-    if (!anchor) {
-      return [];
-    }
-
-    const types = new Set<string>();
-
-    switch (anchor.kind) {
-      case 'permission': {
-        // The permission's own type
-        const permNode = nodes.find((n) => n.id === anchor.nodeId);
-        if (permNode) types.add(permNode.type);
-        // All types in the resolution tree
-        collectTypesFromResolutionTree(anchor.result.tree, types);
-        break;
-      }
-      case 'role': {
-        // The role's own type
-        const roleNode = nodes.find((n) => n.id === anchor.nodeId);
-        if (roleNode) types.add(roleNode.type);
-        // All types that have reachable permissions
-        for (const typeName of anchor.result.permissions.keys()) {
-          types.add(typeName);
-        }
-        break;
-      }
-      case 'checker': {
-        const subjectNode = nodes.find((n) => n.id === anchor.subjectNodeId);
-        const targetNode = nodes.find((n) => n.id === anchor.targetNodeId);
-        if (subjectNode) types.add(subjectNode.type);
-        if (targetNode) types.add(targetNode.type);
-        // If reachable, add types along the path
-        if (anchor.result.path) {
-          for (const nodeId of anchor.result.path) {
-            types.add(nodeId.split('#')[0]);
-          }
-        }
-        break;
-      }
-    }
-
-    return [...types].sort();
-  },
-
-  getVisibleEdges: () => {
-    const { anchor, showAllTypes, edges } = get();
-
-    if (showAllTypes) {
-      return edges;
-    }
-
-    if (!anchor) {
-      return [];
-    }
-
-    const visibleTypes = new Set(get().getVisibleTypeNames());
-
-    return edges.filter((e) => {
-      const sourceType = e.source.split('#')[0];
-      const targetType = e.target.split('#')[0];
-      return visibleTypes.has(sourceType) && visibleTypes.has(targetType);
-    });
+    const { showAllTypes, anchor, availableTypes, nodes, edges } = get();
+    const newShowAllTypes = !showAllTypes;
+    const visibility = computeVisibility(anchor, newShowAllTypes, availableTypes, nodes, edges);
+    set({ showAllTypes: newShowAllTypes, ...visibility });
   },
 
   getVisibleGraph: () => {
