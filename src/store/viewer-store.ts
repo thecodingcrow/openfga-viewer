@@ -124,6 +124,41 @@ function computeVisibility(
   return { visibleTypeNames, visibleEdges };
 }
 
+// ─── Anchor restoration ─────────────────────────────────────────────────────
+
+function restoreAnchor(
+  persisted: PersistedAnchor,
+  nodes: AuthorizationNode[],
+  edges: AuthorizationEdge[],
+): Anchor | null {
+  switch (persisted.kind) {
+    case 'permission': {
+      if (!persisted.nodeId || !nodes.some((n) => n.id === persisted.nodeId)) return null;
+      const result = resolvePermission(persisted.nodeId, nodes, edges);
+      return { kind: 'permission', nodeId: persisted.nodeId, result };
+    }
+    case 'role': {
+      if (!persisted.nodeId || !nodes.some((n) => n.id === persisted.nodeId)) return null;
+      const result = auditRole(persisted.nodeId, nodes, edges);
+      return { kind: 'role', nodeId: persisted.nodeId, result };
+    }
+    case 'checker': {
+      if (!persisted.subjectNodeId || !persisted.targetNodeId) return null;
+      if (
+        !nodes.some((n) => n.id === persisted.subjectNodeId) ||
+        !nodes.some((n) => n.id === persisted.targetNodeId)
+      ) return null;
+      const result = checkPermission(persisted.subjectNodeId, persisted.targetNodeId, nodes, edges);
+      return {
+        kind: 'checker',
+        subjectNodeId: persisted.subjectNodeId,
+        targetNodeId: persisted.targetNodeId,
+        result,
+      };
+    }
+  }
+}
+
 // ─── Store shape ────────────────────────────────────────────────────────────
 
 interface ViewerStore {
@@ -176,7 +211,23 @@ interface ViewerStore {
 
 // ─── Store implementation ───────────────────────────────────────────────────
 
-export const useViewerStore = create<ViewerStore>((set, get) => ({
+export const useViewerStore = create<ViewerStore>((set, get) => {
+  function applyAnchor(
+    anchor: Anchor,
+    recentIds: string[],
+    persistPayload: PersistedAnchor,
+  ): void {
+    const { recentlyVisited, showAllTypes, availableTypes, nodes, edges } = get();
+    const updatedRecent = [
+      ...recentIds,
+      ...recentlyVisited.filter((id) => !recentIds.includes(id)),
+    ].slice(0, 10);
+    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
+    set({ anchor, recentlyVisited: updatedRecent, ...visibility });
+    persistAnchor(persistPayload);
+  }
+
+  return {
   fgaSource: loadPersistedSource(),
   parseError: null,
   nodes: [],
@@ -224,37 +275,10 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
       if (persisted) {
         const freshNodes = get().nodes;
         const freshEdges = get().edges;
-        const { showAllTypes } = get();
-        const freshAvailableTypes = get().availableTypes;
-        let newAnchor: Anchor | null = null;
-
-        if (persisted.kind === 'permission' && persisted.nodeId) {
-          const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
-          if (nodeExists) {
-            const result = resolvePermission(persisted.nodeId, freshNodes, freshEdges);
-            newAnchor = { kind: 'permission', nodeId: persisted.nodeId, result };
-          }
-        } else if (persisted.kind === 'role' && persisted.nodeId) {
-          const nodeExists = freshNodes.some((n) => n.id === persisted.nodeId);
-          if (nodeExists) {
-            const result = auditRole(persisted.nodeId, freshNodes, freshEdges);
-            newAnchor = { kind: 'role', nodeId: persisted.nodeId, result };
-          }
-        } else if (persisted.kind === 'checker' && persisted.subjectNodeId && persisted.targetNodeId) {
-          const subjectExists = freshNodes.some((n) => n.id === persisted.subjectNodeId);
-          const targetExists = freshNodes.some((n) => n.id === persisted.targetNodeId);
-          if (subjectExists && targetExists) {
-            const result = checkPermission(persisted.subjectNodeId, persisted.targetNodeId, freshNodes, freshEdges);
-            newAnchor = {
-              kind: 'checker',
-              subjectNodeId: persisted.subjectNodeId,
-              targetNodeId: persisted.targetNodeId,
-              result,
-            };
-          }
-        }
-
+        const newAnchor = restoreAnchor(persisted, freshNodes, freshEdges);
         if (newAnchor) {
+          const { showAllTypes } = get();
+          const freshAvailableTypes = get().availableTypes;
           const visibility = computeVisibility(newAnchor, showAllTypes, freshAvailableTypes, freshNodes, freshEdges);
           set({ anchor: newAnchor, ...visibility });
         }
@@ -285,49 +309,33 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
   setAnchorType: (anchorType) => set({ anchorType }),
 
   setPermissionAnchor: (nodeId) => {
-    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
+    const { nodes, edges } = get();
     const result = resolvePermission(nodeId, nodes, edges);
-    const anchor: Anchor = { kind: 'permission', nodeId, result };
-    const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
-    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
-    set({
-      anchor,
-      recentlyVisited: updatedRecent,
-      ...visibility,
-    });
-    persistAnchor({ kind: 'permission', nodeId });
+    applyAnchor(
+      { kind: 'permission', nodeId, result },
+      [nodeId],
+      { kind: 'permission', nodeId },
+    );
   },
 
   setRoleAnchor: (nodeId) => {
-    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
+    const { nodes, edges } = get();
     const result = auditRole(nodeId, nodes, edges);
-    const anchor: Anchor = { kind: 'role', nodeId, result };
-    const updatedRecent = [nodeId, ...recentlyVisited.filter((id) => id !== nodeId)].slice(0, 10);
-    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
-    set({
-      anchor,
-      recentlyVisited: updatedRecent,
-      ...visibility,
-    });
-    persistAnchor({ kind: 'role', nodeId });
+    applyAnchor(
+      { kind: 'role', nodeId, result },
+      [nodeId],
+      { kind: 'role', nodeId },
+    );
   },
 
   setCheckerAnchor: (subjectId, targetId) => {
-    const { nodes, edges, recentlyVisited, showAllTypes, availableTypes } = get();
+    const { nodes, edges } = get();
     const result = checkPermission(subjectId, targetId, nodes, edges);
-    const anchor: Anchor = { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId, result };
-    const updatedRecent = [
-      targetId,
-      subjectId,
-      ...recentlyVisited.filter((id) => id !== subjectId && id !== targetId),
-    ].slice(0, 10);
-    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
-    set({
-      anchor,
-      recentlyVisited: updatedRecent,
-      ...visibility,
-    });
-    persistAnchor({ kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId });
+    applyAnchor(
+      { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId, result },
+      [targetId, subjectId],
+      { kind: 'checker', subjectNodeId: subjectId, targetNodeId: targetId },
+    );
   },
 
   clearAnchor: () => {
@@ -341,4 +349,5 @@ export const useViewerStore = create<ViewerStore>((set, get) => ({
     const visibility = computeVisibility(anchor, newShowAllTypes, availableTypes, nodes, edges);
     set({ showAllTypes: newShowAllTypes, ...visibility });
   },
-}));
+};
+});
