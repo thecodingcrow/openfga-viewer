@@ -188,7 +188,6 @@ interface ViewerStore {
   recentlyVisited: string[];
 
   // UI
-  panelOpen: boolean;
   reactFlowInstance: ReactFlowInstance | null;
 
   // ── Actions ──
@@ -205,8 +204,6 @@ interface ViewerStore {
   toggleShowAllTypes: () => void;
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
-  togglePanel: () => void;
-  setPanelOpen: (open: boolean) => void;
 }
 
 // ─── Store implementation ───────────────────────────────────────────────────
@@ -242,7 +239,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
   visibleEdges: [],
   anchorType: null,
   recentlyVisited: [],
-  panelOpen: true,
   reactFlowInstance: null,
 
   setSource: (src) => {
@@ -301,8 +297,6 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
   setLayoutDirection: (layoutDirection) => set({ layoutDirection }),
 
   setReactFlowInstance: (reactFlowInstance) => set({ reactFlowInstance }),
-  togglePanel: () => set((s) => ({ panelOpen: !s.panelOpen })),
-  setPanelOpen: (open) => set({ panelOpen: open }),
 
   // ── Anchor actions ──────────────────────────────────────────────────────
 
