@@ -23,6 +23,10 @@ const BASE_OPACITY = 0.35;
 /** Stroke width -- medium weight per locked decision */
 const STROKE_WIDTH = 1.5;
 
+function getStrokeColor(data: DimensionEdgeData | undefined): string {
+  return data?.color ?? data?.dimensionColor ?? TYPE_RESTRICTION_COLOR;
+}
+
 function DimensionEdgeComponent(props: EdgeProps) {
   const {
     id,
@@ -43,7 +47,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
   const highlightedEdgeIds = useHoverStore((s) => s.highlightedEdgeIds);
 
   // Determine stroke color from edge data
-  const strokeColor = d?.color ?? d?.dimensionColor ?? TYPE_RESTRICTION_COLOR;
+  const strokeColor = getStrokeColor(d);
 
   // Determine opacity: style opacity takes precedence, otherwise use hover-based dimming
   const transitionOpacity = edgeStyle?.opacity;
@@ -90,7 +94,7 @@ function DimensionEdgeComponent(props: EdgeProps) {
  */
 function DimensionEdgeWithMarker(props: EdgeProps) {
   const d = props.data as DimensionEdgeData | undefined;
-  const strokeColor = d?.color ?? d?.dimensionColor ?? TYPE_RESTRICTION_COLOR;
+  const strokeColor = getStrokeColor(d);
 
   return (
     <>
