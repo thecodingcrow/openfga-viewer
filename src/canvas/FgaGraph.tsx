@@ -1,26 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
   MiniMap,
   Controls,
-  useNodesState,
-  useEdgesState,
-  useNodesInitialized,
-  useReactFlow,
   BackgroundVariant,
   PanOnScrollMode,
   type Node,
-  type Edge,
   type ReactFlowInstance,
+  type Edge,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useShallow } from 'zustand/react/shallow';
 import { useViewerStore } from '../store/viewer-store';
 import { useHoverStore } from '../store/hover-store';
-import { getLayoutedElementsV2 } from '../layout/elk-layout';
 import { toFlowElementsV2 } from './fgaToFlowV2';
+import { useLayoutedFlow } from './useLayoutedFlow';
 
 import { CompactTypeNode } from './nodes/CompactTypeNode';
 import { DimensionEdge } from './edges/DimensionEdge';
@@ -30,7 +26,6 @@ const edgeTypes = { dimension: DimensionEdge };
 
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
-  const parseVersion = useViewerStore((s) => s.parseVersion);
   const clearHover = useHoverStore((s) => s.clearHover);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
   const setAnchorType = useViewerStore((s) => s.setAnchorType);
@@ -50,71 +45,10 @@ const FgaGraphInner = () => {
     [visibleTypeNames, visibleEdges, anchorType, dimensions],
   );
 
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(flowNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(flowEdges);
-  const nodesInitialized = useNodesInitialized();
-  const reactFlow = useReactFlow();
-  const layoutDone = useRef(false);
-  const [layoutReady, setLayoutReady] = useState(false);
-  const prevParseVersion = useRef(parseVersion);
-  const nodesRef = useRef(nodes);
-  const edgesRef = useRef(edges);
+  const { nodes, edges, onNodesChange, onEdgesChange, setEdges, layoutReady } =
+    useLayoutedFlow(flowNodes, flowEdges, layoutDirection);
 
-  useEffect(() => {
-    nodesRef.current = nodes;
-  }, [nodes]);
-
-  useEffect(() => {
-    edgesRef.current = edges;
-  }, [edges]);
-
-  // Sync flow elements when inputs change
-  useEffect(() => {
-    setNodes(flowNodes);
-    setEdges(flowEdges);
-    layoutDone.current = false;
-    setLayoutReady(false); // eslint-disable-line react-hooks/set-state-in-effect
-  }, [flowNodes, flowEdges, setNodes, setEdges]);
-
-  // Run ELK layout once nodes are initialized
-  useEffect(() => {
-    if (!nodesInitialized || nodesRef.current.length === 0 || layoutDone.current) return;
-    let cancelled = false;
-    getLayoutedElementsV2(
-      nodesRef.current,
-      edgesRef.current,
-      layoutDirection,
-    ).then(({ nodes: laid, edges: laidEdges }) => {
-      if (cancelled) return;
-      setNodes(laid);
-      setEdges(laidEdges);
-      layoutDone.current = true;
-      setLayoutReady(true);
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          reactFlow.fitView({ duration: 200, minZoom: 0.5, maxZoom: 1.2, padding: 0.08 });
-        });
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [nodesInitialized, layoutDirection, setNodes, setEdges, reactFlow]);
-
-  // Reset layout when parseVersion changes
-  useEffect(() => {
-    if (parseVersion !== prevParseVersion.current) {
-      prevParseVersion.current = parseVersion;
-      layoutDone.current = false;
-    }
-  }, [parseVersion]);
-
-  // Reset layout when direction changes
-  useEffect(() => {
-    layoutDone.current = false;
-  }, [layoutDirection]);
-
-  // ─── Callbacks ─────────────────────────────────────────────────────────────
+  // ─── Callbacks ─────────────────────────────────────────────────
 
   const onInit = useCallback(
     (instance: ReactFlowInstance<Node, Edge>) => setReactFlowInstance(instance),
