@@ -6,6 +6,23 @@ import type {
   RoleAuditResult,
 } from "./resolution-types";
 
+/** Group items into buckets by a key function. */
+function groupByKey<T>(items: T[], keyFn: (item: T) => string): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const item of items) {
+    const key = keyFn(item);
+    const existing = map.get(key);
+    if (existing) existing.push(item);
+    else map.set(key, [item]);
+  }
+  return map;
+}
+
+/** Build a lookup map from node ID → node. */
+function buildNodeMap(nodes: AuthorizationNode[]): Map<string, AuthorizationNode> {
+  return new Map(nodes.map((n) => [n.id, n]));
+}
+
 /**
  * Check if a node is terminal — no upstream edges with computed/TTU/tupleset-dep
  * rewrite rules feeding into it. A terminal node only receives direct type
@@ -44,18 +61,8 @@ export function resolvePermission(
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
 ): ResolutionResult {
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-
-  // Pre-compute inbound edges keyed by target node ID to avoid repeated scans
-  const inboundEdges = new Map<string, AuthorizationEdge[]>();
-  for (const edge of edges) {
-    const existing = inboundEdges.get(edge.target);
-    if (existing) {
-      existing.push(edge);
-    } else {
-      inboundEdges.set(edge.target, [edge]);
-    }
-  }
+  const nodeMap = buildNodeMap(nodes);
+  const inboundEdges = groupByKey(edges, (e) => e.target);
 
   function buildBranches(
     currentId: string,
@@ -120,25 +127,6 @@ export function resolvePermission(
 }
 
 /**
- * Build an outbound adjacency map keyed by source node ID.
- * Mirror of the inbound map pattern used in resolvePermission.
- */
-function buildOutboundEdges(
-  edges: AuthorizationEdge[],
-): Map<string, AuthorizationEdge[]> {
-  const outbound = new Map<string, AuthorizationEdge[]>();
-  for (const edge of edges) {
-    const existing = outbound.get(edge.source);
-    if (existing) {
-      existing.push(edge);
-    } else {
-      outbound.set(edge.source, [edge]);
-    }
-  }
-  return outbound;
-}
-
-/**
  * Audit a role by collecting all downstream permissions reachable from it.
  *
  * BFS downstream through all edge types. Collects every node where
@@ -149,8 +137,8 @@ export function auditRole(
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
 ): RoleAuditResult {
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
-  const outboundEdges = buildOutboundEdges(edges);
+  const nodeMap = buildNodeMap(nodes);
+  const outboundEdges = groupByKey(edges, (e) => e.source);
   const visited = new Set<string>([roleNodeId]);
   const queue = [roleNodeId];
   const permissions = new Map<string, string[]>();
@@ -195,10 +183,10 @@ export function checkPermission(
   nodes: AuthorizationNode[],
   edges: AuthorizationEdge[],
 ): CheckResult {
-  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const nodeMap = buildNodeMap(nodes);
   const targetNode = nodeMap.get(permissionNodeId);
   const targetType = targetNode?.type;
-  const outboundEdges = buildOutboundEdges(edges);
+  const outboundEdges = groupByKey(edges, (e) => e.source);
 
   const visited = new Set<string>([roleNodeId]);
   const parent = new Map<string, string>();
