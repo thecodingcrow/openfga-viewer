@@ -13,7 +13,11 @@ interface SearchItem {
 
 const MAX_RESULTS = 20;
 
-const SearchBar = () => {
+interface SearchBarProps {
+  rightSlot?: React.ReactNode;
+}
+
+const SearchBar = ({ rightSlot }: SearchBarProps) => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(0);
@@ -181,6 +185,7 @@ const SearchBar = () => {
         >
           /
         </kbd>
+        {rightSlot}
       </div>
 
       {/* Results dropdown */}
