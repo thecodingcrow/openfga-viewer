@@ -275,6 +275,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
         visibleTypeNames: [],
         visibleEdges: [],
       });
+      // Initialize history state with no anchor
+      window.history.replaceState({ anchor: null }, '');
 
       // Recompute persisted anchor
       const persisted = loadPersistedAnchor();
@@ -287,6 +289,8 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
           const freshAvailableTypes = get().availableTypes;
           const visibility = computeVisibility(newAnchor, showAllTypes, freshAvailableTypes, freshNodes, freshEdges);
           set({ anchor: newAnchor, ...visibility });
+          // Push initial anchor state so first back goes to null
+          window.history.replaceState({ anchor: persisted }, '');
         }
       }
     } catch (e) {
