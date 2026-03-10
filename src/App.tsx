@@ -8,6 +8,7 @@ import FgaEditor from "./editor/FgaEditor";
 import PermissionResolutionView from "./sidebar/PermissionResolutionView";
 import RoleAuditView from "./sidebar/RoleAuditView";
 import PermissionCheckerView from "./sidebar/PermissionCheckerView";
+import TypeBrowser from "./sidebar/TypeBrowser";
 import { useViewerStore } from "./store/viewer-store";
 import type { PersistedAnchor } from "./store/viewer-store";
 import { readFgaFile } from "./utils/read-fga-file";
@@ -128,6 +129,27 @@ const EditorTab = () => {
   );
 };
 
+// ─── Explore tab empty state ──────────────────────────────────────────────────
+
+const ExploreEmptyState = () => (
+  <div className="flex flex-col h-full">
+    <div className="flex flex-col items-center px-4 pt-8 pb-4 gap-2">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ color: "var(--color-text-muted)" }}>
+        <path d="M16 4V12M16 12L8 20M16 12L24 20M8 20V28M24 20V28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div className="text-xs font-medium" style={{ color: "var(--color-text-secondary)" }}>
+        Select a role or permission to explore
+      </div>
+      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+        See resolution trees and audit downstream permissions
+      </div>
+    </div>
+    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-dark" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
+      <TypeBrowser />
+    </div>
+  </div>
+);
+
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 const App = () => {
@@ -154,8 +176,7 @@ const App = () => {
   useEffect(() => {
     if (!anchor) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: sync tab with store anchor
-    if (anchor.kind === "permission") setActiveTab("resolution");
-    else if (anchor.kind === "role") setActiveTab("audit");
+    if (anchor.kind === "permission" || anchor.kind === "role") setActiveTab("explore");
     else if (anchor.kind === "checker") setActiveTab("checker");
   }, [anchor]);
 
@@ -237,10 +258,10 @@ const App = () => {
     switch (activeTab) {
       case "editor":
         return <EditorTab />;
-      case "resolution":
-        return <PermissionResolutionView />;
-      case "audit":
-        return <RoleAuditView />;
+      case "explore":
+        if (anchor?.kind === "permission") return <PermissionResolutionView />;
+        if (anchor?.kind === "role") return <RoleAuditView />;
+        return <ExploreEmptyState />;
       case "checker":
         return <PermissionCheckerView />;
     }

@@ -223,13 +223,13 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
     recentIds: string[],
     persistPayload: PersistedAnchor,
   ): void {
-    const { recentlyVisited, showAllTypes, availableTypes, nodes, edges } = get();
+    const { recentlyVisited, availableTypes, nodes, edges } = get();
     const updatedRecent = [
       ...recentIds,
       ...recentlyVisited.filter((id) => !recentIds.includes(id)),
     ].slice(0, 10);
-    const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
-    set({ anchor, recentlyVisited: updatedRecent, ...visibility });
+    const visibility = computeVisibility(anchor, false, availableTypes, nodes, edges);
+    set({ anchor, recentlyVisited: updatedRecent, showAllTypes: false, ...visibility });
     persistAnchor(persistPayload);
     pushAnchorState(persistPayload);
   }
@@ -264,34 +264,42 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
       const rawDimensions = detectDimensions({ nodes, edges });
       const dimensions = assignDimensionColors(rawDimensions);
       const availableTypes = extractTypeNames(nodes);
-      set({
-        nodes,
-        edges,
-        availableTypes,
-        dimensions,
-        parseVersion,
-        parseError: null,
-        anchor: null,
-        visibleTypeNames: [],
-        visibleEdges: [],
-      });
-      // Initialize history state with no anchor
-      window.history.replaceState({ anchor: null }, '');
-
-      // Recompute persisted anchor
+      // Try to restore persisted anchor first, then decide visibility
       const persisted = loadPersistedAnchor();
+      let restoredAnchor: Anchor | null = null;
+
       if (persisted) {
-        const freshNodes = get().nodes;
-        const freshEdges = get().edges;
-        const newAnchor = restoreAnchor(persisted, freshNodes, freshEdges);
-        if (newAnchor) {
-          const { showAllTypes } = get();
-          const freshAvailableTypes = get().availableTypes;
-          const visibility = computeVisibility(newAnchor, showAllTypes, freshAvailableTypes, freshNodes, freshEdges);
-          set({ anchor: newAnchor, ...visibility });
-          // Push initial anchor state so first back goes to null
-          window.history.replaceState({ anchor: persisted }, '');
-        }
+        restoredAnchor = restoreAnchor(persisted, nodes, edges);
+      }
+
+      if (restoredAnchor) {
+        const visibility = computeVisibility(restoredAnchor, false, availableTypes, nodes, edges);
+        set({
+          nodes,
+          edges,
+          availableTypes,
+          dimensions,
+          parseVersion,
+          parseError: null,
+          anchor: restoredAnchor,
+          ...visibility,
+        });
+        window.history.replaceState({ anchor: persisted }, '');
+      } else {
+        // No anchor to restore — show all types so the graph isn't empty
+        set({
+          nodes,
+          edges,
+          availableTypes,
+          dimensions,
+          parseVersion,
+          parseError: null,
+          anchor: null,
+          showAllTypes: true,
+          visibleTypeNames: availableTypes,
+          visibleEdges: edges,
+        });
+        window.history.replaceState({ anchor: null }, '');
       }
     } catch (e) {
       set({

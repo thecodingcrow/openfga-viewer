@@ -1,12 +1,11 @@
 import { useState, useRef, useCallback, useEffect, memo } from 'react';
 import type { ReactNode } from 'react';
 
-export type SheetTab = 'editor' | 'resolution' | 'audit' | 'checker';
+export type SheetTab = 'editor' | 'explore' | 'checker';
 
 const TAB_LABELS: Record<SheetTab, string> = {
   editor: 'Editor',
-  resolution: 'Resolution',
-  audit: 'Audit',
+  explore: 'Explore',
   checker: 'Checker',
 };
 
@@ -16,14 +15,9 @@ const TAB_ICONS: Record<SheetTab, ReactNode> = {
       <path d="M3 3H13M3 6.5H10M3 10H12M3 13H8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   ),
-  resolution: (
+  explore: (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M8 2V6M8 6L4 10M8 6L12 10M4 10V14M12 10V14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  audit: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M3 8H6L8 3L10 13L12 8H13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   checker: (

@@ -16,19 +16,21 @@ import { useShallow } from 'zustand/react/shallow';
 import { useViewerStore } from '../store/viewer-store';
 import { useHoverStore } from '../store/hover-store';
 import { toFlowElementsV2 } from './fgaToFlowV2';
+import { anchorToFlowElements } from './anchorToFlow';
 import { useLayoutedFlow } from './useLayoutedFlow';
 
 import { CompactTypeNode } from './nodes/CompactTypeNode';
+import { ExploreNode } from './nodes/ExploreNode';
 import { DimensionEdge } from './edges/DimensionEdge';
 
-const nodeTypes = { compactType: CompactTypeNode };
+const nodeTypes = { compactType: CompactTypeNode, explore: ExploreNode };
 const edgeTypes = { dimension: DimensionEdge };
 
 const FgaGraphInner = () => {
   const layoutDirection = useViewerStore((s) => s.layoutDirection);
   const clearHover = useHoverStore((s) => s.clearHover);
   const setReactFlowInstance = useViewerStore((s) => s.setReactFlowInstance);
-  const setAnchorType = useViewerStore((s) => s.setAnchorType);
+  const anchor = useViewerStore((s) => s.anchor);
   const anchorType = useViewerStore((s) => s.anchorType);
   const dimensions = useViewerStore((s) => s.dimensions);
 
@@ -40,10 +42,13 @@ const FgaGraphInner = () => {
     useShallow((s) => s.visibleEdges),
   );
 
-  const { nodes: flowNodes, edges: flowEdges } = useMemo(
-    () => toFlowElementsV2(visibleTypeNames, visibleEdges, anchorType, dimensions),
-    [visibleTypeNames, visibleEdges, anchorType, dimensions],
-  );
+  // When anchor is set, render the exploration graph; otherwise compact overview
+  const { nodes: flowNodes, edges: flowEdges } = useMemo(() => {
+    if (anchor) {
+      return anchorToFlowElements(anchor);
+    }
+    return toFlowElementsV2(visibleTypeNames, visibleEdges, anchorType, dimensions);
+  }, [anchor, visibleTypeNames, visibleEdges, anchorType, dimensions]);
 
   const { nodes, edges, onNodesChange, onEdgesChange, setEdges, layoutReady } =
     useLayoutedFlow(flowNodes, flowEdges, layoutDirection);
@@ -53,13 +58,6 @@ const FgaGraphInner = () => {
   const onInit = useCallback(
     (instance: ReactFlowInstance<Node, Edge>) => setReactFlowInstance(instance),
     [setReactFlowInstance],
-  );
-
-  const onNodeClick = useCallback(
-    (_: React.MouseEvent, node: Node) => {
-      setAnchorType(node.id);
-    },
-    [setAnchorType],
   );
 
   const onPaneClick = useCallback(() => {
@@ -99,7 +97,6 @@ const FgaGraphInner = () => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onInit={onInit}
-        onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         onNodeDragStart={onNodeDragStart}
         fitView
