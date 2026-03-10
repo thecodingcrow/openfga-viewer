@@ -24,7 +24,7 @@ const loadPersistedSource = (): string =>
 
 const ANCHOR_STORAGE_KEY = "openfga-viewer-anchor";
 
-interface PersistedAnchor {
+export interface PersistedAnchor {
   kind: 'permission' | 'role' | 'checker';
   nodeId?: string;
   subjectNodeId?: string;
@@ -51,6 +51,14 @@ function loadPersistedAnchor(): PersistedAnchor | null {
   } catch {
     return null;
   }
+}
+
+/** Flag to prevent pushState during popstate restoration */
+let _restoringFromHistory = false;
+
+function pushAnchorState(state: PersistedAnchor | null): void {
+  if (_restoringFromHistory) return;
+  window.history.pushState({ anchor: state }, '');
 }
 
 // ─── Anchor → visible types extraction ──────────────────────────────────────
@@ -201,6 +209,7 @@ interface ViewerStore {
   setRoleAnchor: (nodeId: string) => void;
   setCheckerAnchor: (subjectId: string, targetId: string) => void;
   clearAnchor: () => void;
+  restoreAnchorFromHistory: (persisted: PersistedAnchor | null) => void;
   toggleShowAllTypes: () => void;
 
   setReactFlowInstance: (instance: ReactFlowInstance | null) => void;
@@ -222,6 +231,7 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
     const visibility = computeVisibility(anchor, showAllTypes, availableTypes, nodes, edges);
     set({ anchor, recentlyVisited: updatedRecent, ...visibility });
     persistAnchor(persistPayload);
+    pushAnchorState(persistPayload);
   }
 
   return {
@@ -335,6 +345,24 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
   clearAnchor: () => {
     set({ anchor: null, visibleTypeNames: [], visibleEdges: [] });
     clearPersistedAnchor();
+    pushAnchorState(null);
+  },
+
+  restoreAnchorFromHistory: (persisted) => {
+    _restoringFromHistory = true;
+    if (!persisted) {
+      set({ anchor: null, visibleTypeNames: [], visibleEdges: [] });
+    } else {
+      const { nodes, edges, showAllTypes, availableTypes } = get();
+      const newAnchor = restoreAnchor(persisted, nodes, edges);
+      if (newAnchor) {
+        const visibility = computeVisibility(newAnchor, showAllTypes, availableTypes, nodes, edges);
+        set({ anchor: newAnchor, ...visibility });
+      } else {
+        set({ anchor: null, visibleTypeNames: [], visibleEdges: [] });
+      }
+    }
+    _restoringFromHistory = false;
   },
 
   toggleShowAllTypes: () => {
