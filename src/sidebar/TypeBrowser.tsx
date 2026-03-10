@@ -105,12 +105,26 @@ const TypeSection = memo(function TypeSection({
   );
 });
 
-const TypeBrowser = () => {
+interface TypeBrowserProps {
+  filter?: 'permissions' | 'relations';
+}
+
+const TypeBrowser = ({ filter }: TypeBrowserProps) => {
   const nodes = useViewerStore((s) => s.nodes);
   const setRoleAnchor = useViewerStore((s) => s.setRoleAnchor);
   const setPermissionAnchor = useViewerStore((s) => s.setPermissionAnchor);
 
   const groups = useMemo(() => groupByType(nodes), [nodes]);
+  const filteredGroups = useMemo(() => {
+    if (!filter) return groups;
+    return groups
+      .map((g) => ({
+        ...g,
+        relations: filter === 'relations' ? g.relations : [],
+        permissions: filter === 'permissions' ? g.permissions : [],
+      }))
+      .filter((g) => g.relations.length > 0 || g.permissions.length > 0);
+  }, [groups, filter]);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
 
   const toggleExpanded = useCallback((typeName: string) => {
@@ -133,7 +147,7 @@ const TypeBrowser = () => {
         </div>
       </div>
       <div className="flex-1 overflow-y-auto scrollbar-dark py-1">
-        {groups.map((g) => (
+        {filteredGroups.map((g) => (
           <TypeSection
             key={g.typeName}
             group={g}
