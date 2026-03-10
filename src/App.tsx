@@ -9,6 +9,7 @@ import PermissionResolutionView from "./sidebar/PermissionResolutionView";
 import RoleAuditView from "./sidebar/RoleAuditView";
 import PermissionCheckerView from "./sidebar/PermissionCheckerView";
 import { useViewerStore } from "./store/viewer-store";
+import type { PersistedAnchor } from "./store/viewer-store";
 import { readFgaFile } from "./utils/read-fga-file";
 
 const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
@@ -135,6 +136,7 @@ const App = () => {
   const nodes = useViewerStore((s) => s.nodes);
   const fgaSource = useViewerStore((s) => s.fgaSource);
   const anchor = useViewerStore((s) => s.anchor);
+  const restoreAnchorFromHistory = useViewerStore((s) => s.restoreAnchorFromHistory);
 
   const hasModel = nodes.length > 0;
 
@@ -215,6 +217,16 @@ const App = () => {
       window.removeEventListener("dragover", handleDragOver);
     };
   }, [handleDrop, handleDragOver]);
+
+  // Browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const state = e.state as { anchor: PersistedAnchor | null } | null;
+      restoreAnchorFromHistory(state?.anchor ?? null);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [restoreAnchorFromHistory]);
 
   if (!hasModel) {
     return <ModelInput />;
