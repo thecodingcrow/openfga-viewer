@@ -1,6 +1,7 @@
 import { useState, useCallback, memo } from "react";
 import { useViewerStore } from "../store/viewer-store";
 import { useHoverStore } from "../store/hover-store";
+import TypeBrowser from "./TypeBrowser";
 import type { ResolutionBranch } from "../graph/resolution-types";
 import type { AuthorizationEdge } from "../types";
 
@@ -218,8 +219,21 @@ const PermissionResolutionView = () => {
 
   if (!resolutionResult) {
     return (
-      <div className="px-4 py-8 text-xs text-center" style={{ color: "var(--color-text-muted)" }}>
-        No resolution data
+      <div className="flex flex-col h-full">
+        <div className="flex flex-col items-center px-4 pt-8 pb-4 gap-2">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ color: "var(--color-text-muted)" }}>
+            <path d="M16 4V12M16 12L8 20M16 12L24 20M8 20V28M24 20V28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div className="text-xs font-medium" style={{ color: "var(--color-text-secondary)" }}>
+            Select a permission to explore
+          </div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            See who can reach a permission through the resolution tree
+          </div>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-dark" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
+          <TypeBrowser filter="permissions" />
+        </div>
       </div>
     );
   }

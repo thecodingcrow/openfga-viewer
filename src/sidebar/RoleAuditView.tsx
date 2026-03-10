@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useViewerStore } from "../store/viewer-store";
+import TypeBrowser from "./TypeBrowser";
 
 interface TypePermissionsProps {
   typeName: string;
@@ -57,8 +58,21 @@ const RoleAuditView = () => {
 
   if (!roleAuditResult) {
     return (
-      <div className="px-4 py-8 text-xs text-center" style={{ color: "var(--color-text-muted)" }}>
-        No audit data
+      <div className="flex flex-col h-full">
+        <div className="flex flex-col items-center px-4 pt-8 pb-4 gap-2">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ color: "var(--color-text-muted)" }}>
+            <path d="M6 16H12L16 6L20 26L24 16H26" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div className="text-xs font-medium" style={{ color: "var(--color-text-secondary)" }}>
+            Select a role to audit
+          </div>
+          <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            See what permissions a role can reach downstream
+          </div>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-dark" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
+          <TypeBrowser filter="relations" />
+        </div>
       </div>
     );
   }
