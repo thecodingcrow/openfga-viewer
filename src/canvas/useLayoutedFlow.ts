@@ -39,11 +39,17 @@ export function useLayoutedFlow(
     setNodes(flowNodes);
     setEdges(flowEdges);
 
+    // Use the React Flow viewport container size for aspect ratio
+    const containerEl = document.querySelector('.react-flow') as HTMLElement | null;
+    const containerSize = containerEl
+      ? { width: containerEl.clientWidth, height: containerEl.clientHeight }
+      : { width: window.innerWidth, height: window.innerHeight };
+
     // Give React Flow one frame to render/measure nodes, then run ELK
     const raf = requestAnimationFrame(() => {
       if (id !== layoutId.current) return;
 
-      getLayoutedElementsV2(flowNodes, flowEdges, layoutDirection)
+      getLayoutedElementsV2(flowNodes, flowEdges, layoutDirection, containerSize)
         .then(({ nodes: laid, edges: laidEdges }) => {
           if (id !== layoutId.current) return;
           setNodes(laid);

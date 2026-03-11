@@ -211,6 +211,7 @@ const PermissionResolutionView = () => {
   const anchor = useViewerStore((s) => s.anchor);
   const edges = useViewerStore((s) => s.edges);
   const setRoleAnchor = useViewerStore((s) => s.setRoleAnchor);
+  const clearAnchor = useViewerStore((s) => s.clearAnchor);
   const setHighlightedEdges = useHoverStore((s) => s.setHighlightedEdges);
   const clearHover = useHoverStore((s) => s.clearHover);
 
@@ -221,7 +222,18 @@ const PermissionResolutionView = () => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full overflow-y-auto scrollbar-dark">
+      {/* Clear selection bar */}
+      <button
+        className="flex items-center gap-1.5 px-4 py-2 text-xs shrink-0 w-full text-left transition-colors hover:bg-surface-raised"
+        style={{ color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border-subtle)" }}
+        onClick={clearAnchor}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M7 2L3 6L7 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Back to overview
+      </button>
       <Summary
         permissionId={resolutionResult.permissionId}
         summary={resolutionResult.summary}

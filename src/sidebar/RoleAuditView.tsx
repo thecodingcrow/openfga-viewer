@@ -51,6 +51,7 @@ const TypePermissions = memo(function TypePermissions({
 const RoleAuditView = () => {
   const anchor = useViewerStore((s) => s.anchor);
   const setPermissionAnchor = useViewerStore((s) => s.setPermissionAnchor);
+  const clearAnchor = useViewerStore((s) => s.clearAnchor);
   const availableTypes = useViewerStore((s) => s.availableTypes);
 
   const roleAuditResult = anchor?.kind === "role" ? anchor.result : null;
@@ -65,7 +66,18 @@ const RoleAuditView = () => {
   const allTypes = availableTypes.slice().sort();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full overflow-y-auto scrollbar-dark">
+      {/* Clear selection bar */}
+      <button
+        className="flex items-center gap-1.5 px-4 py-2 text-xs shrink-0 w-full text-left transition-colors hover:bg-surface-raised"
+        style={{ color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border-subtle)" }}
+        onClick={clearAnchor}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M7 2L3 6L7 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Back to overview
+      </button>
       {/* Header */}
       <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
         <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>

@@ -107,9 +107,10 @@ const TypeSection = memo(function TypeSection({
 
 interface TypeBrowserProps {
   filter?: 'permissions' | 'relations';
+  hideHeader?: boolean;
 }
 
-const TypeBrowser = ({ filter }: TypeBrowserProps) => {
+const TypeBrowser = ({ filter, hideHeader }: TypeBrowserProps) => {
   const nodes = useViewerStore((s) => s.nodes);
   const setRoleAnchor = useViewerStore((s) => s.setRoleAnchor);
   const setPermissionAnchor = useViewerStore((s) => s.setPermissionAnchor);
@@ -138,14 +139,16 @@ const TypeBrowser = ({ filter }: TypeBrowserProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
-        <div className="text-xs font-semibold" style={{ color: "var(--color-text-primary)" }}>
-          Type Browser
+      {!hideHeader && (
+        <div className="px-4 py-3 flex-shrink-0" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+          <div className="text-xs font-semibold" style={{ color: "var(--color-text-primary)" }}>
+            Type Browser
+          </div>
+          <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+            Select a relation or permission to explore
+          </div>
         </div>
-        <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
-          Select a relation or permission to explore
-        </div>
-      </div>
+      )}
       <div className="flex-1 overflow-y-auto scrollbar-dark py-1">
         {filteredGroups.map((g) => (
           <TypeSection

@@ -22,6 +22,7 @@ import { useLayoutedFlow } from './useLayoutedFlow';
 import { CompactTypeNode } from './nodes/CompactTypeNode';
 import { ExploreNode } from './nodes/ExploreNode';
 import { DimensionEdge } from './edges/DimensionEdge';
+import { GraphLegend } from './GraphLegend';
 
 const nodeTypes = { compactType: CompactTypeNode, explore: ExploreNode };
 const edgeTypes = { dimension: DimensionEdge };
@@ -120,7 +121,9 @@ const FgaGraphInner = () => {
         <Controls
           style={{ background: 'rgba(17, 17, 17, 0.95)', border: '1px solid var(--color-border)' }}
           showInteractive={false}
-        />
+        >
+          <GraphLegend />
+        </Controls>
       </ReactFlow>
     </div>
   );

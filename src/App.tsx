@@ -133,19 +133,21 @@ const EditorTab = () => {
 
 const ExploreEmptyState = () => (
   <div className="flex flex-col h-full">
-    <div className="flex flex-col items-center px-4 pt-8 pb-4 gap-2">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ color: "var(--color-text-muted)" }}>
+    <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: "1px solid var(--color-border-subtle)" }}>
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
         <path d="M16 4V12M16 12L8 20M16 12L24 20M8 20V28M24 20V28" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-      <div className="text-xs font-medium" style={{ color: "var(--color-text-secondary)" }}>
-        Select a role or permission to explore
-      </div>
-      <div className="text-xs" style={{ color: "var(--color-text-muted)" }}>
-        See resolution trees and audit downstream permissions
+      <div>
+        <div className="text-xs font-medium" style={{ color: "var(--color-text-primary)" }}>
+          Select a relation or permission to explore
+        </div>
+        <div className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+          See resolution trees and reachable permissions
+        </div>
       </div>
     </div>
-    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-dark" style={{ borderTop: "1px solid var(--color-border-subtle)" }}>
-      <TypeBrowser />
+    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-dark">
+      <TypeBrowser hideHeader />
     </div>
   </div>
 );

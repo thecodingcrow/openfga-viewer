@@ -355,7 +355,13 @@ export const useViewerStore = create<ViewerStore>((set, get) => {
   },
 
   clearAnchor: () => {
-    set({ anchor: null, visibleTypeNames: [], visibleEdges: [] });
+    const { availableTypes, edges } = get();
+    set({
+      anchor: null,
+      showAllTypes: true,
+      visibleTypeNames: availableTypes,
+      visibleEdges: edges,
+    });
     clearPersistedAnchor();
     pushAnchorState(null);
   },

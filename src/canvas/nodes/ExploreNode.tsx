@@ -84,7 +84,7 @@ function ExploreNodeComponent({ data }: NodeProps) {
               {d.edgeType}
             </span>
           )}
-          {d.isTerminal && !d.isRoot && (
+          {d.isTerminal && !d.isRoot && d.edgeType && (
             <span
               className="text-xs px-1 rounded"
               style={{
