@@ -23,6 +23,7 @@ import { CompactTypeNode } from './nodes/CompactTypeNode';
 import { ExploreNode } from './nodes/ExploreNode';
 import { DimensionEdge } from './edges/DimensionEdge';
 import { GraphLegend } from './GraphLegend';
+import { PathBreadcrumb } from './PathBreadcrumb';
 
 const nodeTypes = { compactType: CompactTypeNode, explore: ExploreNode };
 const edgeTypes = { dimension: DimensionEdge };
@@ -124,6 +125,7 @@ const FgaGraphInner = () => {
         >
           <GraphLegend />
         </Controls>
+        <PathBreadcrumb />
       </ReactFlow>
     </div>
   );

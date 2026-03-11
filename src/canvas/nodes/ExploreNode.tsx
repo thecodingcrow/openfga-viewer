@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Handle, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
+import { useHoverStore } from "../../store/hover-store";
 
 /** React Flow node data for ExploreNode */
 export interface ExploreNodeData {
@@ -16,6 +17,8 @@ export interface ExploreNodeData {
   isRoot: boolean;
   /** Whether this is a permission (vs relation/role) */
   isPermission: boolean;
+  /** Type restriction label for terminals (e.g., "as user", "via task#client") */
+  typeRestriction?: string;
   [key: string]: unknown;
 }
 
@@ -25,8 +28,9 @@ const hiddenHandle: React.CSSProperties = {
   height: 6,
 };
 
-function ExploreNodeComponent({ data }: NodeProps) {
+function ExploreNodeComponent({ data, id }: NodeProps) {
   const d = data as ExploreNodeData;
+  const dimmed = useHoverStore((s) => s.isHoverActive && !s.highlightedNodeIds.has(id));
 
   return (
     <div
@@ -43,7 +47,8 @@ function ExploreNodeComponent({ data }: NodeProps) {
             ? "1px solid var(--color-accent)"
             : "1px solid var(--color-border)",
         minWidth: 100,
-        transition: "border-color 150ms ease-out",
+        opacity: dimmed ? 0.15 : 1,
+        transition: "border-color 150ms ease-out, opacity 150ms ease-out",
       }}
     >
       <Handle type="target" position={Position.Top} style={hiddenHandle} />
@@ -70,7 +75,7 @@ function ExploreNodeComponent({ data }: NodeProps) {
       </div>
 
       {/* Badges row */}
-      {(d.edgeType || d.isTerminal) && (
+      {(d.edgeType || d.typeRestriction) && (
         <div className="flex items-center gap-1 mt-1">
           {d.edgeType && (
             <span
@@ -84,7 +89,7 @@ function ExploreNodeComponent({ data }: NodeProps) {
               {d.edgeType}
             </span>
           )}
-          {d.isTerminal && !d.isRoot && d.edgeType && (
+          {d.typeRestriction && (
             <span
               className="text-xs px-1 rounded"
               style={{
@@ -93,7 +98,7 @@ function ExploreNodeComponent({ data }: NodeProps) {
                 fontSize: "0.6rem",
               }}
             >
-              terminal
+              {d.typeRestriction}
             </span>
           )}
         </div>

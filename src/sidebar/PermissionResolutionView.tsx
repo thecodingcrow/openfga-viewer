@@ -1,6 +1,7 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, Fragment } from "react";
 import { useViewerStore } from "../store/viewer-store";
 import { useHoverStore } from "../store/hover-store";
+import type { PathNode } from "../store/hover-store";
 import type { ResolutionBranch } from "../graph/resolution-types";
 import type { AuthorizationEdge } from "../types";
 
@@ -56,6 +57,11 @@ const Summary = memo(function Summary({ permissionId, summary, onRoleClick }: Su
 
 // -- Resolution Tree ----------------------------------------------------------
 
+function getTerminalLabel(branch: ResolutionBranch): string {
+  const id = branch.type === branch.relation ? branch.type : `${branch.type}#${branch.relation}`;
+  return branch.edgeType === "tupleset-dep" ? `via ${id}` : `as ${id}`;
+}
+
 /** Collect all edge IDs along a branch for hover highlighting */
 function collectBranchEdgeIds(
   branch: ResolutionBranch,
@@ -83,9 +89,10 @@ interface BranchItemProps {
   depth: number;
   defaultExpanded: boolean;
   onRoleClick: (nodeId: string) => void;
-  onHoverBranch: (edgeIds: string[]) => void;
+  onHoverBranch: (edgeIds: string[], nodeIds: string[], path: PathNode[]) => void;
   onLeaveBranch: () => void;
   edges: AuthorizationEdge[];
+  pathFromRoot: PathNode[];
 }
 
 const BranchItem = memo(function BranchItem({
@@ -97,6 +104,7 @@ const BranchItem = memo(function BranchItem({
   onHoverBranch,
   onLeaveBranch,
   edges,
+  pathFromRoot,
 }: BranchItemProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const hasChildren = branch.children.length > 0;
@@ -109,8 +117,14 @@ const BranchItem = memo(function BranchItem({
 
   const handleMouseEnter = useCallback(() => {
     const edgeIds = collectBranchEdgeIds(branch, parentNodeId, edges);
-    onHoverBranch(edgeIds);
-  }, [branch, parentNodeId, edges, onHoverBranch]);
+    const currentNode: PathNode = { nodeId: branch.nodeId, label: `${branch.relation} on ${branch.type}` };
+    if (branch.isTerminal) {
+      currentNode.label += ` ${getTerminalLabel(branch)}`;
+    }
+    const fullPath = [...pathFromRoot, currentNode];
+    const nodeIds = fullPath.map(n => n.nodeId);
+    onHoverBranch(edgeIds, nodeIds, fullPath);
+  }, [branch, parentNodeId, edges, onHoverBranch, pathFromRoot]);
 
   return (
     <div>
@@ -171,7 +185,7 @@ const BranchItem = memo(function BranchItem({
           {edgeTypeLabel}
         </span>
 
-        {/* Terminal badge */}
+        {/* Type restriction badge */}
         {branch.isTerminal && (
           <span
             className="text-xs px-1 rounded"
@@ -181,25 +195,40 @@ const BranchItem = memo(function BranchItem({
               fontSize: "0.6rem",
             }}
           >
-            terminal
+            {getTerminalLabel(branch)}
           </span>
         )}
       </div>
 
       {/* Children */}
       {expanded && hasChildren &&
-        branch.children.map((child) => (
-          <BranchItem
-            key={child.nodeId}
-            branch={child}
-            parentNodeId={branch.nodeId}
-            depth={depth + 1}
-            defaultExpanded={depth < 1}
-            onRoleClick={onRoleClick}
-            onHoverBranch={onHoverBranch}
-            onLeaveBranch={onLeaveBranch}
-            edges={edges}
-          />
+        branch.children.map((child, i) => (
+          <Fragment key={child.nodeId}>
+            {i > 0 && (
+              <div
+                className="text-xs py-0.5"
+                style={{
+                  paddingLeft: (depth + 1) * 16 + 16 + 6,
+                  color: "var(--color-text-muted)",
+                  fontSize: "0.55rem",
+                  opacity: 0.6,
+                }}
+              >
+                or
+              </div>
+            )}
+            <BranchItem
+              branch={child}
+              parentNodeId={branch.nodeId}
+              depth={depth + 1}
+              defaultExpanded={depth < 1}
+              onRoleClick={onRoleClick}
+              onHoverBranch={onHoverBranch}
+              onLeaveBranch={onLeaveBranch}
+              edges={edges}
+              pathFromRoot={[...pathFromRoot, { nodeId: branch.nodeId, label: `${branch.relation} on ${branch.type}` }]}
+            />
+          </Fragment>
         ))}
     </div>
   );
@@ -212,7 +241,7 @@ const PermissionResolutionView = () => {
   const edges = useViewerStore((s) => s.edges);
   const setRoleAnchor = useViewerStore((s) => s.setRoleAnchor);
   const clearAnchor = useViewerStore((s) => s.clearAnchor);
-  const setHighlightedEdges = useHoverStore((s) => s.setHighlightedEdges);
+  const setHoverHighlight = useHoverStore((s) => s.setHoverHighlight);
   const clearHover = useHoverStore((s) => s.clearHover);
 
   const resolutionResult = anchor?.kind === "permission" ? anchor.result : null;
@@ -243,18 +272,33 @@ const PermissionResolutionView = () => {
         <div className="px-4 py-1 text-xs font-semibold" style={{ color: "var(--color-text-muted)" }}>
           Resolution Tree
         </div>
-        {resolutionResult.tree.map((branch) => (
-          <BranchItem
-            key={branch.nodeId}
-            branch={branch}
-            parentNodeId={resolutionResult.permissionId}
-            depth={0}
-            defaultExpanded={true}
-            onRoleClick={setRoleAnchor}
-            onHoverBranch={setHighlightedEdges}
-            onLeaveBranch={clearHover}
-            edges={edges}
-          />
+        {resolutionResult.tree.map((branch, i) => (
+          <Fragment key={branch.nodeId}>
+            {i > 0 && (
+              <div
+                className="text-xs py-0.5"
+                style={{
+                  paddingLeft: 16 + 6,
+                  color: "var(--color-text-muted)",
+                  fontSize: "0.55rem",
+                  opacity: 0.6,
+                }}
+              >
+                or
+              </div>
+            )}
+            <BranchItem
+              branch={branch}
+              parentNodeId={resolutionResult.permissionId}
+              depth={0}
+              defaultExpanded={true}
+              onRoleClick={setRoleAnchor}
+              onHoverBranch={setHoverHighlight}
+              onLeaveBranch={clearHover}
+              edges={edges}
+              pathFromRoot={[{ nodeId: resolutionResult.permissionId, label: resolutionResult.permissionId.replace("#", " on ") }]}
+            />
+          </Fragment>
         ))}
       </div>
     </div>

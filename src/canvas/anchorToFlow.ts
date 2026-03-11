@@ -20,6 +20,12 @@ export function anchorToFlowElements(
   }
 }
 
+function computeTypeRestriction(branch: { type: string; relation: string; edgeType: string; isTerminal: boolean }): string | undefined {
+  if (!branch.isTerminal) return undefined;
+  const id = branch.type === branch.relation ? branch.type : `${branch.type}#${branch.relation}`;
+  return branch.edgeType === "tupleset-dep" ? `via ${id}` : `as ${id}`;
+}
+
 // ─── Permission Resolution ────────────────────────────────────────────────
 
 function permissionResolutionToFlow(
@@ -63,6 +69,7 @@ function permissionResolutionToFlow(
           isTerminal: branch.isTerminal,
           isRoot: false,
           isPermission: branch.relation.startsWith("can_"),
+          typeRestriction: computeTypeRestriction(branch),
         } satisfies ExploreNodeData,
       });
     }
