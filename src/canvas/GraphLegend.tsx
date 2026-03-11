@@ -1,48 +1,56 @@
 import { memo, useState, useEffect, useRef, useCallback } from "react";
 
-interface LegendEntry {
-  term: string;
-  description: string;
-  color?: string;
-  badge?: boolean;
-}
-
-const ENTRIES: LegendEntry[] = [
+const ENTRIES = [
   {
     term: "Root",
     description: "The selected relation or permission being explored.",
-    color: "var(--color-accent)",
+    visual: (
+      <span
+        className="inline-block rounded"
+        style={{
+          width: 12,
+          height: 12,
+          border: "2px solid var(--color-accent)",
+          background: "rgba(212, 160, 23, 0.08)",
+        }}
+      />
+    ),
   },
   {
     term: "Terminal",
-    description:
-      "A leaf node — a directly assignable relation with no further upstream dependencies. The end of a resolution chain.",
-    color: "var(--color-accent)",
-    badge: true,
+    description: "A directly assignable role — the end of a resolution chain.",
+    visual: (
+      <span className="flex items-center gap-1">
+        <span
+          className="inline-block rounded-full"
+          style={{ width: 6, height: 6, background: "var(--color-accent)" }}
+        />
+        <span
+          className="inline-block rounded"
+          style={{
+            width: 12,
+            height: 12,
+            border: "1px solid var(--color-accent)",
+            background: "var(--color-surface-raised)",
+          }}
+        />
+      </span>
+    ),
   },
   {
-    term: "direct",
-    description:
-      "A direct type restriction. The relation accepts tuples of a specific type (e.g., user, group#member).",
-    badge: true,
-  },
-  {
-    term: "computed",
-    description:
-      "A computed userset. The relation is defined as a reference to another relation on the same type.",
-    badge: true,
-  },
-  {
-    term: "ttu",
-    description:
-      "Tuple-to-userset. The relation is resolved by following a tupleset relation to another type, then checking a computed relation there.",
-    badge: true,
-  },
-  {
-    term: "tupleset",
-    description:
-      "The tupleset side of a TTU rewrite. This relation provides the \"from\" lookup that TTU traverses.",
-    badge: true,
+    term: "Intermediate",
+    description: "A relation or permission with further upstream dependencies.",
+    visual: (
+      <span
+        className="inline-block rounded"
+        style={{
+          width: 12,
+          height: 12,
+          border: "1px solid var(--color-border)",
+          background: "var(--color-surface)",
+        }}
+      />
+    ),
   },
 ];
 
@@ -64,15 +72,13 @@ function GraphLegendComponent() {
 
   return (
     <div className="relative" ref={ref}>
-      {/* Trigger button — rendered inside React Flow <Controls>, inherits its panel styling */}
       <button
-        className="react-flow__controls-button flex items-center justify-center transition-colors"
-        style={{
-          color: open ? "var(--color-accent)" : "var(--color-text-muted)",
-          cursor: "pointer",
-        }}
+        className="w-7 h-7 flex items-center justify-center rounded transition-colors cursor-pointer"
+        style={{ color: open ? "var(--color-accent)" : "var(--color-text-muted)" }}
         title="Graph legend"
         onClick={() => setOpen((prev) => !prev)}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,160,23,0.05)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
       >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
@@ -86,16 +92,13 @@ function GraphLegendComponent() {
         </svg>
       </button>
 
-      {/* Expanded card — click outside to close */}
       {open && (
         <div
-          className="absolute bottom-0 left-10 rounded-lg shadow-lg scrollbar-dark"
+          className="absolute top-full left-0 mt-1 rounded-lg shadow-lg"
           style={{
             background: "rgba(17, 17, 17, 0.97)",
             border: "1px solid var(--color-border)",
-            width: 320,
-            maxHeight: 420,
-            overflowY: "auto",
+            width: 260,
             zIndex: 50,
           }}
         >
@@ -110,43 +113,15 @@ function GraphLegendComponent() {
           </div>
           <div className="py-1">
             {ENTRIES.map((entry) => (
-              <div
-                key={entry.term}
-                className="px-3 py-1.5 flex gap-2"
-              >
-                <div className="flex-shrink-0 pt-0.5">
-                  {entry.badge ? (
-                    <span
-                      className="inline-block text-xs px-1 rounded"
-                      style={{
-                        color: entry.color ?? "var(--color-text-muted)",
-                        background: "var(--color-surface-overlay)",
-                        fontSize: "0.6rem",
-                      }}
-                    >
-                      {entry.term}
-                    </span>
-                  ) : (
-                    <span
-                      className="inline-block rounded-full"
-                      style={{
-                        width: 8,
-                        height: 8,
-                        background: entry.color ?? "var(--color-text-muted)",
-                        marginTop: 2,
-                      }}
-                    />
-                  )}
-                </div>
+              <div key={entry.term} className="px-3 py-1.5 flex items-start gap-2.5">
+                <div className="flex-shrink-0 pt-0.5">{entry.visual}</div>
                 <div>
-                  {!entry.badge && (
-                    <div
-                      className="text-xs font-medium"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
-                      {entry.term}
-                    </div>
-                  )}
+                  <div
+                    className="text-xs font-medium"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {entry.term}
+                  </div>
                   <div
                     className="text-xs leading-relaxed"
                     style={{ color: "var(--color-text-muted)" }}

@@ -11,6 +11,7 @@ import TypeBrowser from "./sidebar/TypeBrowser";
 import { useViewerStore } from "./store/viewer-store";
 import type { PersistedAnchor } from "./store/viewer-store";
 import { readFgaFile } from "./utils/read-fga-file";
+import { GraphLegend } from "./canvas/GraphLegend";
 
 const STORAGE_KEY_TAB = "openfga-sheet-tab";
 
@@ -286,6 +287,7 @@ const App = () => {
           style={{ background: "rgba(17, 17, 17, 0.8)", border: "1px solid var(--color-border-subtle)" }}
         >
           <ActionButtons />
+          <GraphLegend />
         </div>
       </div>
 
