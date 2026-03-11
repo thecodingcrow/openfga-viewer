@@ -52,15 +52,20 @@ function DimensionEdgeComponent(props: EdgeProps) {
   // Determine opacity: style opacity takes precedence, otherwise use hover-based dimming
   const transitionOpacity = edgeStyle?.opacity;
   const hoverOpacity = isHoverActive
-    ? highlightedEdgeIds.has(id) ? 1.0 : 0.08
+    ? highlightedEdgeIds.has(id) ? 1.0 : 0.15
     : BASE_OPACITY;
 
   const opacity = transitionOpacity != null ? transitionOpacity : hoverOpacity;
 
-  // Build path: prefer ELK route when available, else fallback to smooth step
+  // Build path: prefer ELK route when available, else fallback to smooth step.
+  // When using elkRoute, snap first/last points to React Flow's handle positions
+  // so edges connect to actual node boundaries regardless of dimension mismatches.
   let path: string;
   if (d?.elkRoute?.points && d.elkRoute.points.length >= 2) {
-    path = elkPointsToPath(d.elkRoute.points);
+    const pts = d.elkRoute.points.map((p) => ({ ...p }));
+    pts[0] = { x: sourceX, y: sourceY };
+    pts[pts.length - 1] = { x: targetX, y: targetY };
+    path = elkPointsToPath(pts);
   } else {
     [path] = getSmoothStepPath({
       sourceX,

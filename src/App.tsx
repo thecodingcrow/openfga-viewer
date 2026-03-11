@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import Canvas from "./canvas/Canvas";
-import SearchBar from "./search/SearchBar";
+// TODO: re-enable search bar
+// import SearchBar from "./search/SearchBar";
 import Sheet from "./sidebar/Sheet";
 import type { SheetTab } from "./sidebar/Sheet";
 import ModelInput from "./onboarding/ModelInput";
@@ -196,16 +197,7 @@ const App = () => {
         e.preventDefault();
         setActiveTab("editor");
       }
-      if (
-        e.key === "/" &&
-        !e.metaKey &&
-        !e.ctrlKey &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault();
-        document.querySelector<HTMLInputElement>(".search-bar-input")?.focus();
-      }
+      // TODO: re-enable "/" search shortcut
     },
     [],
   );
@@ -285,10 +277,16 @@ const App = () => {
           Alpha — This is an early preview. Expect rough edges.
         </div>
       )}
-      <SearchBar rightSlot={<ActionButtons />} />
       <div className="flex-1 min-h-0 flex">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 relative">
           <Canvas />
+          {/* Action buttons — floating top-right over canvas */}
+          <div
+            className="absolute top-2 left-2 z-10 flex items-center gap-0.5 rounded-lg px-1.5 py-1"
+            style={{ background: "rgba(17, 17, 17, 0.8)", border: "1px solid var(--color-border-subtle)" }}
+          >
+            <ActionButtons />
+          </div>
         </div>
         <Sheet activeTab={activeTab} onTabChange={setActiveTab}>
           {tabContent}

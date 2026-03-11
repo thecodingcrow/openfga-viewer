@@ -47,7 +47,7 @@ function ExploreNodeComponent({ data, id }: NodeProps) {
             ? "1px solid var(--color-accent)"
             : "1px solid var(--color-border)",
         minWidth: 100,
-        opacity: dimmed ? 0.15 : 1,
+        opacity: dimmed ? 0.25 : 1,
         transition: "border-color 150ms ease-out, opacity 150ms ease-out",
       }}
     >
@@ -74,33 +74,10 @@ function ExploreNodeComponent({ data, id }: NodeProps) {
         on {d.typeName}
       </div>
 
-      {/* Badges row */}
-      {(d.edgeType || d.typeRestriction) && (
-        <div className="flex items-center gap-1 mt-1">
-          {d.edgeType && (
-            <span
-              className="text-xs px-1 rounded"
-              style={{
-                color: "var(--color-text-muted)",
-                background: "var(--color-surface-overlay)",
-                fontSize: "0.6rem",
-              }}
-            >
-              {d.edgeType}
-            </span>
-          )}
-          {d.typeRestriction && (
-            <span
-              className="text-xs px-1 rounded"
-              style={{
-                color: "var(--color-accent)",
-                background: "var(--color-surface-overlay)",
-                fontSize: "0.6rem",
-              }}
-            >
-              {d.typeRestriction}
-            </span>
-          )}
+      {/* Type restriction on terminals */}
+      {d.isTerminal && d.typeRestriction && (
+        <div className="mt-0.5" style={{ color: "var(--color-text-muted)", fontSize: "0.6rem" }}>
+          {d.typeRestriction}
         </div>
       )}
 

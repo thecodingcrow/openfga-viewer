@@ -27,6 +27,9 @@ const TAB_ICONS: Record<SheetTab, ReactNode> = {
   ),
 };
 
+// TODO: re-enable checker tab
+const VISIBLE_TABS: SheetTab[] = ['editor', 'explore'];
+
 const STORAGE_KEYS = {
   width: 'openfga-sheet-width',
   open: 'openfga-sheet-open',
@@ -112,7 +115,7 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
           borderLeft: '1px solid var(--color-border)',
         }}
       >
-        {(Object.keys(TAB_LABELS) as SheetTab[]).map((tab) => (
+        {VISIBLE_TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => {
@@ -156,7 +159,7 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
         className="flex shrink-0"
         style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
       >
-        {(Object.keys(TAB_LABELS) as SheetTab[]).map((tab) => (
+        {VISIBLE_TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}

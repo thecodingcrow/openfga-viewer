@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
-  MiniMap,
   Controls,
   BackgroundVariant,
   PanOnScrollMode,
@@ -112,13 +111,7 @@ const FgaGraphInner = () => {
         proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} color="#222222" gap={24} size={1} />
-        <MiniMap
-          style={{ background: 'rgba(17, 17, 17, 0.95)', border: '1px solid var(--color-border)' }}
-          maskColor="rgba(17, 17, 17, 0.7)"
-          nodeColor={() => '#333333'}
-          pannable
-          zoomable
-        />
+        {/* MiniMap removed — sidebar is the primary navigation tool */}
         <Controls
           style={{ background: 'rgba(17, 17, 17, 0.95)', border: '1px solid var(--color-border)' }}
           showInteractive={false}

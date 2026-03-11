@@ -193,9 +193,9 @@ function reflowWideLayers(
 const COMPACT_NODE_W = 120;
 const COMPACT_NODE_H = 40;
 
-/** Larger fallback for ExploreNode (labels are wider) */
-const EXPLORE_NODE_W = 190;
-const EXPLORE_NODE_H = 64;
+/** Fallback for ExploreNode (2-3 lines: relation + type + optional typeRestriction) */
+const EXPLORE_NODE_W = 180;
+const EXPLORE_NODE_H = 60;
 
 /**
  * Layout for compact type nodes — no ports, fixed dimensions.
@@ -239,8 +239,8 @@ export async function getLayoutedElementsV2(
       'elk.algorithm': 'layered',
       'elk.direction': isTB ? 'DOWN' : 'RIGHT',
       'elk.edgeRouting': 'ORTHOGONAL',
-      'elk.spacing.nodeNode': '60',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '80',
+      'elk.spacing.nodeNode': '100',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '100',
       'elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
       'elk.layered.nodePlacement.favorStraightEdges': 'true',
       'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',

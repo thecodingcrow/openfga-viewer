@@ -15,7 +15,7 @@ function PathBreadcrumbComponent() {
         style={{
           background: "rgba(17, 17, 17, 0.95)",
           border: "1px solid var(--color-border)",
-          maxWidth: "80vw",
+          maxWidth: "95vw",
         }}
       >
         {hoveredPath.map((node, i) => (
