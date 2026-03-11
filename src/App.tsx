@@ -1,7 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from "react";
 import Canvas from "./canvas/Canvas";
-// TODO: re-enable search bar
-// import SearchBar from "./search/SearchBar";
 import Sheet from "./sidebar/Sheet";
 import type { SheetTab } from "./sidebar/Sheet";
 import ModelInput from "./onboarding/ModelInput";
@@ -14,11 +12,12 @@ import { useViewerStore } from "./store/viewer-store";
 import type { PersistedAnchor } from "./store/viewer-store";
 import { readFgaFile } from "./utils/read-fga-file";
 
-const SHOW_ALPHA_BANNER = import.meta.env.VITE_ALPHA_BANNER === "true";
-
 const STORAGE_KEY_TAB = "openfga-sheet-tab";
 
-// ─── Action buttons for SearchBar ────────────────────────────────────────────
+/** Shared panel border-radius for card-based layout */
+export const PANEL_RADIUS = 10;
+
+// ─── Action buttons ──────────────────────────────────────────────────────────
 
 const ActionButtons = () => {
   const setSource = useViewerStore((s) => s.setSource);
@@ -155,6 +154,8 @@ const ExploreEmptyState = () => (
 
 // ─── App ─────────────────────────────────────────────────────────────────────
 
+const FRAME_GAP = 6;
+
 const App = () => {
   const parse = useViewerStore((s) => s.parse);
   const setSource = useViewerStore((s) => s.setSource);
@@ -262,36 +263,36 @@ const App = () => {
   })();
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex flex-col">
-      {SHOW_ALPHA_BANNER && (
+    <div
+      className="w-screen h-screen overflow-hidden flex"
+      style={{
+        background: "var(--color-bg)",
+        padding: FRAME_GAP,
+        gap: FRAME_GAP,
+      }}
+    >
+      {/* Canvas card */}
+      <div
+        className="flex-1 min-w-0 relative overflow-hidden"
+        style={{
+          borderRadius: PANEL_RADIUS,
+          border: "1px solid var(--color-border-subtle)",
+        }}
+      >
+        <Canvas />
+        {/* Action buttons — floating top-left over canvas */}
         <div
-          className="shrink-0"
-          style={{
-            background: "var(--color-surface)",
-            color: "var(--color-accent)",
-            fontSize: "0.8rem",
-            padding: "4px 12px",
-            textAlign: "center",
-          }}
+          className="absolute top-2 left-2 z-10 flex items-center gap-0.5 rounded-lg px-1.5 py-1"
+          style={{ background: "rgba(17, 17, 17, 0.8)", border: "1px solid var(--color-border-subtle)" }}
         >
-          Alpha — This is an early preview. Expect rough edges.
+          <ActionButtons />
         </div>
-      )}
-      <div className="flex-1 min-h-0 flex">
-        <div className="flex-1 min-w-0 relative">
-          <Canvas />
-          {/* Action buttons — floating top-right over canvas */}
-          <div
-            className="absolute top-2 left-2 z-10 flex items-center gap-0.5 rounded-lg px-1.5 py-1"
-            style={{ background: "rgba(17, 17, 17, 0.8)", border: "1px solid var(--color-border-subtle)" }}
-          >
-            <ActionButtons />
-          </div>
-        </div>
-        <Sheet activeTab={activeTab} onTabChange={setActiveTab}>
-          {tabContent}
-        </Sheet>
       </div>
+
+      {/* Sidebar card */}
+      <Sheet activeTab={activeTab} onTabChange={setActiveTab}>
+        {tabContent}
+      </Sheet>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect, memo } from 'react';
 import type { ReactNode } from 'react';
+import { PANEL_RADIUS } from '../App';
 
 export type SheetTab = 'editor' | 'explore' | 'checker';
 
@@ -39,7 +40,7 @@ const STORAGE_KEYS = {
 const DEFAULT_WIDTH = 380;
 const MIN_WIDTH = 280;
 const MAX_WIDTH = 600;
-const COLLAPSED_WIDTH = 40;
+const COLLAPSED_WIDTH = 44;
 
 interface SheetProps {
   activeTab: SheetTab;
@@ -104,7 +105,7 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
     setIsOpen((prev) => !prev);
   }, []);
 
-  // Collapsed strip
+  // Collapsed strip — rounded pill
   if (!isOpen) {
     return (
       <div
@@ -112,7 +113,8 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
         style={{
           width: COLLAPSED_WIDTH,
           background: 'var(--color-surface)',
-          borderLeft: '1px solid var(--color-border)',
+          borderRadius: PANEL_RADIUS,
+          border: '1px solid var(--color-border-subtle)',
         }}
       >
         {VISIBLE_TABS.map((tab) => (
@@ -139,11 +141,12 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
   return (
     <div
       ref={sheetRef}
-      className="flex flex-col h-full shrink-0 relative"
+      className="flex flex-col h-full shrink-0 relative overflow-hidden"
       style={{
         width,
         background: 'var(--color-surface)',
-        borderLeft: '1px solid var(--color-border)',
+        borderRadius: PANEL_RADIUS,
+        border: '1px solid var(--color-border-subtle)',
       }}
     >
       {/* Resize handle */}
@@ -154,7 +157,7 @@ const Sheet = memo(function Sheet({ activeTab, onTabChange, children }: SheetPro
         onDoubleClick={handleDoubleClick}
       />
 
-      {/* Tab bar */}
+      {/* Tab bar — internal header */}
       <div
         className="flex shrink-0"
         style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
